@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ratenova – Übersicht (Static)</title>
+  <style>
+    :root { --bg:#0b0d12; --card:#121521; --text:#e6e7ea; --muted:#8b8fa3; --em:#22C55E; --co:#F97066; --am:#FBBF24; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: Inter, Segoe UI, system-ui, -apple-system, Arial, sans-serif; background: var(--bg); color: var(--text); }
+    .wrap { max-width: 1080px; margin: 32px auto; padding: 0 20px; }
+    .header { display:flex; justify-content:space-between; align-items:center; gap:16px; margin-bottom:20px; }
+    .h1 { font-size: 28px; font-weight: 800; margin:0; }
+    .muted { color: var(--muted); font-size: 13px; }
+    .card { background: var(--card); border: 1px solid rgba(255,255,255,0.06); border-radius: 18px; padding: 18px; }
+    .grid4 { display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; }
+    .grid2 { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }
+    .label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+    .value { font-size: 20px; font-weight: 800; }
+    .bar { height: 8px; border-radius: 999px; background: rgba(255,255,255,0.06); overflow: hidden; margin-top:8px; }
+    .bar > span { display:block; height:100%; border-radius:999px; }
+    .btn { background: linear-gradient(90deg, #1fa968, #22C55E); color:#fff; border:none; border-radius: 12px; padding: 10px 14px; font-weight: 700; cursor: pointer; }
+    .link { color:#5fbaff; text-decoration:none; font-weight:700; }
+    table { width:100%; border-collapse: collapse; background: var(--card); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; overflow:hidden; }
+    th, td { padding: 12px 14px; border-bottom: 1px solid rgba(255,255,255,0.06); text-align: left; font-size: 14px; }
+    thead th { background: rgba(255,255,255,0.04); font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+    tfoot td { background: rgba(255,255,255,0.03); font-weight: 700; }
+    .chip { display:inline-block; padding: 4px 8px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+    .chip.em { color:#22C55E; background: rgba(34,197,94,0.15); }
+    .chip.co { color:#F97066; background: rgba(249,112,102,0.15); }
+    .chip.am { color:#FBBF24; background: rgba(251,191,36,0.15); }
+    .mt { margin-top: 18px; }
+    @media (max-width: 840px) {
+      .grid4 { grid-template-columns: 1fr 1fr; }
+      .grid2 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="header">
+      <div>
+        <div class="muted">Ratenova · Demo</div>
+        <h1 class="h1">Übersicht (Static HTML)</h1>
+      </div>
+      <div style="display:flex; gap:8px; align-items:center">
+        <a class="link" href="/dashboard">Zum React‑Dashboard →</a>
+        <button class="btn" onclick="window.print()">🖨️ Drucken</button>
+      </div>
+    </div>
+
+    <div class="card mt">
+      <div class="grid4">
+        <div>
+          <div class="label">Einnahmen/Monat</div>
+          <div class="value">3.200 €</div>
+          <div class="bar"><span style="width:75%; background:#22C55E"></span></div>
+        </div>
+        <div>
+          <div class="label">Ausgaben/Monat</div>
+          <div class="value">1.100 €</div>
+          <div class="bar"><span style="width:45%; background:#F97066"></span></div>
+        </div>
+        <div>
+          <div class="label">Raten/Monat</div>
+          <div class="value">600 €</div>
+          <div class="bar"><span style="width:30%; background:#FBBF24"></span></div>
+        </div>
+        <div>
+          <div class="label">Ergebnis</div>
+          <div class="value">Überschuss 1.500 €</div>
+          <div class="bar"><span style="width:35%; background:#22C55E"></span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid2 mt">
+      <div class="card">
+        <div class="label">Verbindlichkeiten (Beispiel)</div>
+        <table class="mt">
+          <thead>
+            <tr>
+              <th>Bezeichnung</th>
+              <th style="text-align:right">Gesamt</th>
+              <th style="text-align:right">Bezahlt</th>
+              <th style="text-align:right">Rest</th>
+              <th style="text-align:center">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Stadtwerke</td>
+              <td style="text-align:right">800 €</td>
+              <td style="text-align:right">200 €</td>
+              <td style="text-align:right">600 €</td>
+              <td style="text-align:center"><span class="chip am">Bald fällig</span></td>
+            </tr>
+            <tr>
+              <td>Bank Kredit</td>
+              <td style="text-align:right">10.000 €</td>
+              <td style="text-align:right">3.500 €</td>
+              <td style="text-align:right">6.500 €</td>
+              <td style="text-align:center"><span class="chip em">Aktuell</span></td>
+            </tr>
+            <tr>
+              <td>Arzt Rechnung</td>
+              <td style="text-align:right">450 €</td>
+              <td style="text-align:right">0 €</td>
+              <td style="text-align:right">450 €</td>
+              <td style="text-align:center"><span class="chip co">Überfällig</span></td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td>Summe</td>
+              <td style="text-align:right">11.250 €</td>
+              <td style="text-align:right">3.700 €</td>
+              <td style="text-align:right">7.550 €</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <div class="card">
+        <div class="label">Einnahmen nach Kategorien (Beispiel)</div>
+        <table class="mt">
+          <thead>
+            <tr><th>Kategorie</th><th style="text-align:right">Summe</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Gehalt</td><td style="text-align:right">2.600 €</td></tr>
+            <tr><td>Nebenjob</td><td style="text-align:right">400 €</td></tr>
+            <tr><td>Vermietung</td><td style="text-align:right">200 €</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="muted mt">Dies ist eine statische Demo ohne Live‑Daten.</div>
+  </div>
+</body>
+</html>
