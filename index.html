@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
 <html lang="de">
 <head>
 <meta charset="UTF-8">
@@ -159,6 +159,7 @@ const SUPABASE_ANON_KEY="sb_publishable_ZZpjQ4Lqcqd2uVpGrSthcQ_nnCYSGPv";
 let supabaseClient=null;
 let currentUserId=null;
 let stateSaveTimer=null;
+function supaPublicAsset(name){return `${SUPABASE_URL}/storage/v1/object/public/public-assets/${encodeURIComponent(name)}`}
 function splitNameParts(n){const p=(n||"").trim().split(/\s+/).filter(Boolean);return{firstName:p[0]||"",lastName:p.slice(1).join(" ")}}
 function loadUser(){try{const raw=localStorage.getItem("sfUser");if(raw){const u=JSON.parse(raw);if(u&&typeof u==="object"){const parts=splitNameParts(u.name||"");user.loggedIn=!!u.loggedIn;user.name=u.name||"";user.firstName=u.firstName||parts.firstName;user.lastName=u.lastName||parts.lastName;user.plan=u.plan||"Basis";user.email=u.email||"";user.addressStreet=u.addressStreet||"";user.addressZip=u.addressZip||"";user.addressCity=u.addressCity||"";user.phone=u.phone||""}}}catch(e){}}
 function saveUser(){try{localStorage.setItem("sfUser",JSON.stringify(user))}catch(e){}}
@@ -251,6 +252,7 @@ async function ensureAppAuth(){
   await loadCloudProfile(currentUserId,session.user);
   await migrateLegacyLocalData(session.user);
   await loadCloudState();
+  purgeCurrentUserSeedBudget();
   return true;
 }
 function authShowNotice(msg,type){const n=document.getElementById("authNotice");if(!n)return;n.className=`auth-notice ${type==="ok"?"auth-ok":"auth-err"}`;n.textContent=msg}
@@ -258,7 +260,7 @@ function authHideNotice(){const n=document.getElementById("authNotice");if(!n)re
 function authSwitch(tab){const tabs={login:document.getElementById("tabLogin"),register:document.getElementById("tabRegister")},forms={login:document.getElementById("formLogin"),register:document.getElementById("formRegister")};Object.entries(tabs).forEach(([k,b])=>b&&b.classList.toggle("active",k===tab));Object.entries(forms).forEach(([k,f])=>f&&f.classList.toggle("auth-hidden",k!==tab));authHideNotice()}
 function showAuthPage(tab="login"){const a=document.getElementById("authRoot"),l=document.querySelector(".layout"),m=document.getElementById("mobileNav");if(a)a.style.display="flex";if(l)l.style.display="none";if(m)m.style.display="none";authSwitch(tab)}
 function hideAuthPage(){const a=document.getElementById("authRoot"),l=document.querySelector(".layout"),m=document.getElementById("mobileNav");if(a)a.style.display="none";if(l)l.style.display="flex";if(m)m.style.display=""}
-async function completeLoginFromSession(sessionUser){currentUserId=sessionUser.id;await loadCloudProfile(currentUserId,sessionUser);await migrateLegacyLocalData(sessionUser);await upsertCloudProfile();await loadCloudState();saveUser();hideAuthPage();renderNav();renderUser();renderPage()}
+async function completeLoginFromSession(sessionUser){currentUserId=sessionUser.id;await loadCloudProfile(currentUserId,sessionUser);await migrateLegacyLocalData(sessionUser);await upsertCloudProfile();await loadCloudState();purgeCurrentUserSeedBudget();saveUser();hideAuthPage();renderNav();renderUser();renderPage()}
 function initAuthUI(){
   const tL=document.getElementById("tabLogin"),tR=document.getElementById("tabRegister");
   if(!tL||!tR)return;
@@ -269,7 +271,7 @@ function initAuthUI(){
   tL.onclick=()=>authSwitch("login");tR.onclick=()=>authSwitch("register");
   document.querySelectorAll("[data-switch]").forEach(btn=>btn.addEventListener("click",()=>authSwitch(btn.dataset.switch)));
   document.getElementById("formLogin").addEventListener("submit",async(e)=>{e.preventDefault();if(!supabaseClient){authShowNotice("Supabase nicht konfiguriert.","err");return;}const email=document.getElementById("loginEmail").value.trim().toLowerCase(),password=document.getElementById("loginPassword").value;const {data,error}=await supabaseClient.auth.signInWithPassword({email,password});if(error||!data.user){authShowNotice("Login fehlgeschlagen. E-Mail oder Passwort falsch.","err");return;}await completeLoginFromSession(data.user)});
-  document.getElementById("formRegister").addEventListener("submit",async(e)=>{e.preventDefault();if(!supabaseClient){authShowNotice("Supabase nicht konfiguriert.","err");return;}const name=document.getElementById("regName").value.trim(),parts=splitNameParts(name),email=document.getElementById("regEmail").value.trim().toLowerCase(),password=document.getElementById("regPassword").value,plan=(document.getElementById("regPlan")?.value||"Basis").trim();const {data,error}=await supabaseClient.auth.signUp({email,password,options:{data:{first_name:parts.firstName,last_name:parts.lastName,full_name:name,plan}}});if(error){authShowNotice(error.message||"Registrierung fehlgeschlagen.","err");return;}if(!data.session){authShowNotice("Registrierung erfolgt. Bitte E-Mail bestätigen.","ok");return;}await completeLoginFromSession(data.user)});
+  document.getElementById("formRegister").addEventListener("submit",async(e)=>{e.preventDefault();if(!supabaseClient){authShowNotice("Supabase nicht konfiguriert.","err");return;}const name=document.getElementById("regName").value.trim(),parts=splitNameParts(name),email=document.getElementById("regEmail").value.trim().toLowerCase(),password=document.getElementById("regPassword").value,plan=(document.getElementById("regPlan")?.value||"Basis").trim();const {data,error}=await supabaseClient.auth.signUp({email,password,options:{data:{first_name:parts.firstName,last_name:parts.lastName,full_name:name,plan},emailRedirectTo:window.location.origin}});if(error){authShowNotice(error.message||"Registrierung fehlgeschlagen.","err");return;}if(!data.session){authShowNotice("Registrierung erfolgt. Bitte E-Mail bestätigen.","ok");return;}await completeLoginFromSession(data.user)});
   const fLink=document.getElementById("forgotLink");
   if(fLink){
     fLink.onclick=async()=>{
@@ -302,6 +304,37 @@ function initAuthUI(){
     // close on outside click
     document.addEventListener('click',ev=>{if(!cs.contains(ev.target))openClose(false)});
   });
+}
+function buildVerificationEmailHTML(confirmationURL){
+  const logo=supaPublicAsset("Ratenova Logo_ mit Text.png");
+  return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Ratenova – E-Mail bestätigen</title></head><body style="margin:0;background:#0F1117;color:#111;font-family:Segoe UI,Arial,sans-serif">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#0F1117;padding:32px 0">
+    <tr><td align="center">
+      <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="max-width:600px;background:#111318;border-radius:16px;border:1px solid #1f2330;box-shadow:0 12px 32px rgba(0,0,0,0.35)">
+        <tr><td style="padding:24px 24px 0" align="center"><img src="${logo}" alt="Ratenova" style="max-width:200px;height:auto;border:none"></td></tr>
+        <tr><td style="padding:8px 24px 0" align="center"><h1 style="margin:0;font-size:22px;color:#e7f5ef">Bitte bestätige deine E‑Mail-Adresse</h1></td></tr>
+        <tr><td style="padding:12px 28px" align="center"><p style="margin:0;font-size:14px;color:#9aa3b2;line-height:1.6">Willkommen bei Ratenova! Klicke auf den Button, um dein Konto zu aktivieren und loszulegen.</p></td></tr>
+        <tr><td style="padding:8px 28px 24px" align="center">
+          <a href="${confirmationURL}" style="display:inline-block;background:#34D399;color:#062b1e;text-decoration:none;font-weight:700;padding:12px 20px;border-radius:10px">E‑Mail bestätigen</a>
+        </td></tr>
+        <tr><td style="padding:0 28px 24px" align="center"><p style="margin:0;font-size:12px;color:#667085">Falls der Button nicht funktioniert, kopiere diesen Link in deinen Browser:</p><p style="margin:8px 0 0;font-size:12px;color:#8ea5b4;word-break:break-all">${confirmationURL}</p></td></tr>
+        <tr><td style="padding:16px 24px 24px" align="center"><p style="margin:0;font-size:12px;color:#667085">© ${new Date().getFullYear()} Ratenova – Sicher und vertraulich</p></td></tr>
+      </table>
+    </td></tr>
+  </table>
+  </body></html>`;
+}
+function openVerificationEmailPreview(){
+  const html=buildVerificationEmailHTML(window.location.origin+"/?confirm=example");
+  document.getElementById("modalContainer").innerHTML=`<div class="overlay" onclick="closeModal()"><div class="modal wide" onclick="event.stopPropagation()" style="max-width:760px">
+    <div class="modal-head"><h3>Verifizierungs‑Mail Vorlage</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div style="margin-bottom:12px"><button class="btn btn-outline btn-sm" onclick="copyVerificationEmailHTML()">HTML kopieren</button></div>
+    <iframe srcdoc='${html.replace(/'/g,"&#39;")}' style="width:100%;height:520px;border:1px solid var(--b);border-radius:12px;background:#0F1117"></iframe>
+  </div></div>`;
+}
+function copyVerificationEmailHTML(){
+  const html=buildVerificationEmailHTML("{{ .ConfirmationURL }}");
+  navigator.clipboard.writeText(html).then(()=>flash("HTML kopiert ✓")).catch(()=>flash("Kopieren fehlgeschlagen"));
 }
 function renderUser(){const el=document.getElementById("sidebarBottom");if(!el)return;el.innerHTML=user.loggedIn?`<div class="card" style="padding:12px">
   <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
@@ -585,6 +618,7 @@ function rSettings(){
     </div>
     <div class="field"><label>Telefon</label><div class="input-wrap"><input id="setPhone" value="${(user.phone||"").replace(/"/g,'&quot;')}" placeholder="+49 ..."></div></div>
     <button class="btn btn-primary" onclick="saveSettings()">✓ Einstellungen speichern</button>
+  </div>
   </div>`;
 }
 
@@ -1069,7 +1103,28 @@ function rCancelPreview(){
 function printContractLetter(){const txt=(document.getElementById("caPreviewText")?.value||document.getElementById("caText")?.value||"");const w=window.open("","_blank");w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Kündigung</title><style>body{font-family:Arial,sans-serif;white-space:pre-wrap;max-width:780px;margin:36px auto;padding:0 18px;line-height:1.5}</style></head><body>${txt.replace(/</g,"&lt;")}</body></html>`);w.document.close();setTimeout(()=>w.print(),250)}
 function deleteContract(id){if(!confirm("Vertrag wirklich löschen?"))return;contracts=contracts.filter(c=>c.id!==id);scheduleCloudSave();renderPage();flash("Vertrag gelöscht")}
 function attachContractDocs(id,e){const c=contracts.find(x=>x.id===id);if(!c)return;const files=[...(e?.target?.files||[])];if(!files.length)return;c.documents=[...(c.documents||[]),...files.map(f=>({name:f.name,size:f.size,uploadedAt:new Date().toISOString()}))];scheduleCloudSave();renderPage();flash("Dokument(e) hinzugefügt")}
-function loadBudget(){try{const raw=localStorage.getItem("budgetItems");if(raw){const arr=JSON.parse(raw);if(Array.isArray(arr))budgetItems=arr}else{budgetItems=[{id:101,type:"income",date:new Date().toISOString().slice(0,10),amount:1800,category:"Gehalt",note:"Teilzeit"},{id:102,type:"expense",date:new Date().toISOString().slice(0,10),amount:650,category:"Miete",note:"Warmmiete"},{id:103,type:"expense",date:new Date().toISOString().slice(0,10),amount:120,category:"Strom/Gas",note:"Abschlag"},{id:104,type:"expense",date:new Date().toISOString().slice(0,10),amount:240,category:"Lebensmittel",note:"Wöchentlich"}];saveBudget()}}catch(e){}}
+function loadBudget(){try{const raw=localStorage.getItem("budgetItems");if(raw){const arr=JSON.parse(raw);if(Array.isArray(arr))budgetItems=arr}else{budgetItems=[];saveBudget()}}catch(e){}}
+function isSeedBudgetItem(i){
+  const ids=[101,102,103,104];
+  if(ids.includes(i?.id))return true;
+  const S=[
+    {type:"income",category:"Gehalt",note:"Teilzeit",amount:1800},
+    {type:"expense",category:"Miete",note:"Warmmiete",amount:650},
+    {type:"expense",category:"Strom/Gas",note:"Abschlag",amount:120},
+    {type:"expense",category:"Lebensmittel",note:"Wöchentlich",amount:240}
+  ];
+  return S.some(s=>String(i?.type)===s.type&&String(i?.category||"")===s.category&&String(i?.note||"")===s.note&&Number(i?.amount)===s.amount);
+}
+function purgeCurrentUserSeedBudget(){
+  const before=Array.isArray(budgetItems)?budgetItems.length:0;
+  budgetItems=(Array.isArray(budgetItems)?budgetItems:[]).filter(i=>!isSeedBudgetItem(i));
+  if(budgetItems.length!==before){
+    saveBudget();
+    scheduleCloudSave();
+    try{localStorage.setItem("budgetItems",JSON.stringify(budgetItems))}catch(e){}
+    flash("Beispiel‑Ein/Ausgaben entfernt ✓");
+  }
+}
 function saveBudget(){scheduleCloudSave();try{localStorage.setItem("budgetItems",JSON.stringify(budgetItems))}catch(e){}}
 function rBudget(){
   const manualItems=budgetItems.filter(i=>i.date&&i.date.startsWith(currentBudgetMonth)).sort((a,b)=>new Date(a.date)-new Date(b.date));
