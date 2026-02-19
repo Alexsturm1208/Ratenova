@@ -1,0 +1,1640 @@
+﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Ratenova</title>
+<link rel="icon" type="image/png" href="https://kdbuduwztmxxykfvqbie.supabase.co/storage/v1/object/public/public-assets/Ratenova%20Icon.png" sizes="32x32">
+<style>
+:root{--bg:#0F1117;--bgS:#161820;--bgC:#1C1E27;--bgH:#22242E;--bgE:#252836;--em:#34D399;--emD:#059669;--emG:rgba(52,211,153,0.15);--emG2:rgba(52,211,153,0.08);--co:#F97066;--coG:rgba(249,112,102,0.12);--am:#FBBF24;--amG:rgba(251,191,36,0.12);--sk:#38BDF8;--t:#F1F2F6;--ts:#A0A3B1;--tm:#6B6F80;--tf:#454857;--b:rgba(255,255,255,0.06);--bl:rgba(255,255,255,0.1);--ba:rgba(52,211,153,0.3)}
+*{box-sizing:border-box;margin:0;padding:0}body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;overflow-x:hidden;min-height:100vh}
+::selection{background:var(--emG);color:var(--em)}::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--b);border-radius:4px}
+button{font-family:inherit;cursor:pointer}input{font-family:inherit}input::placeholder{color:var(--tf)}input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(0.7)}
+.layout{display:flex;min-height:100vh}.sidebar{width:220px;position:fixed;top:0;left:0;bottom:0;background:var(--bgS);border-right:1px solid var(--b);display:flex;flex-direction:column;padding:24px 0;z-index:100}
+.sidebar-logo{padding:0 20px 28px;display:flex;align-items:center;gap:10px}.sidebar-logo img{max-width:170px;height:auto;display:block}
+.sidebar-nav{flex:none}.nav-btn{display:flex;align-items:center;gap:10px;width:100%;padding:11px 20px;border:none;background:transparent;color:var(--tm);font-size:14px;font-weight:400;border-right:2px solid transparent;transition:all 0.15s}
+.nav-btn:hover{color:var(--ts);background:rgba(255,255,255,0.02)}.nav-btn.active{background:var(--emG2);color:var(--em);font-weight:600;border-right-color:var(--em)}.nav-btn .icon{font-size:17px;width:24px;text-align:center}
+.sidebar-settings{padding:0 16px 12px;margin-top:auto}.sidebar-tools{padding:0 16px 12px;display:flex;flex-direction:column;gap:8px;margin-top:26px}.sidebar-bottom{padding:0 16px}.main{flex:1;margin-left:220px;padding:32px 36px;max-width:960px}
+.card{background:var(--bgC);border-radius:16px;padding:20px;border:1px solid var(--b);transition:all 0.25s cubic-bezier(0.16,1,0.3,1)}.card.clickable:hover{border-color:var(--bl);background:var(--bgH);transform:translateY(-2px)}.card.glow{box-shadow:0 0 0 1px var(--ba),0 0 40px rgba(52,211,153,0.12)}
+.btn{padding:11px 22px;font-size:14px;font-weight:600;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:all 0.2s ease;border:none}.btn:hover{filter:brightness(1.12);transform:translateY(-1px)}
+.btn-primary{background:linear-gradient(135deg,var(--emD),var(--em));color:#fff;box-shadow:0 4px 20px rgba(52,211,153,0.25)}.btn-ghost{background:var(--emG);color:var(--em);border:1px solid var(--ba)}.btn-outline{background:transparent;color:var(--ts);border:1px solid var(--bl)}.btn-danger{background:var(--coG);color:var(--co);border:1px solid rgba(249,112,102,0.2)}
+.btn-sm{padding:8px 16px;font-size:13px}.btn-lg{padding:16px 28px;font-size:15px}.btn-full{width:100%}
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;letter-spacing:0.3px;line-height:1}.badge-dot{width:5px;height:5px;border-radius:50%}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:12px;font-weight:600;color:var(--ts);margin-bottom:6px;letter-spacing:0.5px}
+.field .input-wrap{display:flex;align-items:center;background:var(--bgE);border:1px solid var(--b);border-radius:10px;padding:0 14px;transition:border-color 0.2s,box-shadow 0.2s;position:relative}
+.field .input-wrap:focus-within{border-color:var(--ba);box-shadow:0 0 0 3px var(--emG)}
+.field .input-wrap:after{content:'▾';position:absolute;right:12px;color:var(--tm);pointer-events:none;font-size:12px}
+.field .input-wrap select{appearance:none;-webkit-appearance:none;-moz-appearance:none;border:none;background:transparent;color:var(--t);padding:13px 28px 13px 0;font-size:15px;width:100%}
+.field input{flex:1;border:none;outline:none;padding:13px 0;font-size:15px;color:var(--t);background:transparent}
+.field .suffix{font-size:14px;color:var(--tm);margin-left:8px;font-weight:600}
+.custom-select{cursor:pointer}
+.custom-select .cs-value{flex:1;padding:13px 0;color:var(--t);font-size:15px}
+.custom-select .cs-list{position:absolute;left:12px;right:12px;top:calc(100% + 8px);background:linear-gradient(180deg,var(--bgC),var(--bgS));border:1px solid var(--b);border-radius:10px;padding:8px;box-shadow:0 12px 36px rgba(0,0,0,0.6);display:none;z-index:50}
+.custom-select[aria-expanded="true"] .cs-list{display:block}
+.custom-select .cs-item{display:block;width:100%;text-align:left;padding:10px 12px;border-radius:8px;background:transparent;border:none;color:var(--t);cursor:pointer}
+.custom-select .cs-item:hover{background:rgba(255,255,255,0.02)}
+.custom-select .cs-item.active{background:var(--emG);color:var(--em)}
+.pbar{height:4px;background:var(--b);border-radius:2px;overflow:hidden}.pbar-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--emD),var(--em));transition:width 0.8s cubic-bezier(0.16,1,0.3,1)}
+.overlay{position:fixed;inset:0;z-index:2000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);padding:20px;animation:fadeIn 0.2s ease}.modal{background:var(--bgC);border-radius:24px;padding:28px;width:100%;max-width:460px;max-height:88vh;overflow:auto;border:1px solid var(--bl);box-shadow:0 24px 64px rgba(0,0,0,0.4);animation:slideUp 0.3s cubic-bezier(0.16,1,0.3,1)}.modal.wide{max-width:560px}.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}.modal-head h3{font-size:18px;font-weight:700}.modal-close{width:32px;height:32px;border-radius:10px;border:1px solid var(--b);background:var(--bgE);color:var(--tm);font-size:16px;display:flex;align-items:center;justify-content:center}
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:3000;background:var(--bgE);color:var(--em);border:1px solid var(--ba);padding:12px 24px;border-radius:14px;font-size:14px;font-weight:600;box-shadow:0 24px 64px rgba(0,0,0,0.4);display:flex;align-items:center;gap:8px;animation:slideUp 0.3s ease}.toast-dot{width:8px;height:8px;border-radius:50%;background:var(--em);box-shadow:0 0 8px var(--em)}
+.confetti-piece{position:absolute;top:-16px;border-radius:2px}
+.hero{background:linear-gradient(135deg,var(--bgC) 0%,rgba(52,211,153,0.06) 100%);border-radius:24px;padding:28px;border:1px solid var(--ba);margin-bottom:20px;position:relative;overflow:hidden}.hero-orb1{position:absolute;top:-80px;right:-80px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,var(--emG) 0%,transparent 70%)}.hero-orb2{position:absolute;bottom:-60px;left:30%;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(56,189,248,0.06) 0%,transparent 70%)}
+.preset-btn{padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600;border:1px solid var(--b);background:var(--bgE);color:var(--tm);transition:all 0.15s}.preset-btn.active{background:var(--emG);color:var(--em);border-color:var(--ba)}
+.emoji-btn{width:38px;height:38px;border-radius:10px;font-size:17px;border:2px solid var(--b);background:var(--bgE);display:flex;align-items:center;justify-content:center;transition:all 0.15s}.emoji-btn.active{border-color:var(--em);background:var(--emG)}
+.chip{padding:8px 14px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid var(--b);background:var(--bgC);color:var(--tm);transition:all 0.2s}.chip.active{background:var(--emG);color:var(--em);border-color:var(--ba)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}.flex-col{display:flex;flex-direction:column;gap:8px}
+.mobile-nav{position:fixed;bottom:0;left:0;right:0;z-index:900;background:var(--bgS);border-top:1px solid var(--b);display:none;justify-content:space-around;align-items:center;padding:6px 0 8px}.mobile-nav-btn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 16px;border:none;background:transparent;color:var(--tm);font-size:10px}.mobile-nav-btn.active{color:var(--em);font-weight:600}.mobile-fab{width:44px;height:44px;border-radius:14px;border:none;background:linear-gradient(135deg,var(--emD),var(--em));color:#fff;font-size:22px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(52,211,153,0.3)}
+.auth-root{position:fixed;inset:0;z-index:5000;background:radial-gradient(1200px 600px at 80% -10%,rgba(52,211,153,0.12),transparent 60%),radial-gradient(900px 500px at -10% 110%,rgba(56,189,248,0.1),transparent 60%),var(--bg);display:none;align-items:center;justify-content:center;padding:24px}
+.auth-wrap{width:100%;max-width:860px;margin:0 auto;padding:12px;display:block}
+.auth-card{background:linear-gradient(160deg,var(--bgS),var(--bgC));border:1px solid var(--b);border-radius:20px;padding:36px;box-shadow:0 24px 60px rgba(0,0,0,0.6);max-width:420px;margin:0 auto}
+.auth-tabs{display:flex;gap:8px;background:transparent;border:none;padding:0;margin-bottom:18px}
+.auth-tabs button{border:none;background:transparent;color:var(--tm);padding:10px 14px;border-radius:999px;font-weight:700;cursor:pointer;border:1px solid transparent}
+.auth-tabs button.active{background:linear-gradient(135deg,var(--emD),var(--em));color:#05271c;box-shadow:0 6px 18px rgba(52,211,153,0.12)}
+.auth-row{display:flex;justify-content:space-between;align-items:center;margin:10px 0 14px}.auth-link{background:none;border:none;color:var(--em);font-size:13px;font-weight:700;cursor:pointer}.auth-muted{color:var(--tm);font-size:13px}.auth-notice{margin-top:12px;padding:10px 12px;border-radius:10px;font-size:13px}.auth-ok{background:rgba(52,211,153,0.12);border:1px solid var(--ba);color:#8CF2C8}.auth-err{background:rgba(249,112,102,0.12);border:1px solid rgba(249,112,102,0.35);color:#FFB3AB}.auth-hidden{display:none}
+.auth-logo{display:flex;justify-content:center;align-items:center;margin:0 0 18px}
+.auth-logo img{max-width:640px;height:auto;opacity:0.98}
+.master-root{display:none;min-height:100vh;background:radial-gradient(1200px 600px at 90% -20%,rgba(52,211,153,0.14),transparent 60%),radial-gradient(1000px 500px at -20% 120%,rgba(56,189,248,0.1),transparent 60%),var(--bg);padding:24px}.master-shell{max-width:1280px;margin:0 auto}.master-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}.master-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}.master-grid{display:grid;grid-template-columns:1.15fr 1fr;gap:12px}.master-card{background:linear-gradient(155deg,var(--bgC),var(--bgS));border:1px solid var(--b);border-radius:16px;padding:16px}.master-list{display:flex;flex-direction:column;gap:10px;max-height:55vh;overflow:auto}.master-login{max-width:440px;margin:10vh auto 0}
+@media(max-width:899px){.sidebar{display:none}.main{margin-left:0;padding:20px 16px 80px}.mobile-nav{display:flex}.grid2{grid-template-columns:1fr}.hero{padding:20px}}
+@media(max-width:920px){.auth-wrap{max-width:360px}}
+@media(max-width:920px){.auth-logo img{max-width:320px}}
+@media(max-width:980px){.master-grid{grid-template-columns:1fr}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}@keyframes slideUp{from{opacity:0;transform:translateY(16px) scale(0.98)}to{opacity:1;transform:none}}@keyframes confettiFall{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(800deg);opacity:0}}@keyframes glow{0%,100%{box-shadow:0 0 20px rgba(52,211,153,0.15)}50%{box-shadow:0 0 40px rgba(52,211,153,0.15)}}
+</style>
+</head>
+<body>
+<div id="authRoot" class="auth-root">
+  <div class="auth-wrap">
+    <div class="auth-logo"><img id="authLogo" alt="Ratenova"></div>
+    <section class="auth-card">
+      <h2 style="margin:0 0 12px;font-size:22px">Willkommen zurück</h2>
+      <div class="auth-tabs">
+        <button id="tabLogin" class="active" type="button">Login</button>
+        <button id="tabRegister" type="button">Registrieren</button>
+      </div>
+      <form id="formLogin">
+        <div class="field"><label>E-Mail</label><div class="input-wrap"><input id="loginEmail" type="email" required placeholder="name@firma.de"></div></div>
+        <div class="field"><label>Passwort</label><div class="input-wrap"><input id="loginPassword" type="password" required placeholder="••••••••"></div></div>
+        <div class="auth-row"><span class="auth-muted">Bestandskunde</span><button id="forgotLink" class="auth-link" type="button">Passwort vergessen?</button></div>
+        <button class="btn btn-primary" type="submit">Einloggen</button>
+      </form>
+      <form id="formRegister" class="auth-hidden">
+        <div class="field"><label>Vollständiger Name</label><div class="input-wrap"><input id="regName" type="text" required placeholder="Max Mustermann"></div></div>
+        <div class="field"><label>E-Mail</label><div class="input-wrap"><input id="regEmail" type="email" required placeholder="name@firma.de"></div></div>
+        <div class="field"><label>Passwort</label><div class="input-wrap"><input id="regPassword" type="password" required minlength="6" placeholder="mind. 6 Zeichen"></div></div>
+        <div class="field"><label>Paket</label>
+          <div class="input-wrap custom-select" role="listbox" tabindex="0" aria-expanded="false">
+            <div class="cs-value" data-value="Basis">Basis</div>
+            <div class="cs-list" aria-hidden="true">
+              <button type="button" class="cs-item" data-value="Basis">Basis</button>
+              <button type="button" class="cs-item" data-value="Pro">Pro</button>
+            </div>
+            <input type="hidden" id="regPlan" name="regPlan" value="Basis">
+          </div>
+        </div>
+        <button class="btn btn-primary" type="submit">Konto erstellen</button>
+      </form>
+      
+      <div id="authNotice" class="auth-hidden"></div>
+    </section>
+  </div>
+</div>
+<div id="masterRoot" class="master-root"></div>
+<div class="layout">
+  <div class="sidebar"><div class="sidebar-logo"><img id="sidebarLogo" alt="Ratenova"></div><div class="sidebar-nav" id="sidebarNav"></div><div class="sidebar-tools" id="sidebarTools"></div><div class="sidebar-settings" id="sidebarSettings"></div><div class="sidebar-bottom" id="sidebarBottom"></div></div>
+  <div class="main" id="mainContent"></div>
+</div>
+<div class="mobile-nav" id="mobileNav"></div>
+<div id="modalContainer"></div>
+<div id="toastContainer"></div>
+<div id="confettiContainer" style="position:fixed;inset:0;z-index:3000;pointer-events:none;overflow:hidden;display:none"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+let debts=[
+  {id:1,name:"Stadtwerke",emoji:"⚡",original:2400,paid:1600,rate:85,due:"2026-02-17",notes:"Ratenzahlung nach Nachzahlung 2024",creditorName:"Stadtwerke München GmbH",creditorAddress:"Renatastr. 14, 80639 München",creditorPhone:"089 2361-0",creditorEmail:"service@swm.de",bankName:"Stadtwerke München",bankIban:"DE89 7015 0000 0000 1234 56",bankBic:"SSKMDEMMXXX",bankRef:"Kd-Nr. 4471829 / Nachzahlung 2024",history:[{date:"2026-01-15",amount:85,note:"Dauerauftrag"},{date:"2025-12-15",amount:85,note:"Dauerauftrag"},{date:"2025-11-15",amount:85,note:""},{date:"2025-10-15",amount:85,note:""},{date:"2025-09-15",amount:85,note:""},{date:"2025-08-15",amount:85,note:"Erste Rate"}]},
+  {id:2,name:"Möbelhaus Schmidt",emoji:"🪑",original:3200,paid:2100,rate:150,due:"2026-02-20",notes:"0% Finanzierung Küche",creditorName:"Möbelhaus Schmidt GmbH",creditorAddress:"Leopoldstr. 88, 80802 München",creditorPhone:"089 3832-100",creditorEmail:"finanzen@moebelschmidt.de",bankName:"Möbelhaus Schmidt",bankIban:"DE55 7001 0080 0012 3456 78",bankBic:"PBNKDEFFXXX",bankRef:"Finanzierung KV-2025-00814",history:[{date:"2026-01-20",amount:150,note:"Lastschrift"},{date:"2025-12-20",amount:150,note:""},{date:"2025-11-20",amount:150,note:""},{date:"2025-10-20",amount:150,note:""},{date:"2025-09-20",amount:150,note:""}]},
+  {id:3,name:"Autokredit VW Bank",emoji:"🚗",original:6880,paid:3820,rate:215,due:"2026-03-01",notes:"VW Bank Finanzierung",creditorName:"Volkswagen Bank GmbH",creditorAddress:"Gifhorner Str. 57, 38112 Braunschweig",creditorPhone:"0531 212-0",creditorEmail:"",bankName:"VW Bank",bankIban:"DE12 2707 0024 0000 9876 54",bankBic:"DEUTDEDBXXX",bankRef:"Kreditvertrag VW-2024-39182",history:[{date:"2026-01-01",amount:215,note:"Lastschrift"},{date:"2025-12-01",amount:215,note:""},{date:"2025-11-01",amount:215,note:""},{date:"2025-10-01",amount:215,note:""},{date:"2025-09-01",amount:215,note:""}]},
+  {id:4,name:"Zahnbehandlung",emoji:"🦷",original:1800,paid:1200,rate:100,due:"2026-02-14",notes:"Dr. Meier – Zahnersatz",creditorName:"Dr. med. dent. Hans Meier",creditorAddress:"Prinzregentenstr. 22, 81675 München",creditorPhone:"089 4400-2200",creditorEmail:"praxis@dr-meier.de",bankName:"Dr. Meier Praxis",bankIban:"DE34 7005 0000 0000 5566 77",bankBic:"BYLADEMMXXX",bankRef:"Re-Nr. 2025-0341 / Patient Müller",history:[{date:"2026-01-14",amount:100,note:"Überweisung"},{date:"2025-12-14",amount:100,note:""},{date:"2025-11-14",amount:100,note:""}]}
+];
+let currentPage="dashboard",selectedDebtId=null,currentFilter="all",selectedEmoji="📄";
+const isMasterMode=new URLSearchParams(window.location.search).get("master")==="1";
+const fmt=n=>new Intl.NumberFormat("de-DE",{minimumFractionDigits:0,maximumFractionDigits:0}).format(n)+" €";
+const fD=d=>{try{return new Date(d+"T00:00:00").toLocaleDateString("de-DE",{day:"numeric",month:"short"})}catch(e){return d}};
+const fDL=d=>{try{return new Date(d+"T00:00:00").toLocaleDateString("de-DE",{day:"numeric",month:"long",year:"numeric"})}catch(e){return d}};
+const pc=(p,o)=>o===0?100:Math.round(p/o*100);const dU=d=>Math.ceil((new Date(d+"T00:00:00")-new Date())/864e5);
+const gS=d=>{if(d.paid>=d.original)return"done";const dy=dU(d.due);return dy<0?"overdue":dy===0?"today":dy<=5?"soon":"ok"};
+const sI={ok:{l:"Aktuell",c:"var(--em)",bg:"var(--emG)"},soon:{l:"Bald fällig",c:"var(--am)",bg:"var(--amG)"},today:{l:"Heute fällig",c:"var(--co)",bg:"var(--coG)"},overdue:{l:"Handlungsbedarf",c:"var(--co)",bg:"var(--coG)"},done:{l:"Erledigt",c:"var(--em)",bg:"var(--emG)"}};
+const clarificationMeta={neu:{l:"Neu",c:"#93C5FD",bg:"rgba(147,197,253,0.15)"},in_pruefung:{l:"In Prüfung",c:"#FBBF24",bg:"rgba(251,191,36,0.14)"},rueckfrage_offen:{l:"Rückfrage offen",c:"#F59E0B",bg:"rgba(245,158,11,0.15)"},vereinbarung_in_verhandlung:{l:"Verhandlung",c:"#38BDF8",bg:"rgba(56,189,248,0.14)"},vereinbart:{l:"Vereinbart",c:"#34D399",bg:"rgba(52,211,153,0.16)"},abgelehnt_oder_streit:{l:"Streitfall",c:"#F97066",bg:"rgba(249,112,102,0.14)"},geschlossen:{l:"Geschlossen",c:"#A0A3B1",bg:"rgba(160,163,177,0.14)"}};
+const paymentMeta={keine_zahlung_faellig:{l:"Keine Zahlung fällig",c:"#A0A3B1",bg:"rgba(160,163,177,0.14)"},faellig_einmalig:{l:"Einmalig fällig",c:"#FBBF24",bg:"rgba(251,191,36,0.14)"},ratenplan_aktiv:{l:"Ratenplan aktiv",c:"#38BDF8",bg:"rgba(56,189,248,0.14)"},stundung_aktiv:{l:"Stundung aktiv",c:"#A78BFA",bg:"rgba(167,139,250,0.14)"},ueberfaellig:{l:"Handlungsbedarf",c:"#F97066",bg:"rgba(249,112,102,0.14)"},bezahlt:{l:"Bezahlt",c:"#34D399",bg:"rgba(52,211,153,0.16)"}};
+const clarificationOptions=[["neu","Neu"],["in_pruefung","In Prüfung"],["rueckfrage_offen","Rückfrage offen"],["vereinbarung_in_verhandlung","Verhandlung"],["vereinbart","Vereinbart"],["abgelehnt_oder_streit","Streitfall"],["geschlossen","Geschlossen"]];
+const paymentOptions=[["keine_zahlung_faellig","Keine Zahlung fällig"],["faellig_einmalig","Einmalig fällig"],["ratenplan_aktiv","Ratenplan aktiv"],["stundung_aktiv","Stundung aktiv"],["ueberfaellig","Handlungsbedarf"],["bezahlt","Bezahlt"]];
+const encs=["Du bist auf dem richtigen Weg.","Jede Rate zählt – bleib dran.","Schritt für Schritt zur Entlastung.","Du hast mehr geschafft als du denkst.","Kontrolle fühlt sich gut an."];
+const tdy=()=>new Date().toISOString().split("T")[0];
+function statusBadge(meta,key,prefix){const k=meta[key]?key:Object.keys(meta)[0],s=meta[k];return`<span class="badge" style="color:${s.c};background:${s.bg}"><span class="badge-dot" style="background:${s.c};box-shadow:0 0 6px ${s.c}"></span>${prefix}: ${s.l}</span>`}
+function getClarificationStatus(d){return clarificationMeta[d.clarificationStatus]?d.clarificationStatus:"neu"}
+function inferPaymentStatus(d){if(d.paid>=d.original)return"bezahlt";if(d.rate>0)return"ratenplan_aktiv";const dueState=gS(d);if(dueState==="today"||dueState==="overdue")return"ueberfaellig";return"faellig_einmalig"}
+function getPaymentStatus(d){return paymentMeta[d.paymentStatus]?d.paymentStatus:inferPaymentStatus(d)}
+function normalizeDebtStatuses(){debts=debts.map(d=>({...d,clarificationStatus:getClarificationStatus(d),paymentStatus:getPaymentStatus(d)}))}
+function setStatus(prefix,kind,value){const input=document.getElementById(`${prefix}${kind}`);if(!input)return;input.value=value;document.querySelectorAll(`button[data-status='${prefix}${kind}']`).forEach(b=>{const a=b.dataset.value===value;b.classList.toggle("btn-ghost",a);b.classList.toggle("btn-outline",!a);});}
+function autoUpdateDebtStatuses(d,opt={}){if(!d)return;const respectManual=!!opt.respectManual;const cs=getClarificationStatus(d);if(d.paid>=d.original){d.paymentStatus="bezahlt";if(cs!=="abgelehnt_oder_streit")d.clarificationStatus="geschlossen";return;}if(respectManual&&paymentMeta[d.paymentStatus])return;if(["neu","in_pruefung","rueckfrage_offen","vereinbarung_in_verhandlung"].includes(cs)){d.paymentStatus="keine_zahlung_faellig";return;}if(d.paymentStatus==="stundung_aktiv")return;if(d.rate>0){d.paymentStatus="ratenplan_aktiv";return;}const dueState=gS(d);d.paymentStatus=(dueState==="today"||dueState==="overdue")?"ueberfaellig":"faellig_einmalig";}
+function gT(){const o=debts.reduce((s,d)=>s+d.original,0),p=debts.reduce((s,d)=>s+d.paid,0),r=o-p,m=debts.filter(d=>d.paid<d.original).reduce((s,d)=>s+d.rate,0),sorted=[...debts].filter(d=>d.paid<d.original).sort((a,b)=>new Date(a.due)-new Date(b.due));return{o,p,r,m,pct:pc(p,o),next:sorted[0]||null}}
+function bdg(st){const s=sI[st]||sI.ok;return`<span class="badge" style="color:${s.c};background:${s.bg}"><span class="badge-dot" style="background:${s.c};box-shadow:0 0 6px ${s.c}"></span>${s.l}</span>`}
+function pb(p,h=4){return`<div class="pbar" style="height:${h}px"><div class="pbar-fill" style="width:${Math.min(p,100)}%"></div></div>`}
+function rng(pct,sz=140,sw=8){const r=(sz-sw*2)/2,ci=2*Math.PI*r;return`<svg width="${sz}" height="${sz}"><defs><linearGradient id="rg${sz}" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="var(--em)"/><stop offset="100%" stop-color="var(--sk)"/></linearGradient><filter id="gl${sz}"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><circle cx="${sz/2}" cy="${sz/2}" r="${r}" fill="none" stroke="var(--b)" stroke-width="${sw}"/><circle cx="${sz/2}" cy="${sz/2}" r="${r}" fill="none" stroke="url(#rg${sz})" stroke-width="${sw}" stroke-linecap="round" stroke-dasharray="${ci}" stroke-dashoffset="${ci-(pct/100)*ci}" transform="rotate(-90 ${sz/2} ${sz/2})" filter="url(#gl${sz})" style="transition:stroke-dashoffset 1.2s cubic-bezier(0.16,1,0.3,1)"/></svg>`}
+function flash(m){const c=document.getElementById("toastContainer");c.innerHTML=`<div class="toast"><span class="toast-dot"></span>${m}</div>`;setTimeout(()=>c.innerHTML="",2800)}
+function showConfetti(){const c=document.getElementById("confettiContainer");c.style.display="block";const cols=["#34D399","#38BDF8","#FBBF24","#F97066","#A78BFA","#FB7185"];let h="";for(let i=0;i<40;i++)h+=`<div class="confetti-piece" style="left:${Math.random()*100}%;width:${5+Math.random()*7}px;height:${5+Math.random()*4}px;background:${cols[i%6]};animation:confettiFall ${1.5+Math.random()*1.5}s ease-in ${Math.random()*0.5}s forwards"></div>`;c.innerHTML=h;setTimeout(()=>{c.style.display="none";c.innerHTML=""},3500)}
+const navI=[{id:"dashboard",l:"Überblick",i:"◉"},{id:"debts",l:"Verbindlichkeiten",i:"☰"},{id:"budget",l:"Ein- und Ausgaben",i:"€"},{id:"agree",l:"Vereinbarungen",i:"✎"},{id:"timeline",l:"Verlauf",i:"◔"}];
+const proPages=new Set(["agree","contracts","cancelAssist"]);
+function isProPlan(){return (user.plan||"").trim().toLowerCase()==="pro"}
+function isProFeaturePage(p){return proPages.has(p)}
+function renderNav(){const pro=isProPlan(),navItems=navI.filter(n=>n.id!=="agree"||pro);document.getElementById("sidebarNav").innerHTML=navItems.map(n=>`<button class="nav-btn ${currentPage===n.id||(currentPage==="detail"&&n.id==="debts")?"active":""}" onclick="goTo('${n.id}')"><span class="icon">${n.i}</span>${n.l}</button>`).join("");const t=document.getElementById("sidebarTools");if(t)t.innerHTML=pro?`<button class="nav-btn ${currentPage==="contracts"?"active":""}" onclick="goTo('contracts')" style="width:100%;border-radius:10px"><span class="icon">📄</span>Verträge</button><button class="nav-btn ${currentPage==="cancelAssist"?"active":""}" onclick="goTo('cancelAssist')" style="width:100%;border-radius:10px"><span class="icon">✉</span>Kündigungsassistent</button>`:"";const s=document.getElementById("sidebarSettings");if(s)s.innerHTML=`<button class="nav-btn ${currentPage==="settings"?"active":""}" onclick="goTo('settings')" style="width:100%;border-radius:10px"><span class="icon">⚙</span>Einstellungen</button>`;const mobilePro=pro?`<button class="mobile-nav-btn ${currentPage==="contracts"?"active":""}" onclick="goTo('contracts')"><span style="font-size:20px">📄</span>Verträge</button><button class="mobile-nav-btn ${currentPage==="cancelAssist"?"active":""}" onclick="goTo('cancelAssist')"><span style="font-size:20px">✉</span>Kündigung</button>`:"";document.getElementById("mobileNav").innerHTML=navItems.map(n=>`<button class="mobile-nav-btn ${currentPage===n.id||(currentPage==="detail"&&n.id==="debts")?"active":""}" onclick="goTo('${n.id}')"><span style="font-size:20px">${n.i}</span>${n.l}</button>`).join("")+mobilePro+`<button class="mobile-nav-btn ${currentPage==="settings"?"active":""}" onclick="goTo('settings')"><span style="font-size:20px">⚙</span>Einstellungen</button><button class="mobile-fab" onclick="openAdd()">＋</button>`;renderUser()}
+function goTo(p){if(isProFeaturePage(p)&&!isProPlan()){flash("Diese Funktion ist im Pro-Paket verfügbar");currentPage="dashboard";renderNav();renderPage();return;}currentPage=p;if(p!=="detail")selectedDebtId=null;renderNav();renderPage()}
+function openDetail(id){selectedDebtId=id;currentPage="detail";renderNav();renderPage()}
+function renderPage(){if(isProFeaturePage(currentPage)&&!isProPlan())currentPage="dashboard";const m=document.getElementById("mainContent");if(currentPage==="dashboard")m.innerHTML=rDash();else if(currentPage==="debts")m.innerHTML=rDebts();else if(currentPage==="detail")m.innerHTML=rDet();else if(currentPage==="budget")m.innerHTML=rBudget();else if(currentPage==="contracts")m.innerHTML=rContracts();else if(currentPage==="cancelAssist")m.innerHTML=rCancelAssistant();else if(currentPage==="agree")m.innerHTML=rAgree();else if(currentPage==="timeline")m.innerHTML=rTime();else if(currentPage==="settings")m.innerHTML=rSettings();else if(currentPage==="master")m.innerHTML=rMasterPanel();setTimeout(()=>{document.querySelectorAll("[data-ring]").forEach(el=>{const p=el.dataset.ring,s=el.dataset.size||140,w=el.dataset.sw||8;el.innerHTML=rng(0,+s,+w);setTimeout(()=>el.innerHTML=rng(+p,+s,+w),50)})},10)}
+
+let user={loggedIn:false,name:"",firstName:"",lastName:"",plan:"Basis",email:"",addressStreet:"",addressZip:"",addressCity:"",phone:""};
+const STORAGE_USER="sfUser";
+const SUPABASE_URL="https://kdbuduwztmxxykfvqbie.supabase.co";
+const SUPABASE_ANON_KEY="sb_publishable_ZZpjQ4Lqcqd2uVpGrSthcQ_nnCYSGPv";
+let supabaseClient=null;
+let currentUserId=null;
+let stateSaveTimer=null;
+function splitNameParts(n){const p=(n||"").trim().split(/\s+/).filter(Boolean);return{firstName:p[0]||"",lastName:p.slice(1).join(" ")}}
+function loadUser(){try{const raw=localStorage.getItem("sfUser");if(raw){const u=JSON.parse(raw);if(u&&typeof u==="object"){const parts=splitNameParts(u.name||"");user.loggedIn=!!u.loggedIn;user.name=u.name||"";user.firstName=u.firstName||parts.firstName;user.lastName=u.lastName||parts.lastName;user.plan=u.plan||"Basis";user.email=u.email||"";user.addressStreet=u.addressStreet||"";user.addressZip=u.addressZip||"";user.addressCity=u.addressCity||"";user.phone=u.phone||""}}}catch(e){}}
+function saveUser(){try{localStorage.setItem("sfUser",JSON.stringify(user))}catch(e){}}
+function setSession(userData){const parts=splitNameParts(userData.name||"");const sfUser={loggedIn:true,name:userData.name||"Benutzer",firstName:userData.firstName||parts.firstName,lastName:userData.lastName||parts.lastName,plan:userData.plan||"Basis",email:userData.email||"",addressStreet:userData.addressStreet||"",addressZip:userData.addressZip||"",addressCity:userData.addressCity||"",phone:userData.phone||""};try{localStorage.setItem(STORAGE_USER,JSON.stringify(sfUser))}catch(e){}user.loggedIn=true;user.name=sfUser.name;user.firstName=sfUser.firstName;user.lastName=sfUser.lastName;user.plan=sfUser.plan;user.email=sfUser.email;user.addressStreet=sfUser.addressStreet;user.addressZip=sfUser.addressZip;user.addressCity=sfUser.addressCity;user.phone=sfUser.phone}
+function hasSupabaseConfig(){return !!(SUPABASE_URL&&SUPABASE_ANON_KEY&&!SUPABASE_URL.includes("YOUR_PROJECT_ID")&&!SUPABASE_ANON_KEY.includes("YOUR_SUPABASE_ANON_KEY"))}
+async function initSupabaseClient(){if(!window.supabase||!window.supabase.createClient||!hasSupabaseConfig())return false;supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);return true}
+async function loadCloudProfile(userId,authUser){
+  if(!supabaseClient)return;
+  const md=authUser.user_metadata||{};
+  const nameFromAuth=md.full_name||[md.first_name||"",md.last_name||""].join(" ").trim()||authUser.email||"Benutzer";
+  const fallback={name:nameFromAuth,firstName:md.first_name||splitNameParts(nameFromAuth).firstName,lastName:md.last_name||splitNameParts(nameFromAuth).lastName,email:authUser.email||"",plan:md.plan||"Basis",addressStreet:"",addressZip:"",addressCity:"",phone:""};
+  const {data}=await supabaseClient.from("user_profiles").select("first_name,last_name,plan,address_street,address_zip,address_city,phone").eq("id",userId).maybeSingle();
+  const merged={...fallback,firstName:data?.first_name||fallback.firstName,lastName:data?.last_name||fallback.lastName,plan:data?.plan||fallback.plan,addressStreet:data?.address_street||"",addressZip:data?.address_zip||"",addressCity:data?.address_city||"",phone:data?.phone||""};
+  merged.name=[merged.firstName,merged.lastName].join(" ").trim()||fallback.name;
+  setSession(merged);
+}
+async function upsertCloudProfile(){
+  if(!supabaseClient||!currentUserId)return;
+  await supabaseClient.from("user_profiles").upsert({id:currentUserId,email:user.email||null,first_name:user.firstName||null,last_name:user.lastName||null,plan:user.plan||"Basis",address_street:user.addressStreet||null,address_zip:user.addressZip||null,address_city:user.addressCity||null,phone:user.phone||null,updated_at:new Date().toISOString()});
+}
+async function loadCloudState(){
+  if(!supabaseClient||!currentUserId)return;
+  const {data}=await supabaseClient.from("app_state").select("debts,budget_items,budget_month,contracts").eq("user_id",currentUserId).maybeSingle();
+  if(data){
+    if(Array.isArray(data.debts))debts=data.debts;
+    if(Array.isArray(data.budget_items))budgetItems=data.budget_items;
+    if(Array.isArray(data.contracts))contracts=data.contracts;
+    if(typeof data.budget_month==="string"&&data.budget_month)currentBudgetMonth=data.budget_month;
+    normalizeDebtStatuses();
+  }else{
+    await saveCloudState();
+  }
+}
+async function saveCloudState(){
+  if(!supabaseClient||!currentUserId)return;
+  await supabaseClient.from("app_state").upsert({user_id:currentUserId,debts:debts,budget_items:budgetItems,budget_month:currentBudgetMonth,contracts:contracts,updated_at:new Date().toISOString()});
+}
+function scheduleCloudSave(){if(!supabaseClient||!currentUserId)return;clearTimeout(stateSaveTimer);stateSaveTimer=setTimeout(()=>{saveCloudState().catch(()=>{})},250)}
+function readJsonLocal(key,fallback){try{const raw=localStorage.getItem(key);if(!raw)return fallback;const parsed=JSON.parse(raw);return parsed??fallback}catch(e){return fallback}}
+async function migrateLegacyLocalData(authUser){
+  if(!supabaseClient||!currentUserId)return;
+  const markerKey=`sfMigrated:${currentUserId}`;
+  if(localStorage.getItem(markerKey)==="1")return;
+
+  const legacySession=readJsonLocal("sfUser",null);
+  const legacyUsers=readJsonLocal("sfUsers",[]);
+  const legacyBudget=readJsonLocal("budgetItems",null);
+  const legacyDebts=readJsonLocal("debts",null);
+  const legacyContracts=readJsonLocal("contracts",null);
+  const legacyMonth=localStorage.getItem("budgetMonth")||currentBudgetMonth;
+  const email=(authUser?.email||"").toLowerCase();
+  const legacyByEmail=Array.isArray(legacyUsers)?legacyUsers.find(u=>((u?.email||"").toLowerCase()===email)):null;
+  const legacyProfile=legacyByEmail||legacySession||null;
+
+  let profileTouched=false;
+  if(legacyProfile&&typeof legacyProfile==="object"){
+    const parts=splitNameParts(legacyProfile.name||"");
+    user.firstName=legacyProfile.firstName||parts.firstName||user.firstName;
+    user.lastName=legacyProfile.lastName||parts.lastName||user.lastName;
+    user.name=[user.firstName,user.lastName].join(" ").trim()||legacyProfile.name||user.name;
+    user.plan=legacyProfile.plan||user.plan;
+    user.addressStreet=legacyProfile.addressStreet||user.addressStreet;
+    user.addressZip=legacyProfile.addressZip||user.addressZip;
+    user.addressCity=legacyProfile.addressCity||user.addressCity;
+    user.phone=legacyProfile.phone||user.phone;
+    profileTouched=true;
+  }
+
+  let stateMigrated=false;
+  const {data:cloudState}=await supabaseClient.from("app_state").select("debts,budget_items,budget_month,contracts").eq("user_id",currentUserId).maybeSingle();
+  const cloudHasState=!!(cloudState&&((Array.isArray(cloudState.debts)&&cloudState.debts.length>0)||(Array.isArray(cloudState.budget_items)&&cloudState.budget_items.length>0)||(Array.isArray(cloudState.contracts)&&cloudState.contracts.length>0)));
+  const localHasState=!!((Array.isArray(legacyDebts)&&legacyDebts.length>0)||(Array.isArray(legacyBudget)&&legacyBudget.length>0)||(Array.isArray(legacyContracts)&&legacyContracts.length>0));
+  if(localHasState&&!cloudHasState){
+    const debtsToSave=Array.isArray(legacyDebts)?legacyDebts:[];
+    const budgetToSave=Array.isArray(legacyBudget)?legacyBudget:[];
+    const contractsToSave=Array.isArray(legacyContracts)?legacyContracts:[];
+    await supabaseClient.from("app_state").upsert({user_id:currentUserId,debts:debtsToSave,budget_items:budgetToSave,budget_month:legacyMonth||currentBudgetMonth,contracts:contractsToSave,updated_at:new Date().toISOString()});
+    stateMigrated=true;
+  }
+
+  if(profileTouched)await upsertCloudProfile();
+  localStorage.setItem(markerKey,"1");
+  if(stateMigrated)flash("Lokale Daten wurden einmalig in die Cloud migriert ✓");
+}
+async function ensureAppAuth(){
+  if(!supabaseClient)return false;
+  const {data:{session}}=await supabaseClient.auth.getSession();
+  if(!session||!session.user)return false;
+  currentUserId=session.user.id;
+  await loadCloudProfile(currentUserId,session.user);
+  await migrateLegacyLocalData(session.user);
+  await loadCloudState();
+  return true;
+}
+function authShowNotice(msg,type){const n=document.getElementById("authNotice");if(!n)return;n.className=`auth-notice ${type==="ok"?"auth-ok":"auth-err"}`;n.textContent=msg}
+function authHideNotice(){const n=document.getElementById("authNotice");if(!n)return;n.className="auth-hidden";n.textContent=""}
+function authSwitch(tab){const tabs={login:document.getElementById("tabLogin"),register:document.getElementById("tabRegister")},forms={login:document.getElementById("formLogin"),register:document.getElementById("formRegister")};Object.entries(tabs).forEach(([k,b])=>b&&b.classList.toggle("active",k===tab));Object.entries(forms).forEach(([k,f])=>f&&f.classList.toggle("auth-hidden",k!==tab));authHideNotice()}
+function showAuthPage(tab="login"){const a=document.getElementById("authRoot"),l=document.querySelector(".layout"),m=document.getElementById("mobileNav");if(a)a.style.display="flex";if(l)l.style.display="none";if(m)m.style.display="none";authSwitch(tab)}
+function hideAuthPage(){const a=document.getElementById("authRoot"),l=document.querySelector(".layout"),m=document.getElementById("mobileNav");if(a)a.style.display="none";if(l)l.style.display="flex";if(m)m.style.display=""}
+async function completeLoginFromSession(sessionUser){currentUserId=sessionUser.id;await loadCloudProfile(currentUserId,sessionUser);await migrateLegacyLocalData(sessionUser);await upsertCloudProfile();await loadCloudState();saveUser();hideAuthPage();renderNav();renderUser();renderPage()}
+function initAuthUI(){
+  const tL=document.getElementById("tabLogin"),tR=document.getElementById("tabRegister");
+  if(!tL||!tR)return;
+  const logo=document.getElementById("authLogo");
+  if(logo&&SUPABASE_URL){const path=encodeURIComponent("Ratenova Logo_ ohne Text.png");logo.src=`${SUPABASE_URL}/storage/v1/object/public/public-assets/${path}`;logo.onerror=()=>{logo.style.display="none"}}
+  const sLogo=document.getElementById("sidebarLogo");
+  if(sLogo&&SUPABASE_URL){const path2=encodeURIComponent("Ratenova Logo_ ohne icon.png");sLogo.src=`${SUPABASE_URL}/storage/v1/object/public/public-assets/${path2}`;sLogo.onerror=()=>{sLogo.style.display="none"}}
+  tL.onclick=()=>authSwitch("login");tR.onclick=()=>authSwitch("register");
+  document.querySelectorAll("[data-switch]").forEach(btn=>btn.addEventListener("click",()=>authSwitch(btn.dataset.switch)));
+  document.getElementById("formLogin").addEventListener("submit",async(e)=>{e.preventDefault();if(!supabaseClient){authShowNotice("Supabase nicht konfiguriert.","err");return;}const email=document.getElementById("loginEmail").value.trim().toLowerCase(),password=document.getElementById("loginPassword").value;const {data,error}=await supabaseClient.auth.signInWithPassword({email,password});if(error||!data.user){authShowNotice("Login fehlgeschlagen. E-Mail oder Passwort falsch.","err");return;}await completeLoginFromSession(data.user)});
+  document.getElementById("formRegister").addEventListener("submit",async(e)=>{e.preventDefault();if(!supabaseClient){authShowNotice("Supabase nicht konfiguriert.","err");return;}const name=document.getElementById("regName").value.trim(),parts=splitNameParts(name),email=document.getElementById("regEmail").value.trim().toLowerCase(),password=document.getElementById("regPassword").value,plan=(document.getElementById("regPlan")?.value||"Basis").trim();const {data,error}=await supabaseClient.auth.signUp({email,password,options:{data:{first_name:parts.firstName,last_name:parts.lastName,full_name:name,plan}}});if(error){authShowNotice(error.message||"Registrierung fehlgeschlagen.","err");return;}if(!data.session){authShowNotice("Registrierung erfolgt. Bitte E-Mail bestätigen.","ok");return;}await completeLoginFromSession(data.user)});
+  const fLink=document.getElementById("forgotLink");
+  if(fLink){
+    fLink.onclick=async()=>{
+      let mail=(document.getElementById("loginEmail")?.value||"").trim().toLowerCase();
+      if(!mail){mail=prompt("Bitte E-Mail eingeben, um das Passwort zurückzusetzen:");if(!mail){authShowNotice("E-Mail erforderlich.","err");return;}}
+      if(!supabaseClient){authShowNotice("Supabase nicht konfiguriert.","err");return;}
+      try{const {error}=await supabaseClient.auth.resetPasswordForEmail(mail,{redirectTo:window.location.href});if(error){authShowNotice("Reset fehlgeschlagen. Prüfe die E-Mail.","err");return;}authShowNotice("Reset-Link wurde per E-Mail versendet.","ok");}catch(e){authShowNotice("Fehler beim Senden des Links.","err");}
+    }
+  }
+  // init custom dropdowns (.custom-select)
+  document.querySelectorAll('.custom-select').forEach(cs=>{
+    const valueEl=cs.querySelector('.cs-value');
+    const list=cs.querySelector('.cs-list');
+    const items=Array.from(cs.querySelectorAll('.cs-item'));
+    const hidden=cs.querySelector('input[type="hidden"]');
+    const openClose=(open)=>{cs.setAttribute('aria-expanded',open?'true':'false');if(list)list.setAttribute('aria-hidden',(!open).toString());};
+    // click value to toggle
+    valueEl?.addEventListener('click',()=>{const isOpen=cs.getAttribute('aria-expanded')==='true';openClose(!isOpen)});
+    // click items
+    items.forEach(it=>it.addEventListener('click',()=>{const v=it.dataset.value||it.textContent.trim(); if(hidden)hidden.value=v; valueEl.textContent=v; items.forEach(x=>x.classList.toggle('active',x===it)); openClose(false);}));
+    // keyboard
+    cs.addEventListener('keydown',e=>{
+      const open=cs.getAttribute('aria-expanded')==='true';
+      const idx=items.findIndex(i=>i.classList.contains('active'));
+      if(e.key==='ArrowDown'){e.preventDefault(); if(!open){openClose(true);} else {const next=items[(idx+1)>=items.length?0:idx+1]; next.focus();}}
+      if(e.key==='ArrowUp'){e.preventDefault(); if(!open){openClose(true);} else {const prev=items[(idx-1)<0?items.length-1:idx-1]; prev.focus();}}
+      if(e.key==='Enter'){e.preventDefault(); if(!open){openClose(true);} else {const focused=document.activeElement; if(focused.classList && focused.classList.contains('cs-item')){focused.click();}}}
+      if(e.key==='Escape'){openClose(false)}
+    });
+    // close on outside click
+    document.addEventListener('click',ev=>{if(!cs.contains(ev.target))openClose(false)});
+  });
+}
+function renderUser(){const el=document.getElementById("sidebarBottom");if(!el)return;el.innerHTML=user.loggedIn?`<div class="card" style="padding:12px">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+    <div style="width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--emD),var(--em));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0">${(user.name||"").trim().slice(0,1).toUpperCase()||"👤"}</div>
+    <div style="min-width:0">
+      <p style="font-size:13px;font-weight:700;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${user.name||"Benutzer"}</p>
+      <p style="font-size:11px;color:var(--ts);margin:2px 0 0">Paket: <strong style="color:var(--em)">${user.plan}</strong></p>
+    </div>
+  </div>
+  <button class="btn btn-danger btn-sm btn-full" style="padding:8px 10px" onclick="logoutUser()">Logout</button>
+</div>`:`<div class="card" style="padding:12px">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+    <div style="width:34px;height:34px;border-radius:10px;background:var(--bgE);border:1px solid var(--b);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0">👤</div>
+    <div><p style="font-size:12px;color:var(--tm);margin:0">Nicht eingeloggt</p></div>
+  </div>
+  <button class="btn btn-primary btn-sm btn-full" style="padding:8px 10px" onclick="openLogin()">Anmelden</button>
+</div>`}
+function openLogin(){showAuthPage("login")}
+function saveLogin(){openLogin()}
+async function logoutUser(){try{if(supabaseClient)await supabaseClient.auth.signOut()}catch(e){}currentUserId=null;user={loggedIn:false,name:"",firstName:"",lastName:"",plan:"Basis",email:"",addressStreet:"",addressZip:"",addressCity:"",phone:""};saveUser();showAuthPage("login")}
+
+const MASTER_USERNAME="master";
+const MASTER_AUTH_EMAIL="master@ratenova.local";
+let masterState={loggedIn:false,tab:"stats",users:[],states:[],selectedUserId:null,impersonating:false,original:null,error:"",query:""};
+function openMasterPanel(){window.location.href=`${window.location.pathname}?master=1`}
+function exitMasterPanel(){window.location.href=window.location.pathname}
+function renderMasterView(){if(isMasterMode)renderMasterStandalone();else renderPage()}
+async function masterLogin(){
+  const u=(document.getElementById("mUser")?.value||"").trim().toLowerCase();
+  const p=(document.getElementById("mPass")?.value||"").trim();
+  if(!supabaseClient){masterState.error="Supabase nicht verbunden";renderMasterView();return;}
+  if(u!==MASTER_USERNAME||!p){masterState.error="Login fehlgeschlagen";renderMasterView();return;}
+  const {data,error}=await supabaseClient.auth.signInWithPassword({email:MASTER_AUTH_EMAIL,password:p});
+  if(error||!data?.user){masterState.error="Login fehlgeschlagen";renderMasterView();return;}
+  const userEmail=(data.user.email||"").trim().toLowerCase();
+  const {data:profile}=await supabaseClient.from("user_profiles").select("role").eq("id",data.user.id).maybeSingle();
+  const roleOk=(profile?.role||"")==="master";
+  const emailOk=userEmail===MASTER_AUTH_EMAIL.toLowerCase();
+  if(!roleOk&&!emailOk){
+    try{await supabaseClient.auth.signOut()}catch(e){}
+    masterState.error="Keine Berechtigung für Master-Panel";
+    renderMasterView();
+    return;
+  }
+  masterState.loggedIn=true;masterState.error="";masterState.tab="stats";
+  await loadMasterData();
+  renderMasterView();
+}
+async function masterLogout(){try{if(supabaseClient)await supabaseClient.auth.signOut()}catch(e){}masterState={loggedIn:false,tab:"stats",users:[],states:[],selectedUserId:null,impersonating:false,original:null,error:"",query:""};exitMasterPanel()}
+async function loadMasterData(){
+  if(!supabaseClient){masterState.error="Supabase nicht verbunden";return;}
+  const [{data:users,error:uErr},{data:states,error:sErr}]=await Promise.all([
+    supabaseClient.from("user_profiles").select("id,email,first_name,last_name,plan,address_street,address_zip,address_city,phone,updated_at"),
+    supabaseClient.from("app_state").select("user_id,debts,budget_items,contracts,updated_at")
+  ]);
+  if(uErr||sErr){
+    const fmt=(e,table)=>e?`${table}: ${e.message||"Fehler"}${e.code?` [${e.code}]`:""}`:"";
+    masterState.error=`Master-Panel Lesefehler. ${fmt(uErr,"user_profiles")} ${fmt(sErr,"app_state")}`.trim();
+    return;
+  }
+  masterState.users=users||[];
+  masterState.states=states||[];
+  if(!masterState.selectedUserId&&masterState.users.length)masterState.selectedUserId=masterState.users[0].id;
+  if(masterState.selectedUserId&&!masterState.users.some(u=>u.id===masterState.selectedUserId))masterState.selectedUserId=masterState.users[0]?.id||null;
+  masterState.error="";
+}
+const mNum=v=>{const n=Number(v);return Number.isFinite(n)?n:0};
+const mEsc=v=>String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+function masterStateMap(){const map={};masterState.states.forEach(s=>{if(s&&s.user_id)map[s.user_id]=s});return map}
+function masterUserMetrics(u,stateMap){
+  const s=stateMap[u.id]||{};
+  const debtList=Array.isArray(s.debts)?s.debts:[];
+  const budgetList=Array.isArray(s.budget_items)?s.budget_items:[];
+  const contractList=Array.isArray(s.contracts)?s.contracts:[];
+  let income=0,expense=0,sales=0,debtOpen=0,debtMonthly=0,contractMonthly=0,contractYearly=0,entries=0;
+  budgetList.forEach(b=>{
+    const amount=mNum(b?.amount);
+    if(!amount)return;
+    entries++;
+    if(b.type==="income"){
+      income+=amount;
+      const sig=`${b.category||""} ${b.note||""}`.toLowerCase();
+      if(/verkauf|umsatz|rechnung|auftrag|shop|sale/.test(sig))sales+=amount;
+    }else if(b.type==="expense"){
+      expense+=amount;
+    }
+  });
+  debtList.forEach(d=>{
+    const original=mNum(d?.original),paid=mNum(d?.paid),rate=mNum(d?.rate),open=Math.max(0,original-paid);
+    debtOpen+=open;
+    if(open>0)debtMonthly+=Math.max(0,rate);
+  });
+  contractList.forEach(c=>{
+    contractMonthly+=Math.max(0,mNum(c?.monthlyCost));
+    contractYearly+=Math.max(0,mNum(contractAnnualCost(c||{})));
+  });
+  return{user:u,state:s,income,expense,sales,balance:income-expense,debtOpen,debtMonthly,contractMonthly,contractYearly,entries,debtCount:debtList.length,contractCount:contractList.length,updatedAt:s?.updated_at||u?.updated_at||null};
+}
+function masterMetricsList(){
+  const map=masterStateMap();
+  return masterState.users.map(u=>masterUserMetrics(u,map));
+}
+function masterStats(){
+  const metrics=masterMetricsList();
+  const total=masterState.users.length;
+  const withState=metrics.filter(m=>m.entries+m.debtCount+m.contractCount>0).length;
+  const totalDebts=metrics.reduce((a,m)=>a+m.debtCount,0);
+  const totalContracts=metrics.reduce((a,m)=>a+m.contractCount,0);
+  const totalIncome=metrics.reduce((a,m)=>a+m.income,0);
+  const totalExpense=metrics.reduce((a,m)=>a+m.expense,0);
+  const totalSales=metrics.reduce((a,m)=>a+m.sales,0);
+  const debtExposure=metrics.reduce((a,m)=>a+m.debtOpen,0);
+  const monthlyObligation=metrics.reduce((a,m)=>a+m.debtMonthly+m.contractMonthly,0);
+  return{total,withState,totalDebts,totalContracts,totalIncome,totalExpense,totalSales,debtExposure,monthlyObligation,metrics};
+}
+async function masterResetUserState(id){
+  if(!supabaseClient)return;
+  if(!confirm("Alle Nutzerdaten (Verbindlichkeiten, Ein-/Ausgaben, Verträge) für diesen Kunden zurücksetzen?"))return;
+  const {error}=await supabaseClient.from("app_state").upsert({user_id:id,debts:[],budget_items:[],contracts:[],updated_at:new Date().toISOString()});
+  if(error){flash("Reset fehlgeschlagen");return;}
+  flash("Nutzerdaten zurückgesetzt ✓");
+  await loadMasterData();
+  renderMasterView();
+}
+async function masterSyncUserProfileToState(id){
+  if(!supabaseClient)return;
+  const userData=masterState.users.find(u=>u.id===id);
+  if(!userData){flash("Nutzer nicht gefunden");return;}
+  const {error}=await supabaseClient.from("user_profiles").upsert({id,email:userData.email||null,first_name:userData.first_name||null,last_name:userData.last_name||null,plan:userData.plan||"Basis",address_street:userData.address_street||null,address_zip:userData.address_zip||null,address_city:userData.address_city||null,phone:userData.phone||null,updated_at:new Date().toISOString()});
+  if(error){flash("Profil-Sync fehlgeschlagen");return;}
+  flash("Profil synchronisiert ✓");
+  await loadMasterData();
+  renderMasterView();
+}
+async function masterCreateCustomer(){
+  if(!supabaseClient){flash("Supabase nicht verbunden");return;}
+  const firstName=(document.getElementById("mcFirst")?.value||"").trim();
+  const lastName=(document.getElementById("mcLast")?.value||"").trim();
+  const email=(document.getElementById("mcEmail")?.value||"").trim().toLowerCase();
+  const password=(document.getElementById("mcPass")?.value||"").trim();
+  const plan=(document.getElementById("mcPlan")?.value||"Basis").trim()||"Basis";
+  if(!email||!password){flash("E-Mail und Passwort sind Pflicht");return;}
+  if(password.length<6){flash("Passwort muss mindestens 6 Zeichen haben");return;}
+  const {data:sessionData}=await supabaseClient.auth.getSession();
+  const masterSession=sessionData?.session||null;
+  const {data,error}=await supabaseClient.auth.signUp({email,password,options:{data:{first_name:firstName,last_name:lastName,full_name:[firstName,lastName].join(" ").trim(),plan}}});
+  if(error){flash(`Anlage fehlgeschlagen: ${error.message||"Fehler"}`);if(masterSession?.access_token&&masterSession?.refresh_token){try{await supabaseClient.auth.setSession({access_token:masterSession.access_token,refresh_token:masterSession.refresh_token})}catch(e){}}return;}
+  const newUserId=data?.user?.id;
+  if(!newUserId){
+    flash("Kunde angelegt, aber ohne User-ID (E-Mail-Bestätigung prüfen)");
+    if(masterSession?.access_token&&masterSession?.refresh_token){try{await supabaseClient.auth.setSession({access_token:masterSession.access_token,refresh_token:masterSession.refresh_token})}catch(e){}}
+    return;
+  }
+  const profilePayload={id:newUserId,email,first_name:firstName||null,last_name:lastName||null,plan,updated_at:new Date().toISOString()};
+  const statePayload={user_id:newUserId,debts:[],budget_items:[],contracts:[],budget_month:new Date().toISOString().slice(0,7),updated_at:new Date().toISOString()};
+  const [{error:pErr},{error:sErr}]=await Promise.all([
+    supabaseClient.from("user_profiles").upsert(profilePayload),
+    supabaseClient.from("app_state").upsert(statePayload)
+  ]);
+  if(masterSession?.access_token&&masterSession?.refresh_token){
+    try{await supabaseClient.auth.setSession({access_token:masterSession.access_token,refresh_token:masterSession.refresh_token})}catch(e){}
+  }
+  if(pErr||sErr){flash(`Sync fehlgeschlagen: ${pErr?.message||sErr?.message||"Fehler"}`);return;}
+  ["mcFirst","mcLast","mcEmail","mcPass","mcPlan"].forEach(id=>{const el=document.getElementById(id);if(el)el.value=id==="mcPlan"?"Basis":"";});
+  await loadMasterData();
+  renderMasterView();
+  flash("Kunde in Supabase angelegt und synchronisiert ✓");
+}
+async function masterApplyPlanPreset(id,plan){
+  const input=document.getElementById(`muPlan-${id}`);
+  if(input)input.value=plan;
+  await masterSaveUser(id);
+}
+function rMasterUsersPanel(st){
+  const selected=masterState.users.find(x=>x.id===masterState.selectedUserId)||masterState.users[0]||null;
+  const selectedMetric=selected?(st.metrics.find(x=>x.user.id===selected.id)||masterUserMetrics(selected,masterStateMap())):null;
+  const usersList=masterState.users.map(u=>`<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;border:1px solid ${masterState.selectedUserId===u.id?'var(--ba)':'var(--b)'};padding:10px;border-radius:10px;background:${masterState.selectedUserId===u.id?'var(--emG2)':'transparent'}"><div style="min-width:0"><p style="font-size:14px;font-weight:700;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${mEsc(([u.first_name||"",u.last_name||""].join(" ").trim()||u.email||"Nutzer"))}</p><p style="font-size:12px;color:var(--tm);margin:2px 0 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${mEsc(u.email||"-")} · ${mEsc(u.plan||"Basis")}</p></div><div style="display:flex;gap:6px"><button class="btn btn-outline btn-sm" onclick="masterState.selectedUserId='${u.id}';renderMasterView()">Verwalten</button><button class="btn btn-ghost btn-sm" onclick="masterOpenUserSurface('${u.id}')">Oberfläche</button></div></div>`).join("")||`<p style="font-size:13px;color:var(--tm);margin:0">Keine Nutzer gefunden.</p>`;
+  const manageCard=!selected?`<div class="master-card"><p style="font-size:13px;color:var(--tm);margin:0">Kein Nutzer ausgewählt.</p></div>`:`<div class="master-card"><h3 style="font-size:16px;font-weight:700;margin:0 0 4px">Nutzerverwaltung</h3><p style="font-size:12px;color:var(--tm);margin:0 0 12px">${mEsc(selected.email||"-")}</p><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px"><div class="master-card" style="padding:10px"><p style="font-size:11px;color:var(--tm);margin:0">Einnahmen</p><p style="font-size:18px;font-weight:800;margin:4px 0 0;color:var(--em)">${fmt(selectedMetric?.income||0)}</p></div><div class="master-card" style="padding:10px"><p style="font-size:11px;color:var(--tm);margin:0">Ausgaben</p><p style="font-size:18px;font-weight:800;margin:4px 0 0;color:var(--co)">${fmt(selectedMetric?.expense||0)}</p></div><div class="master-card" style="padding:10px"><p style="font-size:11px;color:var(--tm);margin:0">Offen</p><p style="font-size:18px;font-weight:800;margin:4px 0 0;color:var(--am)">${fmt(selectedMetric?.debtOpen||0)}</p></div></div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px"><div class="field"><label>Vorname</label><div class="input-wrap"><input id="muFirst-${selected.id}" value="${mEsc(selected.first_name||"")}"></div></div><div class="field"><label>Nachname</label><div class="input-wrap"><input id="muLast-${selected.id}" value="${mEsc(selected.last_name||"")}"></div></div><div class="field"><label>Plan (individuell)</label><div class="input-wrap"><input id="muPlan-${selected.id}" value="${mEsc(selected.plan||"Basis")}"></div></div></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin:-2px 0 10px"><button class="chip" onclick="masterApplyPlanPreset('${selected.id}','Basis')">Basis</button><button class="chip" onclick="masterApplyPlanPreset('${selected.id}','Pro')">Pro</button><button class="chip" onclick="masterApplyPlanPreset('${selected.id}','Business')">Business</button><button class="chip" onclick="masterApplyPlanPreset('${selected.id}','Enterprise')">Enterprise</button></div><div style="display:grid;grid-template-columns:1fr 120px 1fr 1fr;gap:10px"><div class="field"><label>Straße</label><div class="input-wrap"><input id="muStreet-${selected.id}" value="${mEsc(selected.address_street||"")}"></div></div><div class="field"><label>PLZ</label><div class="input-wrap"><input id="muZip-${selected.id}" value="${mEsc(selected.address_zip||"")}"></div></div><div class="field"><label>Ort</label><div class="input-wrap"><input id="muCity-${selected.id}" value="${mEsc(selected.address_city||"")}"></div></div><div class="field"><label>Telefon</label><div class="input-wrap"><input id="muPhone-${selected.id}" value="${mEsc(selected.phone||"")}"></div></div></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-primary btn-sm" onclick="masterSaveUser('${selected.id}')">Änderungen speichern</button><button class="btn btn-outline btn-sm" onclick="masterSyncUserProfileToState('${selected.id}')">Profil Sync</button><button class="btn btn-outline btn-sm" onclick="masterResetUserState('${selected.id}')">Daten zurücksetzen</button></div></div>`;
+  const createCard=`<div class="master-card"><h3 style="font-size:16px;font-weight:700;margin:0 0 10px">Kunde manuell anlegen</h3><p style="font-size:12px;color:var(--tm);margin:0 0 12px">Legt einen Auth-Nutzer an und synchronisiert sofort `+"`user_profiles`"+` + `+"`app_state`"+` in Supabase.</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div class="field"><label>Vorname</label><div class="input-wrap"><input id="mcFirst" placeholder="Max"></div></div><div class="field"><label>Nachname</label><div class="input-wrap"><input id="mcLast" placeholder="Mustermann"></div></div></div><div class="field"><label>E-Mail</label><div class="input-wrap"><input id="mcEmail" type="email" placeholder="kunde@domain.de"></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div class="field"><label>Passwort</label><div class="input-wrap"><input id="mcPass" type="password" placeholder="mind. 6 Zeichen"></div></div><div class="field"><label>Startplan</label><div class="input-wrap"><input id="mcPlan" value="Basis"></div></div></div><button class="btn btn-primary btn-sm" onclick="masterCreateCustomer()">Kundenkonto in Supabase anlegen</button></div>`;
+  return `<div class="master-grid"><div class="master-card"><h3 style="font-size:16px;font-weight:700;margin:0 0 10px">Kunden</h3><div class="master-list">${usersList}</div></div><div class="flex-col">${manageCard}${createCard}</div></div>`;
+}
+async function masterSaveUser(id){
+  const get=(k)=>document.getElementById(`${k}-${id}`)?.value?.trim()||"";
+  const first=get("muFirst"),last=get("muLast"),plan=get("muPlan"),street=get("muStreet"),zip=get("muZip"),city=get("muCity"),phone=get("muPhone");
+  if(!supabaseClient)return;
+  const {error}=await supabaseClient.from("user_profiles").upsert({id,first_name:first,last_name:last,plan:plan||"Basis",address_street:street,address_zip:zip,address_city:city,phone,updated_at:new Date().toISOString()});
+  if(error){flash("Speichern fehlgeschlagen");return;}
+  flash("Nutzerdaten gespeichert ✓");
+  await loadMasterData();
+  renderMasterView();
+}
+async function masterSetUserPlan(id,plan){
+  const u=masterState.users.find(x=>x.id===id);
+  if(!u)return;
+  u.plan=plan||"Basis";
+  await masterSaveUser(id);
+}
+async function masterOpenUserSurface(id){
+  if(!supabaseClient)return;
+  const profile=masterState.users.find(u=>u.id===id);
+  const state=masterState.states.find(s=>s.user_id===id);
+  if(!profile||!state){flash("Keine Daten für Nutzer");return;}
+  if(!masterState.impersonating){
+    masterState.original={user:JSON.parse(JSON.stringify(user)),debts:JSON.parse(JSON.stringify(debts)),budgetItems:JSON.parse(JSON.stringify(budgetItems)),contracts:JSON.parse(JSON.stringify(contracts)),month:currentBudgetMonth};
+  }
+  masterState.impersonating=true;
+  user.loggedIn=true;user.email=profile.email||"";user.firstName=profile.first_name||"";user.lastName=profile.last_name||"";user.name=[user.firstName,user.lastName].join(" ").trim()||profile.email||"Nutzer";user.plan=profile.plan||"Basis";user.addressStreet=profile.address_street||"";user.addressZip=profile.address_zip||"";user.addressCity=profile.address_city||"";user.phone=profile.phone||"";
+  debts=Array.isArray(state.debts)?state.debts:[];
+  budgetItems=Array.isArray(state.budget_items)?state.budget_items:[];
+  contracts=Array.isArray(state.contracts)?state.contracts:[];
+  normalizeDebtStatuses();
+  if(isMasterMode){
+    const mr=document.getElementById("masterRoot");if(mr)mr.style.display="none";
+    const ly=document.querySelector(".layout");if(ly)ly.style.display="flex";
+    const mn=document.getElementById("mobileNav");if(mn)mn.style.display="";
+  }
+  currentPage="dashboard";
+  renderNav();
+  renderPage();
+  flash(`Kundenoberfläche geöffnet: ${user.name}`);
+}
+function masterStopImpersonation(){
+  if(!masterState.impersonating||!masterState.original)return;
+  user=masterState.original.user;
+  debts=masterState.original.debts;
+  budgetItems=masterState.original.budgetItems;
+  contracts=masterState.original.contracts;
+  currentBudgetMonth=masterState.original.month;
+  masterState.impersonating=false;
+  masterState.original=null;
+  if(isMasterMode){
+    const ly=document.querySelector(".layout");if(ly)ly.style.display="none";
+    const mn=document.getElementById("mobileNav");if(mn)mn.style.display="none";
+    const mr=document.getElementById("masterRoot");if(mr)mr.style.display="block";
+    renderMasterStandalone();
+  }else{
+    currentPage="master";
+    renderNav();
+    renderPage();
+  }
+  flash("Zurück im Master-Panel");
+}
+function rMasterPanel(){
+  if(!masterState.loggedIn){
+    return `<div class="master-login"><div class="master-card"><p style="font-size:12px;font-weight:700;letter-spacing:.6px;color:#86E8C0;margin:0 0 8px">RATENOVA ADMIN</p><h1 style="font-size:28px;font-weight:800;margin:0 0 8px">Master Login</h1><p style="font-size:13px;color:var(--tm);margin:0 0 14px">Komplett separater Zugang für interne Verwaltung.</p><div class="field"><label>Benutzername</label><div class="input-wrap"><input id="mUser" placeholder="master"></div></div><div class="field"><label>Passwort</label><div class="input-wrap"><input id="mPass" type="password" placeholder="master"></div></div>${masterState.error?`<p style="font-size:12px;color:var(--co);margin:0 0 10px">${masterState.error}</p>`:""}<div style="display:flex;gap:10px"><button class="btn btn-outline" style="flex:1" onclick="exitMasterPanel()">Zur Kunden-App</button><button class="btn btn-primary" style="flex:1" onclick="masterLogin()">Einloggen</button></div></div></div>`;
+  }
+  const st=masterStats();
+  const tab=masterState.tab;
+  const tabs=`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px"><button class="chip ${tab==="stats"?"active":""}" onclick="masterState.tab='stats';renderMasterView()">Übersicht</button><button class="chip ${tab==="finance"?"active":""}" onclick="masterState.tab='finance';renderMasterView()">Finanzen</button><button class="chip ${tab==="users"?"active":""}" onclick="masterState.tab='users';renderMasterView()">Kundenverwaltung</button><button class="chip ${tab==="plans"?"active":""}" onclick="masterState.tab='plans';renderMasterView()">Abo-Pläne</button><button class="chip ${tab==="system"?"active":""}" onclick="masterState.tab='system';renderMasterView()">System</button></div>`;
+  const top=`<div class="master-top"><div><p style="font-size:12px;color:#86E8C0;font-weight:700;letter-spacing:.6px;margin:0 0 4px">INTERNER BEREICH</p><h1 style="font-size:30px;font-weight:800;margin:0">Admin Master Panel</h1></div><div style="display:flex;gap:8px">${masterState.impersonating?`<button class="btn btn-ghost btn-sm" onclick="masterStopImpersonation()">Kundenansicht schließen</button>`:""}<button class="btn btn-outline btn-sm" onclick="loadMasterData().then(()=>renderMasterView())">Aktualisieren</button><button class="btn btn-danger btn-sm" onclick="masterLogout()">Logout</button></div></div>`;
+  const statsView=`<div><div class="master-kpis" style="margin-bottom:12px"><div class="master-card"><p style="font-size:11px;color:var(--tm);margin:0">Kunden gesamt</p><p style="font-size:30px;font-weight:800;margin:6px 0 0">${st.total}</p></div><div class="master-card"><p style="font-size:11px;color:var(--tm);margin:0">Aktive Datensätze</p><p style="font-size:30px;font-weight:800;margin:6px 0 0">${st.withState}</p></div><div class="master-card"><p style="font-size:11px;color:var(--tm);margin:0">Einnahmen gesamt</p><p style="font-size:30px;font-weight:800;margin:6px 0 0;color:var(--em)">${fmt(st.totalIncome)}</p></div><div class="master-card"><p style="font-size:11px;color:var(--tm);margin:0">Ausgaben gesamt</p><p style="font-size:30px;font-weight:800;margin:6px 0 0;color:var(--co)">${fmt(st.totalExpense)}</p></div></div><div class="master-kpis"><div class="master-card"><p style="font-size:11px;color:var(--tm);margin:0">Einnahmen aus Verkäufen</p><p style="font-size:30px;font-weight:800;margin:6px 0 0;color:#7DE6BE">${fmt(st.totalSales)}</p></div><div class="master-card"><p style="font-size:11px;color:var(--tm);margin:0">Offene Verbindlichkeiten</p><p style="font-size:30px;font-weight:800;margin:6px 0 0;color:var(--am)">${fmt(st.debtExposure)}</p></div><div class="master-card"><p style="font-size:11px;color:var(--tm);margin:0">Monatliche Verpflichtung</p><p style="font-size:30px;font-weight:800;margin:6px 0 0">${fmt(st.monthlyObligation)}</p></div><div class="master-card"><p style="font-size:11px;color:var(--tm);margin:0">Verträge / Verbindlichkeiten</p><p style="font-size:30px;font-weight:800;margin:6px 0 0">${st.totalContracts} / ${st.totalDebts}</p></div></div></div>`;
+  const q=(masterState.query||"").trim().toLowerCase();
+  const filtered=st.metrics.filter(m=>!q||`${m.user.first_name||""} ${m.user.last_name||""} ${m.user.email||""} ${m.user.plan||""}`.toLowerCase().includes(q));
+  const financeView=`<div class="master-card"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px"><h3 style="font-size:16px;font-weight:700;margin:0">Finanzübersicht aller Kunden</h3><div class="input-wrap" style="max-width:320px"><input placeholder="Suche Kunde / E-Mail / Plan" value="${mEsc(masterState.query)}" oninput="masterState.query=this.value;renderMasterView()"></div></div><div style="overflow:auto"><table style="width:100%;border-collapse:collapse;min-width:980px"><thead><tr><th style="text-align:left;padding:10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">Kunde</th><th style="text-align:right;padding:10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">Einnahmen</th><th style="text-align:right;padding:10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">davon Verkäufe</th><th style="text-align:right;padding:10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">Ausgaben</th><th style="text-align:right;padding:10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">Saldo</th><th style="text-align:right;padding:10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">Offen Verbindl.</th><th style="text-align:right;padding:10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">Monatl. Last</th><th style="text-align:right;padding:10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">Jahreskosten Verträge</th></tr></thead><tbody>${filtered.map(m=>`<tr><td style="padding:10px;border-bottom:1px solid var(--b)"><div style="font-size:13px;font-weight:700">${mEsc(([m.user.first_name||"",m.user.last_name||""].join(" ").trim()||m.user.email||"Nutzer"))}</div><div style="font-size:11px;color:var(--tm)">${mEsc(m.user.email||"-")} · ${mEsc(m.user.plan||"Basis")}</div></td><td style="padding:10px;border-bottom:1px solid var(--b);text-align:right;color:var(--em);font-weight:700">${fmt(m.income)}</td><td style="padding:10px;border-bottom:1px solid var(--b);text-align:right;color:#7DE6BE;font-weight:700">${fmt(m.sales)}</td><td style="padding:10px;border-bottom:1px solid var(--b);text-align:right;color:var(--co);font-weight:700">${fmt(m.expense)}</td><td style="padding:10px;border-bottom:1px solid var(--b);text-align:right;font-weight:700;color:${m.balance>=0?'var(--em)':'var(--co)'}">${fmt(m.balance)}</td><td style="padding:10px;border-bottom:1px solid var(--b);text-align:right">${fmt(m.debtOpen)}</td><td style="padding:10px;border-bottom:1px solid var(--b);text-align:right">${fmt(m.debtMonthly+m.contractMonthly)}</td><td style="padding:10px;border-bottom:1px solid var(--b);text-align:right">${fmt(m.contractYearly)}</td></tr>`).join("")||`<tr><td colspan="8" style="padding:18px;text-align:center;color:var(--tm)">Keine passenden Kunden gefunden.</td></tr>`}</tbody></table></div></div>`;
+  const usersView=rMasterUsersPanel(st);
+  const plansMap={};masterState.users.forEach(u=>{const p=u.plan||"Basis";plansMap[p]=(plansMap[p]||0)+1;});
+  const plansRows=masterState.users.map(u=>`<tr><td style="padding:10px;border-bottom:1px solid var(--b)">${mEsc(([u.first_name||"",u.last_name||""].join(" ").trim()||u.email||"Nutzer"))}</td><td style="padding:10px;border-bottom:1px solid var(--b)">${mEsc(u.email||"-")}</td><td style="padding:10px;border-bottom:1px solid var(--b);width:220px"><div class="input-wrap"><input id="muPlan-${u.id}" value="${mEsc(u.plan||"Basis")}"></div></td><td style="padding:10px;border-bottom:1px solid var(--b);text-align:right"><button class="btn btn-primary btn-sm" onclick="masterSaveUser('${u.id}')">Plan speichern</button></td></tr>`).join("");
+  const plansView=`<div class="master-grid"><div class="master-card"><h3 style="font-size:16px;font-weight:700;margin:0 0 10px">Abo-Plan Verteilung</h3>${Object.keys(plansMap).length?Object.entries(plansMap).map(([k,v])=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--b)"><span>${mEsc(k)}</span><strong>${v}</strong></div>`).join(""):`<p style="font-size:13px;color:var(--tm);margin:0">Keine Plandaten.</p>`}</div><div class="master-card"><h3 style="font-size:16px;font-weight:700;margin:0 0 10px">Plan-Management</h3><div style="overflow:auto"><table style="width:100%;border-collapse:collapse;min-width:720px"><thead><tr><th style="text-align:left;padding:10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">Name</th><th style="text-align:left;padding:10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">E-Mail</th><th style="text-align:left;padding:10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">Plan</th><th style="text-align:right;padding:10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">Aktion</th></tr></thead><tbody>${plansRows||`<tr><td colspan="4" style="padding:16px;text-align:center;color:var(--tm)">Keine Nutzer.</td></tr>`}</tbody></table></div></div></div>`;
+  const systemView=`<div class="master-grid"><div class="master-card"><h3 style="font-size:16px;font-weight:700;margin:0 0 10px">Systemstatus</h3><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div class="master-card" style="padding:12px"><p style="font-size:11px;color:var(--tm);margin:0">Supabase Client</p><p style="font-size:16px;font-weight:700;margin:6px 0 0;color:${supabaseClient?'var(--em)':'var(--co)'}">${supabaseClient?'Verbunden':'Nicht verbunden'}</p></div><div class="master-card" style="padding:12px"><p style="font-size:11px;color:var(--tm);margin:0">Master Session</p><p style="font-size:16px;font-weight:700;margin:6px 0 0;color:${masterState.loggedIn?'var(--em)':'var(--co)'}">${masterState.loggedIn?'Aktiv':'Inaktiv'}</p></div><div class="master-card" style="padding:12px"><p style="font-size:11px;color:var(--tm);margin:0">Letztes Update</p><p style="font-size:16px;font-weight:700;margin:6px 0 0">${new Date().toLocaleString("de-DE")}</p></div><div class="master-card" style="padding:12px"><p style="font-size:11px;color:var(--tm);margin:0">Datensätze geladen</p><p style="font-size:16px;font-weight:700;margin:6px 0 0">${masterState.states.length}</p></div></div></div><div class="master-card"><h3 style="font-size:16px;font-weight:700;margin:0 0 10px">Admin Aktionen</h3><p style="font-size:13px;color:var(--tm);line-height:1.6;margin:0 0 12px">Hier verwaltest du Daten zentral: Kundenstatus prüfen, Finanzdaten überblicken, Pläne anpassen und Kundensitzungen öffnen.</p><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-outline btn-sm" onclick="loadMasterData().then(()=>renderMasterView())">Daten neu laden</button><button class="btn btn-outline btn-sm" onclick="masterState.tab='finance';renderMasterView()">Zu Finanzen</button><button class="btn btn-outline btn-sm" onclick="masterState.tab='users';renderMasterView()">Zu Kunden</button></div></div></div>`;
+  const view=tab==="stats"?statsView:tab==="finance"?financeView:tab==="users"?usersView:tab==="plans"?plansView:systemView;
+  return `${top}${tabs}${masterState.error?`<div class="master-card" style="border-color:rgba(249,112,102,0.35);margin-bottom:10px"><p style="font-size:13px;color:var(--co);margin:0">${masterState.error}</p></div>`:""}${view}`;
+}
+function renderMasterStandalone(){const root=document.getElementById("masterRoot");if(!root)return;root.innerHTML=`<div class="master-shell">${rMasterPanel()}</div>`}
+
+function rSettings(){
+  if(!user.loggedIn){
+    return `<div class="card" style="text-align:center;padding:28px"><p style="font-size:18px;font-weight:700;margin:0 0 8px">Einstellungen</p><p style="font-size:13px;color:var(--tm);margin:0 0 14px">Bitte logge dich ein, um deine Benutzerdaten zu verwalten.</p><button class="btn btn-primary btn-sm" onclick="openLogin()">Anmelden</button></div>`;
+  }
+  return `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:12px"><h1 style="font-size:24px;font-weight:800;margin:0">Einstellungen</h1><span class="badge" style="background:var(--emG);color:var(--em)"><span class="badge-dot" style="background:var(--em)"></span>Konto</span></div>
+  <div class="card" style="margin-bottom:14px;padding:14px 16px;background:var(--bgE)"><p style="font-size:12px;font-weight:700;color:var(--ts);margin:0 0 8px;text-transform:uppercase;letter-spacing:0.8px">Benutzerdaten</p><p style="font-size:13px;color:var(--tm);margin:0;line-height:1.6">Hier verwaltest du deine persönlichen Einstellungen wie Adresse und Kontaktdaten.</p></div>
+  <div class="card" style="padding:18px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="field"><label>Vorname</label><div class="input-wrap"><input id="setFirstName" value="${(user.firstName||"").replace(/"/g,'&quot;')}" placeholder="Max"></div></div>
+      <div class="field"><label>Nachname</label><div class="input-wrap"><input id="setLastName" value="${(user.lastName||"").replace(/"/g,'&quot;')}" placeholder="Mustermann"></div></div>
+    </div>
+    <div class="field"><label>E-Mail</label><div class="input-wrap"><input id="setEmail" value="${(user.email||"").replace(/"/g,'&quot;')}" readonly></div></div>
+    <div class="field"><label>Adresse</label><div class="input-wrap"><input id="setStreet" value="${(user.addressStreet||"").replace(/"/g,'&quot;')}" placeholder="Straße und Hausnummer"></div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="field"><label>PLZ</label><div class="input-wrap"><input id="setZip" value="${(user.addressZip||"").replace(/"/g,'&quot;')}" placeholder="12345"></div></div>
+      <div class="field"><label>Ort</label><div class="input-wrap"><input id="setCity" value="${(user.addressCity||"").replace(/"/g,'&quot;')}" placeholder="München"></div></div>
+    </div>
+    <div class="field"><label>Telefon</label><div class="input-wrap"><input id="setPhone" value="${(user.phone||"").replace(/"/g,'&quot;')}" placeholder="+49 ..."></div></div>
+    <button class="btn btn-primary" onclick="saveSettings()">✓ Einstellungen speichern</button>
+  </div>`;
+}
+
+function saveSettings(){
+  if(!user.loggedIn){openLogin();return;}
+  const firstName=(document.getElementById("setFirstName")?.value||"").trim();
+  const lastName=(document.getElementById("setLastName")?.value||"").trim();
+  const street=(document.getElementById("setStreet")?.value||"").trim();
+  const zip=(document.getElementById("setZip")?.value||"").trim();
+  const city=(document.getElementById("setCity")?.value||"").trim();
+  const phone=(document.getElementById("setPhone")?.value||"").trim();
+
+  user.firstName=firstName;
+  user.lastName=lastName;
+  user.name=[firstName,lastName].join(" ").trim()||user.name||"Benutzer";
+  user.addressStreet=street;
+  user.addressZip=zip;
+  user.addressCity=city;
+  user.phone=phone;
+  saveUser();
+  upsertCloudProfile().catch(()=>{});
+  scheduleCloudSave();
+  try{localStorage.setItem(STORAGE_USER,JSON.stringify(user))}catch(e){}
+  renderNav();
+  renderPage();
+  flash("Einstellungen gespeichert ✓");
+}
+function rDash(){const T=gT(),enc=encs[Math.floor(Date.now()/864e5)%encs.length],B=calcBudgetStats();const nxt=T.next?`<div class="card clickable" onclick="openDetail(${T.next.id})" style="border-left:3px solid ${dU(T.next.due)<=2?"var(--co)":"var(--am)"}"><div style="display:flex;align-items:center;gap:14px"><div style="width:44px;height:44px;border-radius:12px;background:${dU(T.next.due)<=2?"var(--coG)":"var(--amG)"};display:flex;align-items:center;justify-content:center;font-size:20px">${T.next.emoji}</div><div style="flex:1"><p style="font-size:14px;font-weight:600;margin:0">${dU(T.next.due)===0?"Heute fällig":dU(T.next.due)<0?"Handlungsbedarf":`In ${dU(T.next.due)} Tagen fällig`}</p><p style="font-size:13px;color:var(--tm);margin:2px 0 0">${T.next.name} · ${fmt(T.next.rate)}</p></div><span style="color:var(--tm);font-size:20px">›</span></div></div>`:"";
+return`<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px;flex-wrap:wrap;gap:12px"><div><p style="font-size:13px;color:var(--tm);margin:0 0 4px">${new Date().toLocaleDateString("de-DE",{day:"numeric",month:"long",year:"numeric"})}</p><h1 style="font-size:32px;font-weight:800;margin:0 0 6px">Guten Tag, Alex</h1><p style="font-size:14px;color:var(--tm);margin:0">${enc}</p></div><button class="btn btn-ghost btn-sm" onclick="printOverview()" style="margin-top:6px">🖨️ Übersicht drucken</button></div>
+<div class="hero"><div class="hero-orb1"></div><div class="hero-orb2"></div><div style="display:flex;gap:24px;align-items:center;flex-wrap:wrap;position:relative"><div style="flex:1;min-width:220px"><p style="font-size:12px;color:var(--tm);margin:0 0 6px;text-transform:uppercase;letter-spacing:1.5px;font-weight:600">Offen gesamt</p><p style="font-size:48px;font-weight:800;margin:0 0 2px;line-height:1;letter-spacing:-1px">${fmt(T.r)}</p><p style="font-size:13px;color:var(--tm);margin:0 0 20px">von ${fmt(T.o)} ursprünglich</p><div style="display:flex;gap:28px;flex-wrap:wrap"><div><p style="font-size:11px;color:var(--tm);margin:0;text-transform:uppercase;letter-spacing:1px">Bezahlt</p><p style="font-size:17px;font-weight:700;margin:3px 0 0;color:var(--em)">${fmt(T.p)}</p></div><div><p style="font-size:11px;color:var(--tm);margin:0;text-transform:uppercase;letter-spacing:1px">Monat</p><p style="font-size:17px;font-weight:700;margin:3px 0 0">${fmt(T.m)}</p></div><div><p style="font-size:11px;color:var(--tm);margin:0;text-transform:uppercase;letter-spacing:1px">Streak</p><p style="font-size:17px;font-weight:700;margin:3px 0 0;color:var(--am)">6 Mo 🔥</p></div></div></div><div style="position:relative;flex-shrink:0"><div data-ring="${T.pct}" data-size="150" data-sw="9"></div><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center"><p style="font-size:36px;font-weight:800;margin:0;color:var(--em)">${T.pct}%</p><p style="font-size:11px;color:var(--tm);margin:0">geschafft</p></div></div></div></div>
+<div class="grid2" style="margin-bottom:20px">${nxt}<div class="card"><div style="display:flex;align-items:center;gap:14px"><div style="width:44px;height:44px;border-radius:12px;background:var(--emG);display:flex;align-items:center;justify-content:center;font-size:20px">🎯</div><div><p style="font-size:14px;font-weight:600;color:var(--em);margin:0">Entlastet in ~${Math.ceil(T.r/T.m)} Monaten</p><p style="font-size:13px;color:var(--tm);margin:2px 0 0">Weiter so!</p></div></div></div></div>
+<div class="card" style="margin-bottom:16px;padding:16px 18px"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px"><p style="font-size:12px;font-weight:700;color:var(--ts);margin:0;text-transform:uppercase;letter-spacing:0.8px">Ein- und Ausgaben</p><span style="font-size:12px;color:var(--tm)">${B.monthLabel}</span></div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px"><div style="padding:10px;border-radius:12px;background:var(--bgE);border:1px solid var(--b)"><p style="font-size:11px;color:var(--tm);margin:0">Einnahmen</p><p style="font-size:20px;font-weight:800;margin:5px 0 0;color:var(--em)">${fmt(B.inc)}</p></div><div style="padding:10px;border-radius:12px;background:var(--bgE);border:1px solid var(--b)"><p style="font-size:11px;color:var(--tm);margin:0">Ausgaben</p><p style="font-size:20px;font-weight:800;margin:5px 0 0;color:var(--co)">${fmt(B.exp)}</p></div><div style="padding:10px;border-radius:12px;background:var(--bgE);border:1px solid var(--b)"><p style="font-size:11px;color:var(--tm);margin:0">Saldo</p><p style="font-size:20px;font-weight:800;margin:5px 0 0;color:${B.bal>=0?'var(--em)':'var(--co)'}">${fmt(B.bal)}</p></div></div></div>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><h3 style="font-size:15px;font-weight:700;margin:0">Verbindlichkeiten</h3><button style="background:none;border:none;color:var(--em);font-size:13px;font-weight:600" onclick="goTo('debts')">Alle →</button></div>
+<div class="flex-col">${debts.slice(0,4).map(d=>{const st=gS(d),p=pc(d.paid,d.original);return`<div class="card clickable" onclick="openDetail(${d.id})"><div style="display:flex;align-items:center;gap:14px"><div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--bgE),var(--bgC));border:1px solid var(--b);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">${d.emoji}</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:4px"><p style="font-size:14px;font-weight:600;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${d.name}</p>${bdg(st)}</div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span style="font-size:12px;color:var(--tm)">${fmt(d.original-d.paid)} offen</span><span style="font-size:12px;font-weight:700;color:var(--em)">${p}%</span></div>${pb(p)}</div></div></div>`}).join("")}</div>`}
+
+function rDebts(){
+  const fs=[
+    {id:"all",l:"Alle",c:debts.length},
+    {id:"active",l:"Aktiv",c:debts.filter(d=>d.paid<d.original).length},
+    {id:"clarify",l:"Klärung",c:debts.filter(d=>["neu","in_pruefung","rueckfrage_offen","vereinbarung_in_verhandlung"].includes(getClarificationStatus(d))).length},
+    {id:"done",l:"Erledigt",c:debts.filter(d=>d.paid>=d.original).length}
+  ];
+  const list=debts.filter(d=>{
+    if(currentFilter==="active")return d.paid<d.original;
+    if(currentFilter==="clarify")return["neu","in_pruefung","rueckfrage_offen","vereinbarung_in_verhandlung"].includes(getClarificationStatus(d));
+    if(currentFilter==="done")return d.paid>=d.original;
+    return true;
+  });
+  return`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:12px"><h1 style="font-size:24px;font-weight:800;margin:0">Alle Verbindlichkeiten</h1><button class="btn btn-primary btn-sm" onclick="openAdd()">＋ Hinzufügen</button></div>
+  <div style="display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap">${fs.map(f=>`<button class="chip ${currentFilter===f.id?"active":""}" onclick="currentFilter='${f.id}';renderPage()">${f.l} (${f.c})</button>`).join("")}</div>
+  <div class="flex-col">${list.map(d=>{const st=gS(d),p=pc(d.paid,d.original),dy=dU(d.due),cs=getClarificationStatus(d),ps=getPaymentStatus(d);return`<div class="card clickable" onclick="openDetail(${d.id})" style="padding:18px"><div style="display:flex;align-items:center;gap:16px"><div style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,var(--bgE),var(--bgC));border:1px solid var(--b);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">${d.emoji}</div><div style="flex:1"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><p style="font-size:15px;font-weight:600;margin:0">${d.name}</p>${bdg(st)}</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">${statusBadge(clarificationMeta,cs,"Klärung")}${statusBadge(paymentMeta,ps,"Zahlung")}</div><div style="display:flex;gap:20px;margin-bottom:8px;flex-wrap:wrap"><span style="font-size:13px;color:var(--tm)">Offen: <strong style="color:var(--t)">${fmt(d.original-d.paid)}</strong></span><span style="font-size:13px;color:var(--tm)">Rate: <strong style="color:var(--t)">${fmt(d.rate)}/Mo</strong></span>${d.paid<d.original?`<span style="font-size:13px;color:var(--tm)">Fällig: <strong style="color:${dy<=2?"var(--co)":"var(--t)"}">${fD(d.due)}</strong></span>`:""}</div>${pb(p,5)}</div><span style="color:var(--tf);font-size:22px;flex-shrink:0">›</span></div></div>`}).join("")}${list.length===0?'<div style="text-align:center;padding:48px 0"><p style="font-size:36px;margin:0 0 8px">✨</p><p style="font-size:16px;font-weight:600">Keine Verbindlichkeiten</p></div>':""}</div>`}
+
+function rDet(){const d=debts.find(x=>x.id===selectedDebtId);if(!d)return`<div style="text-align:center;padding:60px"><button class="btn btn-primary" onclick="goTo('debts')">Zurück</button></div>`;const rem=d.original-d.paid,p=pc(d.paid,d.original),done=rem<=0,st=gS(d),mL=d.rate>0?Math.ceil(rem/d.rate):0;const hT=d.history.reduce((s,h)=>s+h.amount,0);
+return`<button onclick="goTo('debts')" style="background:none;border:none;color:var(--tm);font-size:13px;display:flex;align-items:center;gap:6px;margin-bottom:24px;padding:0">← Zurück</button><div class="grid2" style="gap:20px"><div>
+<div class="card ${done?"":"glow"}" style="margin-bottom:16px;text-align:center;padding:28px"><div style="font-size:40px;margin-bottom:8px">${d.emoji}</div><h2 style="font-size:22px;font-weight:800;margin:0 0 6px">${d.name}</h2>${bdg(st)}<div style="display:inline-block;position:relative;margin:28px 0 20px"><div data-ring="${p}" data-size="170" data-sw="10"></div><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center"><p style="font-size:40px;font-weight:800;margin:0;color:var(--em);line-height:1">${p}%</p><p style="font-size:12px;color:var(--tm);margin:4px 0 0">${done?"Geschafft! 🎉":"getilgt"}</p></div></div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;padding:16px 0 0;border-top:1px solid var(--b)"><div><p style="font-size:11px;color:var(--tm);margin:0;text-transform:uppercase">Gesamt</p><p style="font-size:20px;font-weight:700;margin:4px 0 0">${fmt(d.original)}</p></div><div><p style="font-size:11px;color:var(--tm);margin:0;text-transform:uppercase">Bezahlt</p><p style="font-size:20px;font-weight:700;margin:4px 0 0;color:var(--em)">${fmt(d.paid)}</p></div><div><p style="font-size:11px;color:var(--tm);margin:0;text-transform:uppercase">Offen</p><p style="font-size:20px;font-weight:700;margin:4px 0 0;color:${rem>0?"var(--co)":"var(--em)"}">${fmt(rem)}</p></div></div></div>
+${!done?`<button class="btn btn-primary btn-lg btn-full" style="margin-bottom:16px" onclick="openPay(${d.id})">✓ Beitrag erfassen</button>`:""}${done?`<div class="card" style="background:var(--emG);border:1px solid var(--ba);text-align:center;margin-bottom:16px;padding:20px"><p style="font-size:24px;margin:0 0 4px">🎉</p><p style="font-size:16px;font-weight:700;color:var(--em);margin:0">Ziel erreicht!</p></div>`:""}
+<div class="card" style="margin-bottom:16px"><h3 style="font-size:15px;font-weight:700;margin:0 0 14px">Ratenplan</h3>${[{l:"Monatliche Rate",v:fmt(d.rate)},{l:"Nächste Fälligkeit",v:done?"–":fDL(d.due)},{l:"Verbleibende Raten",v:done?"Keine":`${mL} Monate`}].map((r,i)=>`<div style="display:flex;justify-content:space-between;padding:10px 0;${i<2?"border-bottom:1px solid var(--b)":""}"><span style="font-size:13px;color:var(--tm)">${r.l}</span><span style="font-size:13px;font-weight:600">${r.v}</span></div>`).join("")}</div>
+${d.notes?`<div class="card" style="margin-bottom:16px"><h3 style="font-size:15px;font-weight:700;margin:0 0 8px">Notizen</h3><p style="font-size:14px;color:var(--tm);margin:0;line-height:1.6">${d.notes}</p></div>`:""}
+${(d.creditorName||d.creditorAddress||d.creditorPhone||d.creditorEmail)?`<div class="card" style="margin-bottom:16px"><h3 style="font-size:15px;font-weight:700;margin:0 0 14px">🏢 Gläubiger</h3>
+${[{l:"Name",v:d.creditorName},{l:"Adresse",v:d.creditorAddress},{l:"Telefon",v:d.creditorPhone,link:d.creditorPhone?"tel:"+d.creditorPhone.replace(/[^+0-9]/g,""):""},{l:"E-Mail",v:d.creditorEmail,link:d.creditorEmail?"mailto:"+d.creditorEmail:""}].filter(r=>r.v).map((r,i,a)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;${i<a.length-1?"border-bottom:1px solid var(--b)":""}"><span style="font-size:13px;color:var(--tm)">${r.l}</span>${r.link?`<a href="${r.link}" style="font-size:13px;font-weight:600;color:var(--em);text-decoration:none">${r.v}</a>`:`<span style="font-size:13px;font-weight:600">${r.v}</span>`}</div>`).join("")}
+</div>`:""} 
+${(d.bankIban||d.bankRef)?`<div class="card" style="margin-bottom:16px"><h3 style="font-size:15px;font-weight:700;margin:0 0 14px">🏦 Bankverbindung</h3>
+${[{l:"Kontoinhaber",v:d.bankName},{l:"IBAN",v:d.bankIban,mono:true},{l:"BIC",v:d.bankBic,mono:true},{l:"Verwendungszweck",v:d.bankRef,hl:true}].filter(r=>r.v).map((r,i,a)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;${i<a.length-1?"border-bottom:1px solid var(--b)":""}"><span style="font-size:13px;color:var(--tm)">${r.l}</span><span style="font-size:13px;font-weight:600;${r.mono?"font-family:monospace;letter-spacing:0.5px":""}${r.hl?";color:var(--am)":""}">${r.v}</span></div>`).join("")}
+<button class="btn btn-ghost btn-sm btn-full" style="margin-top:12px" onclick="navigator.clipboard.writeText('${(d.bankIban||"").replace(/'/g,"\\'")}').then(()=>flash('IBAN kopiert! 📋'))">📋 IBAN kopieren</button>
+</div>`:""}</div>
+<div><div class="card" style="margin-bottom:16px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><h3 style="font-size:15px;font-weight:700;margin:0">Zahlungshistorie</h3>${!done?`<button class="btn btn-ghost btn-sm" onclick="openPay(${d.id})">＋ Zahlung verbuchen</button>`:""}</div>${d.history.length===0?`<div style="text-align:center;padding:32px 0"><p style="font-size:32px;margin:0 0 8px">📝</p><p style="font-size:14px;color:var(--tm);margin:0 0 14px">Noch keine Zahlungen.</p>${!done?`<button class="btn btn-ghost btn-sm" onclick="openPay(${d.id})">Erste Zahlung verbuchen</button>`:""}</div>`:`${d.history.map((h,i)=>`<div style="display:flex;align-items:flex-start;gap:12px;padding:12px 0;${i<d.history.length-1?"border-bottom:1px solid var(--b)":""}"><div style="width:32px;height:32px;border-radius:10px;flex-shrink:0;background:var(--emG);border:1px solid var(--ba);display:flex;align-items:center;justify-content:center;color:var(--em);font-size:13px;font-weight:700">✓</div><div style="flex:1"><div style="display:flex;justify-content:space-between"><span style="font-size:14px;font-weight:500">${fD(h.date)}</span><span style="font-size:15px;font-weight:700;color:var(--em)">${fmt(h.amount)}</span></div>${h.note?`<p style="font-size:12px;color:var(--tm);margin:3px 0 0">${h.note}</p>`:""}</div></div>`).join("")}<div style="margin-top:16px;padding:14px 16px;border-radius:12px;background:var(--bgE);border:1px solid var(--b);display:flex;justify-content:space-between"><span style="font-size:13px;color:var(--tm)">${d.history.length} Zahlung${d.history.length!==1?"en":""}</span><span style="font-size:15px;font-weight:700;color:var(--em)">${fmt(hT)} gesamt</span></div>`}</div><button class="btn btn-danger btn-sm" onclick="deleteDebt(${d.id})">Position löschen</button> <button class="btn btn-outline btn-sm" style="margin-left:8px" onclick="openEdit(${d.id})">✏️ Bearbeiten</button></div></div>`}
+
+// ═══ VEREINBARUNGS-TOOL ═══
+const templates=[
+  {id:"ratenzahlung",name:"Ratenzahlungsvereinbarung",icon:"📋",desc:"Klassische Vereinbarung über Ratenzahlung einer offenen Forderung",tags:["Standard","Raten"]},
+  {id:"vergleich",name:"Vergleichsvereinbarung",icon:"🤝",desc:"Einigung auf einen reduzierten Betrag zur sofortigen oder schnellen Entlastung",tags:["Rabatt","Einigung"]},
+  {id:"stundung",name:"Stundungsvereinbarung",icon:"⏸️",desc:"Vorübergehende Aussetzung der Zahlungspflicht mit Wiederaufnahme",tags:["Pause","Aufschub"]},
+  {id:"teilzahlung",name:"Teilzahlungsangebot",icon:"✂️",desc:"Angebot einer einmaligen Teilzahlung zur vollständigen Erledigung",tags:["Einmalzahlung","Angebot"]},
+  {id:"mahnung_antwort",name:"Antwort auf Mahnung",icon:"📬",desc:"Höfliche Antwort auf eine Mahnung mit Zahlungsvorschlag",tags:["Mahnung","Reaktion"]},
+  {id:"haertefall",name:"Härtefallantrag",icon:"🛡️",desc:"Antrag auf besondere Berücksichtigung bei finanzieller Notlage",tags:["Notlage","Sozial"]},
+];
+
+let agreeForm={debt:null,template:null,step:1,data:{name:"",street:"",zip:"",city:"",creditor:"",creditorStreet:"",creditorZip:"",creditorCity:"",amount:"",rate:"",startDate:"",reason:"",offerAmount:"",pauseUntil:""}};
+
+function rAgree(){
+  if(agreeForm.step===3) return rAgreePreview();
+  if(agreeForm.step===2) return rAgreeForm();
+  // Step 1: Template selection
+  const activeDebts=debts.filter(d=>d.paid<d.original);
+  return`
+    <h1 style="font-size:24px;font-weight:800;margin:0 0 6px">Zahlungsvereinbarung</h1>
+    <p style="font-size:14px;color:var(--tm);margin:0 0 28px">Erstelle professionelle Schreiben an deine Gläubiger. Wähle eine Vorlage und fülle die Daten aus.</p>
+    
+    ${activeDebts.length>0?`<div style="margin-bottom:24px">
+      <label style="display:block;font-size:12px;font-weight:600;color:var(--ts);margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">1. Für welche Position?</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">${activeDebts.map(d=>`<button class="card clickable" onclick="selectAgreeDebt(${d.id})" style="padding:12px 16px;flex:none;${agreeForm.debt&&agreeForm.debt.id===d.id?'border-color:var(--ba);background:var(--emG2)':''}"><div style="display:flex;align-items:center;gap:10px"><span style="font-size:20px">${d.emoji}</span><div><p style="font-size:14px;font-weight:600;margin:0;text-align:left">${d.name}</p><p style="font-size:12px;color:var(--tm);margin:2px 0 0">${fmt(d.original-d.paid)} offen</p></div></div></button>`).join("")}</div>
+    </div>`:`<div class="card" style="text-align:center;padding:32px;margin-bottom:24px"><p style="font-size:28px;margin:0 0 8px">✅</p><p style="font-size:15px;font-weight:600;margin:0 0 4px">Keine offenen Verbindlichkeiten</p><p style="font-size:13px;color:var(--tm);margin:0">Du hast alle Verbindlichkeiten abgeschlossen!</p></div>`}
+    
+    <label style="display:block;font-size:12px;font-weight:600;color:var(--ts);margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">2. Vorlage wählen</label>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px">
+      ${templates.map(t=>`<div class="card clickable" onclick="selectTemplate('${t.id}')" style="padding:18px;${agreeForm.template===t.id?'border-color:var(--ba);background:var(--emG2)':''}">
+        <div style="display:flex;align-items:flex-start;gap:12px">
+          <span style="font-size:28px">${t.icon}</span>
+          <div>
+            <p style="font-size:14px;font-weight:700;margin:0 0 4px">${t.name}</p>
+            <p style="font-size:12px;color:var(--tm);margin:0 0 8px;line-height:1.5">${t.desc}</p>
+            <div style="display:flex;gap:4px">${t.tags.map(tag=>`<span style="font-size:10px;padding:3px 8px;border-radius:6px;background:var(--bgE);color:var(--ts);font-weight:600">${tag}</span>`).join("")}</div>
+          </div>
+        </div>
+      </div>`).join("")}
+    </div>
+    
+    ${agreeForm.debt&&agreeForm.template?`<div style="margin-top:24px;text-align:right"><button class="btn btn-primary btn-lg" onclick="agreeForm.step=2;renderPage()">Weiter → Daten eingeben</button></div>`:""}
+  `;
+}
+
+function selectAgreeDebt(id){
+  const d=debts.find(x=>x.id===id);
+  agreeForm.debt=d;
+  agreeForm.data.creditor=d.creditorName||d.name;
+  // Try to split "Straße Nr, PLZ Ort" into parts
+  const ca=d.creditorAddress||"";
+  const caParts=ca.split(",").map(s=>s.trim());
+  if(caParts.length>=2){agreeForm.data.creditorStreet=caParts[0];const plzOrt=caParts[1].match(/^(\d{5})\s+(.+)/);if(plzOrt){agreeForm.data.creditorZip=plzOrt[1];agreeForm.data.creditorCity=plzOrt[2]}else{agreeForm.data.creditorZip="";agreeForm.data.creditorCity=caParts[1]}}else{agreeForm.data.creditorStreet=ca;agreeForm.data.creditorZip="";agreeForm.data.creditorCity=""}
+  agreeForm.data.amount=String(d.original-d.paid);
+  agreeForm.data.rate=String(d.rate);
+  renderPage();
+}
+function selectTemplate(tid){agreeForm.template=tid;renderPage();}
+
+function rAgreeForm(){
+  const t=templates.find(x=>x.id===agreeForm.template);
+  const d=agreeForm.data;
+  const showRate=["ratenzahlung","mahnung_antwort"].includes(agreeForm.template);
+  const showOffer=["vergleich","teilzahlung"].includes(agreeForm.template);
+  const showPause=agreeForm.template==="stundung";
+  const showReason=["stundung","haertefall","mahnung_antwort"].includes(agreeForm.template);
+  
+  return`
+    <button onclick="agreeForm.step=1;renderPage()" style="background:none;border:none;color:var(--tm);font-size:13px;display:flex;align-items:center;gap:6px;margin-bottom:24px;padding:0">← Zurück zur Vorlagenauswahl</button>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px">
+      <span style="font-size:32px">${t.icon}</span>
+      <div><h2 style="font-size:20px;font-weight:800;margin:0">${t.name}</h2><p style="font-size:13px;color:var(--tm);margin:2px 0 0">${t.desc}</p></div>
+    </div>
+    
+    <div class="grid2" style="gap:16px;margin-bottom:8px">
+      <div>
+        <div class="card" style="margin-bottom:16px">
+          <h3 style="font-size:15px;font-weight:700;margin:0 0 16px">📍 Deine Angaben</h3>
+          <div class="field"><label>Dein vollständiger Name</label><div class="input-wrap"><input id="agN" value="${d.name}" oninput="agreeForm.data.name=this.value" placeholder="Max Mustermann"></div></div>
+          <div class="field"><label>Straße und Hausnummer</label><div class="input-wrap"><input id="agSt" value="${d.street}" oninput="agreeForm.data.street=this.value" placeholder="Musterstraße 1"></div></div>
+          <div style="display:grid;grid-template-columns:120px 1fr;gap:12px"><div class="field"><label>PLZ</label><div class="input-wrap"><input id="agZip" value="${d.zip}" oninput="agreeForm.data.zip=this.value" placeholder="12345" maxlength="5"></div></div><div class="field"><label>Ort</label><div class="input-wrap"><input id="agCity" value="${d.city}" oninput="agreeForm.data.city=this.value" placeholder="Berlin"></div></div></div>
+        </div>
+        <div class="card">
+          <h3 style="font-size:15px;font-weight:700;margin:0 0 16px">🏢 Gläubiger</h3>
+          <div class="field"><label>Name des Gläubigers</label><div class="input-wrap"><input id="agC" value="${d.creditor}" oninput="agreeForm.data.creditor=this.value" placeholder="Firma / Person"></div></div>
+          <div class="field"><label>Straße und Hausnummer</label><div class="input-wrap"><input id="agCSt" value="${d.creditorStreet}" oninput="agreeForm.data.creditorStreet=this.value" placeholder="Leopoldstr. 88"></div></div>
+          <div style="display:grid;grid-template-columns:120px 1fr;gap:12px"><div class="field"><label>PLZ</label><div class="input-wrap"><input id="agCZip" value="${d.creditorZip}" oninput="agreeForm.data.creditorZip=this.value" placeholder="80802" maxlength="5"></div></div><div class="field"><label>Ort</label><div class="input-wrap"><input id="agCCity" value="${d.creditorCity}" oninput="agreeForm.data.creditorCity=this.value" placeholder="München"></div></div></div>
+        </div>
+      </div>
+      <div>
+        <div class="card">
+          <h3 style="font-size:15px;font-weight:700;margin:0 0 16px">💰 Zahlungsdetails</h3>
+          <div class="field"><label>Offener Gesamtbetrag</label><div class="input-wrap"><input id="agAm" type="number" value="${d.amount}" oninput="agreeForm.data.amount=this.value" placeholder="0"><span class="suffix">€</span></div></div>
+          ${showRate?`<div class="field"><label>Vorgeschlagene Monatsrate</label><div class="input-wrap"><input id="agR" type="number" value="${d.rate}" oninput="agreeForm.data.rate=this.value" placeholder="0"><span class="suffix">€</span></div></div>
+          <div class="field"><label>Beginn der Ratenzahlung</label><div class="input-wrap"><input id="agSD" type="date" value="${d.startDate}" oninput="agreeForm.data.startDate=this.value"></div></div>`:""}
+          ${showOffer?`<div class="field"><label>Angebotener Betrag (reduziert)</label><div class="input-wrap"><input id="agOA" type="number" value="${d.offerAmount}" oninput="agreeForm.data.offerAmount=this.value" placeholder="0"><span class="suffix">€</span></div></div>
+          <p style="font-size:12px;color:var(--am);margin:-8px 0 16px">💡 Tipp: 60–80% der Forderung sind oft verhandelbar</p>`:""}
+          ${showPause?`<div class="field"><label>Stundung bis (Datum)</label><div class="input-wrap"><input id="agPU" type="date" value="${d.pauseUntil}" oninput="agreeForm.data.pauseUntil=this.value"></div></div>`:""}
+          ${showReason?`<div class="field"><label>Begründung</label><div class="input-wrap"><input id="agRs" value="${d.reason}" oninput="agreeForm.data.reason=this.value" placeholder="z.B. Arbeitslosigkeit, Krankheit..."></div></div>`:""}
+        </div>
+      </div>
+    </div>
+    
+    <div style="display:flex;gap:12px;margin-top:20px;justify-content:flex-end">
+      <button class="btn btn-outline" onclick="agreeForm.step=1;renderPage()">Zurück</button>
+      <button class="btn btn-primary btn-lg" onclick="generateAgreement()">✨ Vereinbarung generieren</button>
+    </div>`;
+}
+
+function generateAgreement(){
+  const d=agreeForm.data;
+  if(!d.name||!d.creditor||!d.amount){flash("Bitte mindestens Name, Gläubiger und Betrag ausfüllen");return;}
+  agreeForm.step=3;renderPage();
+}
+
+function getDocContent(){
+  const d=agreeForm.data;
+  const today=new Date().toLocaleDateString("de-DE",{day:"numeric",month:"long",year:"numeric"});
+  const amt=parseFloat(d.amount)||0;
+  const rate=parseFloat(d.rate)||0;
+  const offer=parseFloat(d.offerAmount)||0;
+  const months=rate>0?Math.ceil(amt/rate):0;
+  const t=agreeForm.template;
+  
+  let betreff="",body="",closing="";
+  
+  if(t==="ratenzahlung"){
+    betreff=`Bitte um Ratenzahlungsvereinbarung – Offene Forderung ${fmt(amt)}`;
+    body=`hiermit bitte ich Sie höflich um die Möglichkeit einer Ratenzahlungsvereinbarung bezüglich der oben genannten offenen Forderung in Höhe von ${fmt(amt)}.
+
+Aufgrund meiner aktuellen finanziellen Situation${d.reason?` (${d.reason})`:""} bin ich leider nicht in der Lage, den Gesamtbetrag auf einmal zu begleichen. Ich möchte meiner Zahlungsverpflichtung jedoch unbedingt nachkommen und schlage daher folgende Ratenzahlung vor:
+
+    Gesamtbetrag:        ${fmt(amt)}
+    Monatliche Rate:     ${fmt(rate)}
+    Laufzeit:            ca. ${months} Monate
+    Beginn:              ${d.startDate?fDL(d.startDate):"zum nächstmöglichen Zeitpunkt"}
+    Zahlungsweise:       monatlich per Überweisung
+
+Die Raten werden jeweils zum 1. des Monats auf Ihr Konto überwiesen. Ich versichere Ihnen, die vereinbarten Raten pünktlich und vollständig zu leisten.
+
+Sollte sich meine finanzielle Situation verbessern, werde ich die Raten entsprechend erhöhen, um die Forderung schneller zu begleichen.`;
+    closing="Ich bitte Sie, diesem Vorschlag zuzustimmen und mir eine schriftliche Bestätigung der Vereinbarung zukommen zu lassen.";
+  }
+  else if(t==="vergleich"){
+    const pct=amt>0?Math.round(offer/amt*100):0;
+    betreff=`Vergleichsangebot – Offene Forderung ${fmt(amt)}`;
+    body=`hiermit unterbreite ich Ihnen ein Vergleichsangebot bezüglich der oben genannten offenen Forderung in Höhe von ${fmt(amt)}.
+
+Aufgrund meiner derzeitigen finanziellen Lage${d.reason?` (${d.reason})`:""} bin ich leider nicht in der Lage, den vollen Betrag zu begleichen. Um die Angelegenheit dennoch einvernehmlich zu lösen, schlage ich folgenden Vergleich vor:
+
+    Offene Forderung:    ${fmt(amt)}
+    Vergleichsangebot:   ${fmt(offer)} (${pct}% der Forderung)
+    Zahlungsfrist:       innerhalb von 14 Tagen nach Annahme
+    Bedingung:           Vollständige Erledigung der Forderung
+
+Im Gegenzug bitte ich Sie, die Restforderung in Höhe von ${fmt(amt-offer)} zu erlassen und die Angelegenheit als vollständig erledigt zu betrachten.
+
+Dieses Angebot stellt die maximale Summe dar, die ich unter meinen aktuellen Umständen aufbringen kann.`;
+    closing="Ich hoffe auf Ihre Zustimmung und bitte um eine schriftliche Bestätigung des Vergleichs.";
+  }
+  else if(t==="stundung"){
+    betreff=`Antrag auf Stundung – Offene Forderung ${fmt(amt)}`;
+    body=`hiermit bitte ich Sie höflich um eine vorübergehende Stundung der offenen Forderung in Höhe von ${fmt(amt)}.
+
+${d.reason?`Aufgrund von ${d.reason} befinde ich mich derzeit in einer finanziellen Ausnahmesituation.`:"Aufgrund meiner aktuellen finanziellen Situation bin ich vorübergehend nicht in der Lage, Zahlungen zu leisten."} Ich bin jedoch fest entschlossen, meinen Zahlungsverpflichtungen nachzukommen, sobald sich meine Lage stabilisiert hat.
+
+    Offene Forderung:    ${fmt(amt)}
+    Stundung erbeten bis: ${d.pauseUntil?fDL(d.pauseUntil):"[Datum bitte eintragen]"}
+    Danach:              Wiederaufnahme der Zahlungen${rate>0?` in Höhe von ${fmt(rate)}/Monat`:""}
+
+Ich versichere Ihnen, dass ich die Stundungsphase nutzen werde, um meine finanzielle Situation zu ordnen und anschließend die Zahlungen regulär aufzunehmen.`;
+    closing="Für Ihre Kulanz in dieser schwierigen Zeit wäre ich Ihnen sehr dankbar. Bitte lassen Sie mich wissen, ob Sie meinem Antrag zustimmen können.";
+  }
+  else if(t==="teilzahlung"){
+    betreff=`Angebot einer Teilzahlung – Offene Forderung ${fmt(amt)}`;
+    body=`hiermit wende ich mich an Sie bezüglich der oben genannten offenen Forderung in Höhe von ${fmt(amt)}.
+
+Nach sorgfältiger Prüfung meiner finanziellen Möglichkeiten bin ich in der Lage, Ihnen eine einmalige Teilzahlung in folgender Höhe anzubieten:
+
+    Offene Forderung:    ${fmt(amt)}
+    Einmalzahlung:       ${fmt(offer)}
+    Zahlungsfrist:       innerhalb von 7 Tagen nach Annahme
+
+Ich bitte Sie, diese Zahlung als vollständige und abschließende Erledigung der Forderung zu akzeptieren. ${d.reason?`Der Grund für mein eingeschränktes Leistungsvermögen ist: ${d.reason}.`:""}
+
+Mir ist bewusst, dass dieses Angebot unter dem Gesamtbetrag liegt. Ich versichere Ihnen jedoch, dass es das Maximum darstellt, das ich derzeit aufbringen kann.`;
+    closing="Ich hoffe auf Ihr Verständnis und eine einvernehmliche Lösung. Bitte bestätigen Sie mir Ihre Annahme schriftlich.";
+  }
+  else if(t==="mahnung_antwort"){
+    betreff=`Stellungnahme zu Ihrer Mahnung – Forderung ${fmt(amt)}`;
+    body=`ich habe Ihre Mahnung bezüglich der offenen Forderung in Höhe von ${fmt(amt)} erhalten.
+
+Ich möchte Ihnen versichern, dass ich meiner Zahlungsverpflichtung nachkommen möchte. ${d.reason?`Leider befinde ich mich aufgrund von ${d.reason} derzeit in einer schwierigen finanziellen Lage.`:"Leider bin ich derzeit nicht in der Lage, den Gesamtbetrag sofort zu begleichen."}
+
+Um die Angelegenheit zu lösen, schlage ich folgende Ratenzahlung vor:
+
+    Offene Forderung:    ${fmt(amt)}
+    Monatliche Rate:     ${fmt(rate)}
+    Laufzeit:            ca. ${months} Monate
+    Beginn:              ${d.startDate?fDL(d.startDate):"sofort"}
+
+Ich bitte Sie, von weiteren Mahngebühren und rechtlichen Schritten abzusehen, sofern Sie meinem Vorschlag zustimmen. Die Raten werden pünktlich und zuverlässig geleistet.`;
+    closing="Ich danke Ihnen für Ihr Verständnis und bitte um eine zeitnahe Rückmeldung zu meinem Vorschlag.";
+  }
+  else if(t==="haertefall"){
+    betreff=`Härtefallantrag – Offene Forderung ${fmt(amt)}`;
+    body=`hiermit stelle ich einen Antrag auf Berücksichtigung eines besonderen Härtefalls bezüglich der offenen Forderung in Höhe von ${fmt(amt)}.
+
+${d.reason?`Aufgrund von ${d.reason} befinde`:""} ich mich derzeit in einer außergewöhnlichen finanziellen Notlage, die es mir unmöglich macht, die Forderung wie vorgesehen zu begleichen. Ich möchte Sie daher um besondere Kulanz bitten.
+
+Meine aktuelle Situation:
+${d.reason?`    Grund: ${d.reason}`:"    [Bitte Grund angeben]"}
+    Offene Forderung: ${fmt(amt)}
+    Meine Möglichkeiten: ${rate>0?`Maximal ${fmt(rate)}/Monat`:"derzeit keine regelmäßigen Zahlungen möglich"}
+
+Ich bin selbstverständlich bereit, alle erforderlichen Nachweise über meine finanzielle Situation vorzulegen (z.B. Einkommensnachweise, Bescheide, ärztliche Atteste).
+
+Ich bitte Sie um folgende Möglichkeiten:
+    • Reduzierung der Forderung
+    • Aussetzung von Mahngebühren und Zinsen
+    • Vereinbarung einer tragbaren Ratenzahlung
+    • Stundung bis zur Verbesserung meiner Situation`;
+    closing="Ich vertraue auf Ihr Verständnis für meine besondere Lage und hoffe auf eine einvernehmliche Lösung.";
+  }
+  
+  return{betreff,body,closing,today};
+}
+
+function rAgreePreview(){
+  const d=agreeForm.data;
+  const t=templates.find(x=>x.id===agreeForm.template);
+  const doc=getDocContent();
+  
+  const letterHtml=`
+    <div style="background:#fff;color:#1a1a1a;border-radius:12px;padding:40px;font-family:'Georgia','Times New Roman',serif;font-size:14px;line-height:1.7;max-width:700px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:32px">
+        <div><strong>${d.name||"[Name]"}</strong><br>${d.street||"[Straße Hausnummer]"}<br>${d.zip||"[PLZ]"} ${d.city||"[Ort]"}</div>
+        <div style="text-align:right;color:#555">${doc.today}</div>
+      </div>
+      <div style="margin-bottom:24px"><strong>${d.creditor||"[Gläubiger]"}</strong><br>${d.creditorStreet||"[Straße Hausnummer]"}<br>${d.creditorZip||"[PLZ]"} ${d.creditorCity||"[Ort]"}</div>
+      <p style="font-weight:700;margin:0 0 20px;font-size:15px">Betreff: ${doc.betreff}</p>
+      <p style="margin:0 0 16px">Sehr geehrte Damen und Herren,</p>
+      <div style="white-space:pre-wrap;margin:0 0 16px">${doc.body}</div>
+      <p style="margin:0 0 24px">${doc.closing}</p>
+      <p style="margin:0 0 8px">Mit freundlichen Grüßen</p>
+      <p style="margin:0;font-weight:600">${d.name||"[Unterschrift]"}</p>
+    </div>`;
+  
+  return`
+    <button onclick="agreeForm.step=2;renderPage()" style="background:none;border:none;color:var(--tm);font-size:13px;display:flex;align-items:center;gap:6px;margin-bottom:24px;padding:0">← Zurück zur Bearbeitung</button>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+      <span style="font-size:28px">${t.icon}</span>
+      <div><h2 style="font-size:20px;font-weight:800;margin:0">${t.name}</h2><p style="font-size:13px;color:var(--tm);margin:2px 0 0">Vorschau – prüfe den Text und kopiere oder drucke ihn</p></div>
+    </div>
+    
+    <div style="border:1px solid var(--bl);border-radius:16px;padding:4px;margin-bottom:20px;background:var(--bgE)">
+      ${letterHtml}
+    </div>
+    
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
+      <button class="btn btn-outline" onclick="agreeForm.step=2;renderPage()">✏️ Bearbeiten</button>
+      <button class="btn btn-ghost" onclick="copyAgreement()">📋 Text kopieren</button>
+      <button class="btn btn-primary" onclick="printAgreement()">🖨️ Drucken / PDF</button>
+      <button class="btn btn-outline" onclick="agreeForm={debt:null,template:null,step:1,data:{name:'',street:'',zip:'',city:'',creditor:'',creditorStreet:'',creditorZip:'',creditorCity:'',amount:'',rate:'',startDate:'',reason:'',offerAmount:'',pauseUntil:''}};renderPage()">🔄 Neue Vereinbarung</button>
+    </div>`;
+}
+
+function copyAgreement(){
+  const doc=getDocContent();
+  const d=agreeForm.data;
+  const text=`${d.name}\n${d.street}\n${d.zip} ${d.city}\n\n${doc.today}\n\n${d.creditor}\n${d.creditorStreet}\n${d.creditorZip} ${d.creditorCity}\n\nBetreff: ${doc.betreff}\n\nSehr geehrte Damen und Herren,\n\n${doc.body}\n\n${doc.closing}\n\nMit freundlichen Grüßen\n${d.name}`;
+  navigator.clipboard.writeText(text).then(()=>flash("Text in Zwischenablage kopiert! 📋")).catch(()=>flash("Kopieren fehlgeschlagen"));
+}
+
+function printAgreement(){
+  const doc=getDocContent();
+  const d=agreeForm.data;
+  const w=window.open("","_blank");
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${doc.betreff}</title><style>body{font-family:Georgia,'Times New Roman',serif;font-size:13pt;line-height:1.8;color:#1a1a1a;max-width:680px;margin:40px auto;padding:0 20px}@media print{body{margin:0;padding:20px}}.header{display:flex;justify-content:space-between;margin-bottom:36px}.to{margin-bottom:28px}.subject{font-weight:700;margin-bottom:24px;font-size:14pt}pre{white-space:pre-wrap;font-family:inherit;margin:0 0 18px}</style></head><body>
+  <div class="header"><div><strong>${d.name||""}</strong><br>${d.street||""}<br>${d.zip||""} ${d.city||""}</div><div style="text-align:right">${doc.today}</div></div>
+  <div class="to"><strong>${d.creditor||""}</strong><br>${d.creditorStreet||""}<br>${d.creditorZip||""} ${d.creditorCity||""}</div>
+  <p class="subject">Betreff: ${doc.betreff}</p>
+  <p>Sehr geehrte Damen und Herren,</p>
+  <pre>${doc.body}</pre>
+  <p>${doc.closing}</p>
+  <p style="margin-top:28px">Mit freundlichen Grüßen</p>
+  <p style="margin-top:40px;font-weight:600">${d.name||""}</p>
+  </body></html>`);
+  w.document.close();
+  setTimeout(()=>w.print(),300);
+}
+
+function rTime(){const T=gT(),allP=debts.flatMap(d=>d.history.map(h=>({...h,dn:d.name,e:d.emoji}))).sort((a,b)=>new Date(b.date)-new Date(a.date));
+return`<h1 style="font-size:24px;font-weight:800;margin:0 0 24px">Verlauf & Statistiken</h1><div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px">${[{l:"Fortschritt",v:fmt(T.p),c:"var(--em)"},{l:"Offen",v:fmt(T.r),c:"var(--co)"},{l:"Zahlungen",v:debts.reduce((s,d)=>s+d.history.length,0),c:"var(--sk)"},{l:"Streak",v:"6 Mo 🔥",c:"var(--am)"}].map(s=>`<div class="card" style="flex:1;min-width:130px;padding:16px"><p style="font-size:11px;font-weight:600;color:var(--tm);text-transform:uppercase;letter-spacing:1px;margin:0 0 10px">${s.l}</p><p style="font-size:24px;font-weight:700;margin:0;color:${s.c};line-height:1">${s.v}</p></div>`).join("")}</div><div class="card" style="padding:22px"><h3 style="font-size:15px;font-weight:700;margin:0 0 16px">Letzte Zahlungen</h3>${allP.slice(0,12).map((h,i)=>`<div style="display:flex;align-items:center;gap:12px;padding:10px 0;${i<11?"border-bottom:1px solid var(--b)":""}"><span style="font-size:18px">${h.e}</span><div style="flex:1"><span style="font-size:13px;font-weight:500">${h.dn}</span>${h.note?`<span style="font-size:12px;color:var(--tm)"> · ${h.note}</span>`:""}</div><span style="font-size:12px;color:var(--tm)">${fD(h.date)}</span><span style="font-size:14px;font-weight:700;color:var(--em);min-width:60px;text-align:right">${fmt(h.amount)}</span></div>`).join("")}</div>`}
+
+let budgetItems=[];
+let currentBudgetMonth=(new Date().toISOString().slice(0,7));
+let contracts=[];
+function calcBudgetStats(month=currentBudgetMonth){
+  const manualItems=budgetItems.filter(i=>i.date&&i.date.startsWith(month));
+  const monthEnd=`${month}-31`;
+  const plannedDebtExpenses=debts.filter(d=>d.paid<d.original).flatMap(d=>{
+    const ps=getPaymentStatus(d),remaining=Math.max(d.original-d.paid,0),dueDay=((d.due||"").split("-")[2]||"01");
+    const pDate=`${month}-${dueDay}`;
+    if(ps==="ratenplan_aktiv")return [{amount:Math.min(d.rate||0,remaining)}];
+    if(ps==="faellig_einmalig"&&(d.due||"").startsWith(month))return [{amount:remaining}];
+    if(ps==="ueberfaellig"&&((d.due||"")<=monthEnd))return [{amount:remaining}];
+    return [];
+  });
+  const inc=manualItems.filter(i=>i.type==="income").reduce((s,i)=>s+(i.amount||0),0);
+  const exp=manualItems.filter(i=>i.type==="expense").reduce((s,i)=>s+(i.amount||0),0)+plannedDebtExpenses.reduce((s,i)=>s+(i.amount||0),0);
+  const bal=inc-exp;
+  const monthLabel=new Date(month+"-01T00:00:00").toLocaleDateString("de-DE",{month:"long",year:"numeric"});
+  return{inc,exp,bal,monthLabel};
+}
+const cancelTemplates=[
+  {id:"ordentlich",name:"Ordentliche Kündigung",icon:"📄",desc:"Fristgerechte Kündigung zum nächstmöglichen Termin",tags:["Standard","Frist"]},
+  {id:"ausserordentlich",name:"Außerordentliche Kündigung",icon:"⚠️",desc:"Kündigung aus wichtigem Grund",tags:["Sonderfall","Sofort"]},
+  {id:"preissteigerung",name:"Kündigung wegen Preiserhöhung",icon:"📈",desc:"Beendigung wegen nicht akzeptierter Preisänderung",tags:["Kosten","Sonderrecht"]},
+  {id:"widerruf",name:"Widerruf (14 Tage)",icon:"↩️",desc:"Widerruf bei Neuabschluss innerhalb der Frist",tags:["Widerruf","Neuvertrag"]},
+];
+let cancelForm={contractId:null,template:null,step:1,data:{senderName:"",senderStreet:"",senderZip:"",senderCity:"",senderEmail:"",reason:"",effectiveDate:"",customNote:""}};
+function contractAnnualCost(c){const m=+c.monthlyCost||0,y=+c.yearlyCost||0;return y>0?y:m*12}
+function contractIncreasePct(c){const prev=+c.previousAnnualCost||0,cur=contractAnnualCost(c);if(prev<=0)return 0;return Math.round(((cur-prev)/prev)*100)}
+function contractDelta(c){const prev=+c.previousAnnualCost||0;return prev>0?contractAnnualCost(c)-prev:0}
+function contractEffectiveDeadline(c){
+  if(c.cancelBy)return c.cancelBy;
+  if(!c.startDate||!(+c.minTermMonths>0)||!(+c.noticeDays>0))return "";
+  const d=new Date(c.startDate+"T00:00:00");
+  d.setMonth(d.getMonth()+(+c.minTermMonths));
+  d.setDate(d.getDate()-(+c.noticeDays));
+  return d.toISOString().slice(0,10);
+}
+function contractDaysLeft(c){const dead=contractEffectiveDeadline(c);if(!dead)return null;return Math.ceil((new Date(dead+"T00:00:00")-new Date())/864e5)}
+function contractStatusBadge(c){const days=contractDaysLeft(c);if(c.status==="cancelled")return `<span class="badge" style="background:rgba(160,163,177,0.16);color:#A0A3B1"><span class="badge-dot" style="background:#A0A3B1"></span>Gekündigt</span>`;if(days!==null&&days<=14)return `<span class="badge" style="background:var(--coG);color:var(--co)"><span class="badge-dot" style="background:var(--co)"></span>Frist akut</span>`;if(days!==null&&days<=45)return `<span class="badge" style="background:var(--amG);color:var(--am)"><span class="badge-dot" style="background:var(--am)"></span>Frist bald</span>`;return `<span class="badge" style="background:var(--emG);color:var(--em)"><span class="badge-dot" style="background:var(--em)"></span>Aktiv</span>`}
+function contractLetter(c){const name=[user.firstName||"",user.lastName||""].join(" ").trim()||user.name||"",deadline=contractEffectiveDeadline(c),contractNo=c.contractNo?`\nVertragsnummer: ${c.contractNo}`:"";return`Betreff: Kündigung ${c.name||"Vertrag"}${contractNo}\n\nSehr geehrte Damen und Herren,\n\nhiermit kündige ich meinen Vertrag \"${c.name||""}\" fristgerecht zum nächstmöglichen Termin.${deadline?`\nNach meiner Berechnung muss die Kündigung bis zum ${fDL(deadline)} eingehen.`:""}\n\nBitte bestätigen Sie mir schriftlich den Erhalt sowie das Vertragsende.\n\nKundendaten:\nName: ${name}\nE-Mail: ${user.email||""}\n${c.paymentMethod?`Zahlungsart: ${c.paymentMethod}\n`:""}\nMit freundlichen Grüßen\n${name}`;}
+function contractCategorySummary(){
+  const map={};
+  contracts.forEach(c=>{const k=(c.category||"Sonstiges").trim()||"Sonstiges";map[k]=(map[k]||0)+contractAnnualCost(c)});
+  return Object.entries(map).sort((a,b)=>b[1]-a[1]);
+}
+function rContracts(){
+  const totalAnnual=contracts.reduce((s,c)=>s+contractAnnualCost(c),0);
+  const raised=contracts.filter(c=>contractIncreasePct(c)>=10);
+  const urgent=contracts.filter(c=>{const d=contractDaysLeft(c);return d!==null&&d<=30&&d>=-30});
+  const totalDelta=contracts.reduce((s,c)=>s+contractDelta(c),0);
+  const byCat=contractCategorySummary();
+  const row=(c)=>{const ann=contractAnnualCost(c),pct=contractIncreasePct(c),delta=contractDelta(c),days=contractDaysLeft(c),docs=(c.documents||[]).length,dl=contractEffectiveDeadline(c);return`<div class="card" style="padding:16px"><div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><div><p style="font-size:16px;font-weight:700;margin:0 0 4px">${c.name||"Unbenannter Vertrag"}</p><p style="font-size:12px;color:var(--tm);margin:0">${c.provider||"Anbieter"}${c.category?` · ${c.category}`:""}${c.contractNo?` · Nr. ${c.contractNo}`:""}</p></div><div style="display:flex;gap:8px;align-items:center">${contractStatusBadge(c)}<button class="btn btn-outline btn-sm" onclick="openContractAdd(${c.id})">Bearbeiten</button><button class="btn btn-danger btn-sm" onclick="deleteContract(${c.id})">Löschen</button></div></div><div style="display:grid;grid-template-columns:repeat(5,minmax(120px,1fr));gap:10px;margin-top:12px"><div><p style="font-size:11px;color:var(--tm);margin:0">Jahreskosten</p><p style="font-size:16px;font-weight:700;margin:2px 0 0">${fmt(ann)}</p></div><div><p style="font-size:11px;color:var(--tm);margin:0">Veränderung</p><p style="font-size:16px;font-weight:700;margin:2px 0 0;color:${pct>=10?"var(--co)":delta>0?"var(--am)":"var(--em)"}">${pct>0?`+${pct}%`:"0%"} ${delta?`(${delta>0?"+":""}${fmt(delta)})`:""}</p></div><div><p style="font-size:11px;color:var(--tm);margin:0">Frist</p><p style="font-size:16px;font-weight:700;margin:2px 0 0;color:${days!==null&&days<=30?"var(--co)":"var(--t)"}">${days===null?"—":`${days} Tage`}</p></div><div><p style="font-size:11px;color:var(--tm);margin:0">Vertragslaufzeit</p><p style="font-size:16px;font-weight:700;margin:2px 0 0">${c.minTermMonths?`${c.minTermMonths} Mon.`:"—"}</p></div><div><p style="font-size:11px;color:var(--tm);margin:0">Dokumente</p><p style="font-size:16px;font-weight:700;margin:2px 0 0">${docs}</p></div></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn btn-ghost btn-sm" onclick="goToCancelAssist(${c.id})">Kündigungs-Assistent</button><label class="btn btn-outline btn-sm" style="cursor:pointer">Dokumente hinzufügen<input type="file" multiple style="display:none" onchange="attachContractDocs(${c.id},event)"></label>${dl?`<span class="badge" style="background:var(--amG);color:var(--am)"><span class="badge-dot" style="background:var(--am)"></span>Deadline ${fDL(dl)}</span>`:""}</div>${c.notes?`<p style="font-size:12px;color:var(--tm);margin:10px 0 0">${c.notes}</p>`:""}${(c.documents||[]).length?`<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--b)">${c.documents.map(d=>`<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--tm);padding:4px 0"><span>${d.name}</span><span>${new Date(d.uploadedAt).toLocaleDateString("de-DE")}</span></div>`).join("")}</div>`:""}</div>`}
+  return`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:12px"><h1 style="font-size:24px;font-weight:800;margin:0">Vertragsverwaltung</h1><button class="btn btn-primary btn-sm" onclick="openContractAdd()">＋ Vertrag</button></div><div style="display:grid;grid-template-columns:repeat(5,minmax(140px,1fr));gap:12px;margin-bottom:16px"><div class="card"><p style="font-size:11px;color:var(--tm);margin:0">Jahreskosten gesamt</p><p style="font-size:24px;font-weight:800;margin:6px 0 0">${fmt(totalAnnual)}</p></div><div class="card"><p style="font-size:11px;color:var(--tm);margin:0">Kostenänderung/Jahr</p><p style="font-size:24px;font-weight:800;margin:6px 0 0;color:${totalDelta>0?"var(--co)":"var(--em)"}">${totalDelta>0?"+":""}${fmt(totalDelta)}</p></div><div class="card"><p style="font-size:11px;color:var(--tm);margin:0">Preiserhöhungen</p><p style="font-size:24px;font-weight:800;margin:6px 0 0;color:var(--co)">${raised.length}</p><p style="font-size:12px;color:var(--tm);margin:2px 0 0">≥ 10%</p></div><div class="card"><p style="font-size:11px;color:var(--tm);margin:0">Kündigungsfristen</p><p style="font-size:24px;font-weight:800;margin:6px 0 0;color:var(--am)">${urgent.length}</p><p style="font-size:12px;color:var(--tm);margin:2px 0 0">30 Tage Fenster</p></div><div class="card"><p style="font-size:11px;color:var(--tm);margin:0">Uploads</p><p style="font-size:24px;font-weight:800;margin:6px 0 0">${contracts.reduce((s,c)=>s+(c.documents||[]).length,0)}</p><p style="font-size:12px;color:var(--tm);margin:2px 0 0">Storage-ready</p></div></div><div class="card" style="margin-bottom:14px;padding:14px 16px;background:var(--bgE)"><p style="font-size:12px;font-weight:700;color:var(--ts);margin:0 0 8px;text-transform:uppercase;letter-spacing:0.8px">Jahreskosten-Übersicht</p>${byCat.length?`<div style="display:grid;grid-template-columns:1fr auto;gap:8px">${byCat.map(([k,v])=>`<span style="font-size:13px;color:var(--tm)">${k}</span><strong style="font-size:13px">${fmt(v)}</strong>`).join("")}</div>`:`<p style="font-size:13px;color:var(--tm);margin:0">Noch keine Kategorien verfügbar.</p>`}</div>${contracts.length?`<div class="flex-col">${contracts.map(row).join("")}</div>`:`<div class="card" style="text-align:center;padding:34px"><p style="font-size:34px;margin:0 0 10px">📄</p><p style="font-size:16px;font-weight:700;margin:0 0 6px">Noch keine Verträge</p><p style="font-size:13px;color:var(--tm);margin:0 0 12px">Lege deinen ersten Vertrag an, um Fristen, Preissteigerungen und Jahreskosten sauber zu steuern.</p><button class="btn btn-primary btn-sm" onclick="openContractAdd()">Vertrag anlegen</button></div>`}`;
+}
+function openContractAdd(id=null){const c=id?contracts.find(x=>x.id===id):null;document.getElementById("modalContainer").innerHTML=`<div class="overlay" onclick="closeModal()"><div class="modal wide" onclick="event.stopPropagation()" style="max-width:700px"><div class="modal-head"><h3>${c?"Vertrag bearbeiten":"Neuer Vertrag"}</h3><button class="modal-close" onclick="closeModal()">✕</button></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><div class="field"><label>Vertragsname*</label><div class="input-wrap"><input id="ctName" value="${c?.name||""}" placeholder="z.B. Haftpflicht"></div></div><div class="field"><label>Anbieter</label><div class="input-wrap"><input id="ctProvider" value="${c?.provider||""}" placeholder="z.B. Allianz"></div></div></div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px"><div class="field"><label>Vertragsnummer</label><div class="input-wrap"><input id="ctNo" value="${c?.contractNo||""}" placeholder="VN-123..."></div></div><div class="field"><label>Status</label><div class="input-wrap"><input id="ctStatus" value="${c?.status||"active"}" placeholder="active/paused/cancelled"></div></div><div class="field"><label>Kategorie</label><div class="input-wrap"><input id="ctCategory" value="${c?.category||""}" placeholder="Versicherung, Abo..."></div></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><div class="field"><label>Monatliche Kosten</label><div class="input-wrap"><input id="ctMonthly" type="number" value="${c?.monthlyCost||0}" placeholder="0"><span class="suffix">€</span></div></div><div class="field"><label>Jahreskosten (optional)</label><div class="input-wrap"><input id="ctYearly" type="number" value="${c?.yearlyCost||0}" placeholder="0"><span class="suffix">€</span></div></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><div class="field"><label>Vorjahreskosten</label><div class="input-wrap"><input id="ctPrevAnnual" type="number" value="${c?.previousAnnualCost||0}" placeholder="0"><span class="suffix">€</span></div></div><div class="field"><label>Zahlungsart</label><div class="input-wrap"><input id="ctPayMethod" value="${c?.paymentMethod||""}" placeholder="SEPA, Kreditkarte, ..."></div></div></div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px"><div class="field"><label>Startdatum</label><div class="input-wrap"><input id="ctStart" type="date" value="${c?.startDate||""}"></div></div><div class="field"><label>Mindestlaufzeit (Mon.)</label><div class="input-wrap"><input id="ctTerm" type="number" value="${c?.minTermMonths||12}" placeholder="12"></div></div><div class="field"><label>Kündigungsfrist (Tage)</label><div class="input-wrap"><input id="ctNotice" type="number" value="${c?.noticeDays||30}" placeholder="30"></div></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><div class="field"><label>Kündigungsdeadline (fix)</label><div class="input-wrap"><input id="ctCancelBy" type="date" value="${c?.cancelBy||""}"></div></div><div class="field"><label>Abrechnungszyklus</label><div class="input-wrap"><input id="ctCycle" value="${c?.billingCycle||"monatlich"}" placeholder="monatlich/jährlich"></div></div></div><div class="field"><label>Notizen</label><div class="input-wrap"><input id="ctNotes" value="${(c?.notes||"").replace(/"/g,'&quot;')}" placeholder="Wichtige Vertragsdetails"></div></div><div style="display:flex;gap:12px;margin-top:8px"><button class="btn btn-outline" style="flex:1" onclick="closeModal()">Abbrechen</button><button class="btn btn-primary" style="flex:1" onclick="saveContract(${c?c.id:0})">${c?"Änderungen speichern":"Speichern"}</button></div></div></div>`}
+function saveContract(id=0){const name=(document.getElementById("ctName")?.value||"").trim();if(!name){flash("Vertragsname fehlt");return;}const item={id:id||Date.now(),name,provider:(document.getElementById("ctProvider")?.value||"").trim(),contractNo:(document.getElementById("ctNo")?.value||"").trim(),category:(document.getElementById("ctCategory")?.value||"").trim(),status:(document.getElementById("ctStatus")?.value||"active").trim(),monthlyCost:parseFloat(document.getElementById("ctMonthly")?.value)||0,yearlyCost:parseFloat(document.getElementById("ctYearly")?.value)||0,previousAnnualCost:parseFloat(document.getElementById("ctPrevAnnual")?.value)||0,paymentMethod:(document.getElementById("ctPayMethod")?.value||"").trim(),startDate:(document.getElementById("ctStart")?.value||""),minTermMonths:parseInt(document.getElementById("ctTerm")?.value||"0",10)||0,noticeDays:parseInt(document.getElementById("ctNotice")?.value||"0",10)||0,cancelBy:(document.getElementById("ctCancelBy")?.value||""),billingCycle:(document.getElementById("ctCycle")?.value||"monatlich").trim(),notes:(document.getElementById("ctNotes")?.value||"").trim(),documents:id?(contracts.find(c=>c.id===id)?.documents||[]):[]};if(id){contracts=contracts.map(c=>c.id===id?item:c)}else{contracts.unshift(item)}scheduleCloudSave();closeModal();flash(id?"Vertrag aktualisiert ✓":"Vertrag gespeichert ✓");renderPage()}
+function goToCancelAssist(id){
+  if(id)cancelForm.contractId=id;
+  cancelForm.step=1;
+  goTo("cancelAssist");
+}
+function selectedCancelContract(){return contracts.find(c=>c.id===cancelForm.contractId)||contracts[0]||null}
+function selectCancelContract(id){
+  cancelForm.contractId=id;
+  const c=selectedCancelContract();
+  if(!c)return;
+  cancelForm.data.senderName=[user.firstName||"",user.lastName||""].join(" ").trim()||user.name||"";
+  cancelForm.data.senderStreet=user.addressStreet||"";
+  cancelForm.data.senderZip=user.addressZip||"";
+  cancelForm.data.senderCity=user.addressCity||"";
+  cancelForm.data.senderEmail=user.email||"";
+  cancelForm.data.effectiveDate=contractEffectiveDeadline(c)||"";
+}
+function selectCancelTemplate(tid){cancelForm.template=tid;renderPage()}
+function rCancelAssistant(){
+  if(cancelForm.step===3)return rCancelPreview();
+  if(cancelForm.step===2)return rCancelForm();
+  const c=selectedCancelContract();
+  if(c&&!cancelForm.contractId)cancelForm.contractId=c.id;
+  return `<h1 style="font-size:24px;font-weight:800;margin:0 0 6px">Kündigungsassistent</h1>
+  <p style="font-size:14px;color:var(--tm);margin:0 0 26px">Wähle eine Vorlage und generiere ein sauberes Kündigungsschreiben mit Fristen, Vorschau, Copy und Druck.</p>
+  ${contracts.length?`<div style="margin-bottom:24px"><label style="display:block;font-size:12px;font-weight:600;color:var(--ts);margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">1. Vertrag wählen</label><div style="display:flex;gap:8px;flex-wrap:wrap">${contracts.map(x=>`<button class="card clickable" onclick="selectCancelContract(${x.id});renderPage()" style="padding:12px 16px;${c&&c.id===x.id?'border-color:var(--ba);background:var(--emG2)':''}"><div style="display:flex;align-items:center;gap:10px"><span style="font-size:18px">📄</span><div><p style="font-size:14px;font-weight:600;margin:0;text-align:left">${x.name}</p><p style="font-size:12px;color:var(--tm);margin:2px 0 0">${x.provider||"Anbieter"} · ${fmt(contractAnnualCost(x))}/Jahr</p></div></div></button>`).join("")}</div></div>`:`<div class="card" style="text-align:center;padding:34px;margin-bottom:24px"><p style="font-size:32px;margin:0 0 8px">📄</p><p style="font-size:16px;font-weight:700;margin:0 0 6px">Keine Verträge vorhanden</p><p style="font-size:13px;color:var(--tm);margin:0 0 12px">Lege zuerst einen Vertrag an, dann kann der Assistent schreiben erzeugen.</p><button class="btn btn-primary btn-sm" onclick="goTo('contracts')">Vertrag anlegen</button></div>`}
+  <label style="display:block;font-size:12px;font-weight:600;color:var(--ts);margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">2. Vorlage wählen</label>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px">${cancelTemplates.map(t=>`<div class="card clickable" onclick="selectCancelTemplate('${t.id}')" style="padding:18px;${cancelForm.template===t.id?'border-color:var(--ba);background:var(--emG2)':''}"><div style="display:flex;align-items:flex-start;gap:12px"><span style="font-size:28px">${t.icon}</span><div><p style="font-size:14px;font-weight:700;margin:0 0 4px">${t.name}</p><p style="font-size:12px;color:var(--tm);margin:0 0 8px;line-height:1.5">${t.desc}</p><div style="display:flex;gap:4px">${t.tags.map(tag=>`<span style="font-size:10px;padding:3px 8px;border-radius:6px;background:var(--bgE);color:var(--ts);font-weight:600">${tag}</span>`).join("")}</div></div></div></div>`).join("")}</div>
+  ${(c&&cancelForm.template)?`<div style="margin-top:24px;text-align:right"><button class="btn btn-primary btn-lg" onclick="cancelForm.step=2;renderPage()">Weiter → Daten eingeben</button></div>`:""}`;
+}
+function rCancelForm(){
+  const c=selectedCancelContract(),t=cancelTemplates.find(x=>x.id===cancelForm.template);
+  if(!c||!t){cancelForm.step=1;return rCancelAssistant();}
+  if(!cancelForm.contractId)cancelForm.contractId=c.id;
+  return `<button onclick="cancelForm.step=1;renderPage()" style="background:none;border:none;color:var(--tm);font-size:13px;display:flex;align-items:center;gap:6px;margin-bottom:24px;padding:0">← Zurück zur Vorlagenauswahl</button>
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px"><span style="font-size:32px">${t.icon}</span><div><h2 style="font-size:20px;font-weight:800;margin:0">${t.name}</h2><p style="font-size:13px;color:var(--tm);margin:2px 0 0">${t.desc}</p></div></div>
+  <div class="grid2" style="gap:16px"><div class="card"><h3 style="font-size:15px;font-weight:700;margin:0 0 16px">📍 Deine Angaben</h3><div class="field"><label>Vollständiger Name</label><div class="input-wrap"><input value="${(cancelForm.data.senderName||"").replace(/"/g,'&quot;')}" oninput="cancelForm.data.senderName=this.value"></div></div><div class="field"><label>Straße und Hausnummer</label><div class="input-wrap"><input value="${(cancelForm.data.senderStreet||"").replace(/"/g,'&quot;')}" oninput="cancelForm.data.senderStreet=this.value"></div></div><div style="display:grid;grid-template-columns:120px 1fr;gap:12px"><div class="field"><label>PLZ</label><div class="input-wrap"><input value="${(cancelForm.data.senderZip||"").replace(/"/g,'&quot;')}" oninput="cancelForm.data.senderZip=this.value"></div></div><div class="field"><label>Ort</label><div class="input-wrap"><input value="${(cancelForm.data.senderCity||"").replace(/"/g,'&quot;')}" oninput="cancelForm.data.senderCity=this.value"></div></div></div><div class="field"><label>E-Mail</label><div class="input-wrap"><input value="${(cancelForm.data.senderEmail||"").replace(/"/g,'&quot;')}" oninput="cancelForm.data.senderEmail=this.value"></div></div></div>
+  <div class="card"><h3 style="font-size:15px;font-weight:700;margin:0 0 16px">📄 Vertrags- & Kündigungsdaten</h3><div style="padding:10px 12px;border:1px solid var(--b);border-radius:10px;background:var(--bgE);margin-bottom:14px"><p style="font-size:13px;font-weight:700;margin:0">${c.name}</p><p style="font-size:12px;color:var(--tm);margin:4px 0 0">${c.provider||"Anbieter"}${c.contractNo?` · Nr. ${c.contractNo}`:""}${contractEffectiveDeadline(c)?` · Deadline ${fDL(contractEffectiveDeadline(c))}`:""}</p></div><div class="field"><label>Kündigung wirksam zum (optional)</label><div class="input-wrap"><input type="date" value="${cancelForm.data.effectiveDate||""}" oninput="cancelForm.data.effectiveDate=this.value"></div></div><div class="field"><label>Begründung / Grund</label><div class="input-wrap"><input value="${(cancelForm.data.reason||"").replace(/"/g,'&quot;')}" oninput="cancelForm.data.reason=this.value" placeholder="z.B. Umzug, Leistung unzureichend, Preissteigerung"></div></div><div class="field"><label>Zusatzhinweis</label><div class="input-wrap"><input value="${(cancelForm.data.customNote||"").replace(/"/g,'&quot;')}" oninput="cancelForm.data.customNote=this.value" placeholder="z.B. Bitte um Bestätigung per E-Mail"></div></div></div></div>
+  <div style="display:flex;gap:12px;margin-top:20px;justify-content:flex-end"><button class="btn btn-outline" onclick="cancelForm.step=1;renderPage()">Zurück</button><button class="btn btn-primary btn-lg" onclick="generateCancel()">✨ Kündigung generieren</button></div>`;
+}
+function generateCancel(){if(!cancelForm.data.senderName||!cancelForm.contractId||!cancelForm.template){flash("Bitte Vertrag, Vorlage und Name ausfüllen");return;}cancelForm.step=3;renderPage()}
+function getCancelDocContent(){
+  const c=selectedCancelContract(),d=cancelForm.data,t=cancelForm.template;
+  const today=new Date().toLocaleDateString("de-DE",{day:"numeric",month:"long",year:"numeric"});
+  if(!c)return{subject:"",body:"",closing:"",today};
+  const dl=contractEffectiveDeadline(c);
+  let subject=`Kündigung ${c.name||"Vertrag"}`,body="",closing="Ich bitte um schriftliche Bestätigung.";
+  if(t==="ausserordentlich"){subject=`Außerordentliche Kündigung ${c.name||"Vertrag"}`;body=`hiermit kündige ich den Vertrag "${c.name||""}" außerordentlich aus wichtigem Grund.\n\nGrund: ${d.reason||"wichtiger Grund"}.\n\nBitte bestätigen Sie mir den Kündigungstermin schriftlich.`;}
+  else if(t==="preissteigerung"){subject=`Kündigung wegen Preiserhöhung ${c.name||"Vertrag"}`;body=`hiermit kündige ich den Vertrag "${c.name||""}" aufgrund der erfolgten Preissteigerung.\n\nIch mache von meinem Sonderkündigungsrecht Gebrauch und bitte um schriftliche Bestätigung.`;}
+  else if(t==="widerruf"){subject=`Widerruf ${c.name||"Vertrag"}`;body=`hiermit widerrufe ich den Vertrag "${c.name||""}" fristgerecht innerhalb der gesetzlichen Widerrufsfrist.\n\nBitte bestätigen Sie mir den Widerruf schriftlich.`;}
+  else{body=`hiermit kündige ich den Vertrag "${c.name||""}" fristgerecht zum nächstmöglichen Termin.${dl?`\n\nNach meiner Berechnung muss die Kündigung bis zum ${fDL(dl)} eingehen.`:""}\n\nBitte bestätigen Sie mir den Eingang und das Vertragsende schriftlich.`;}
+  if(d.effectiveDate)body+=`\n\nGewünschtes Vertragsende: ${fDL(d.effectiveDate)}`;
+  if(d.reason&&t!=="ausserordentlich")body+=`\nBegründung: ${d.reason}`;
+  if(d.customNote)body+=`\n\nZusatzhinweis:\n${d.customNote}`;
+  return{subject,body,closing,today};
+}
+function rCancelPreview(){
+  const c=selectedCancelContract();if(!c){cancelForm.step=1;return rCancelAssistant();}
+  const doc=getCancelDocContent(),d=cancelForm.data;
+  const letter=`${d.senderName}\n${d.senderStreet}\n${d.senderZip} ${d.senderCity}\n${d.senderEmail?`\n${d.senderEmail}\n`:""}\n${doc.today}\n\n${c.provider||"Vertragspartner"}\n\nBetreff: ${doc.subject}\n\nSehr geehrte Damen und Herren,\n\n${doc.body}\n\n${doc.closing}\n\nMit freundlichen Grüßen\n${d.senderName}`;
+  return `<button onclick="cancelForm.step=2;renderPage()" style="background:none;border:none;color:var(--tm);font-size:13px;display:flex;align-items:center;gap:6px;margin-bottom:24px;padding:0">← Zurück zur Bearbeitung</button>
+  <div class="card" style="padding:20px"><h3 style="font-size:18px;font-weight:700;margin:0 0 10px">Vorschau Kündigung</h3><p style="font-size:12px;color:var(--tm);margin:0 0 12px">${doc.subject}</p><div class="input-wrap" style="padding:10px"><textarea id="caPreviewText" style="width:100%;min-height:360px;background:transparent;border:none;outline:none;color:var(--t);font-family:inherit;font-size:14px;line-height:1.5">${letter}</textarea></div><div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px"><button class="btn btn-ghost btn-sm" onclick="navigator.clipboard.writeText(document.getElementById('caPreviewText').value).then(()=>flash('Kündigungstext kopiert ✓'))">Text kopieren</button><button class="btn btn-outline btn-sm" onclick="printContractLetter()">Drucken / PDF</button><button class="btn btn-primary btn-sm" onclick="cancelForm={contractId:${c.id},template:null,step:1,data:{senderName:'${(d.senderName||"").replace(/'/g,"\\'")}',senderStreet:'${(d.senderStreet||"").replace(/'/g,"\\'")}',senderZip:'${(d.senderZip||"").replace(/'/g,"\\'")}',senderCity:'${(d.senderCity||"").replace(/'/g,"\\'")}',senderEmail:'${(d.senderEmail||"").replace(/'/g,"\\'")}',reason:'',effectiveDate:'',customNote:''}};renderPage()">Neue Vorlage</button></div></div>`;
+}
+function printContractLetter(){const txt=(document.getElementById("caPreviewText")?.value||document.getElementById("caText")?.value||"");const w=window.open("","_blank");w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Kündigung</title><style>body{font-family:Arial,sans-serif;white-space:pre-wrap;max-width:780px;margin:36px auto;padding:0 18px;line-height:1.5}</style></head><body>${txt.replace(/</g,"&lt;")}</body></html>`);w.document.close();setTimeout(()=>w.print(),250)}
+function deleteContract(id){if(!confirm("Vertrag wirklich löschen?"))return;contracts=contracts.filter(c=>c.id!==id);scheduleCloudSave();renderPage();flash("Vertrag gelöscht")}
+function attachContractDocs(id,e){const c=contracts.find(x=>x.id===id);if(!c)return;const files=[...(e?.target?.files||[])];if(!files.length)return;c.documents=[...(c.documents||[]),...files.map(f=>({name:f.name,size:f.size,uploadedAt:new Date().toISOString()}))];scheduleCloudSave();renderPage();flash("Dokument(e) hinzugefügt")}
+function loadBudget(){try{const raw=localStorage.getItem("budgetItems");if(raw){const arr=JSON.parse(raw);if(Array.isArray(arr))budgetItems=arr}else{budgetItems=[{id:101,type:"income",date:new Date().toISOString().slice(0,10),amount:1800,category:"Gehalt",note:"Teilzeit"},{id:102,type:"expense",date:new Date().toISOString().slice(0,10),amount:650,category:"Miete",note:"Warmmiete"},{id:103,type:"expense",date:new Date().toISOString().slice(0,10),amount:120,category:"Strom/Gas",note:"Abschlag"},{id:104,type:"expense",date:new Date().toISOString().slice(0,10),amount:240,category:"Lebensmittel",note:"Wöchentlich"}];saveBudget()}}catch(e){}}
+function saveBudget(){scheduleCloudSave();try{localStorage.setItem("budgetItems",JSON.stringify(budgetItems))}catch(e){}}
+function rBudget(){
+  const manualItems=budgetItems.filter(i=>i.date&&i.date.startsWith(currentBudgetMonth)).sort((a,b)=>new Date(a.date)-new Date(b.date));
+  const monthEnd=`${currentBudgetMonth}-31`;
+  const plannedDebtExpenses=debts.filter(d=>d.paid<d.original).flatMap(d=>{
+    const ps=getPaymentStatus(d),remaining=Math.max(d.original-d.paid,0),dueDay=((d.due||"").split("-")[2]||"01");
+    const pDate=`${currentBudgetMonth}-${dueDay}`;
+    if(ps==="ratenplan_aktiv")return [{id:`auto-${d.id}-${currentBudgetMonth}`,type:"expense",date:pDate,amount:Math.min(d.rate||0,remaining),category:"Position",note:`Automatisch: ${d.name}`,auto:true,debtId:d.id}];
+    if(ps==="faellig_einmalig"&&(d.due||"").startsWith(currentBudgetMonth))return [{id:`auto-${d.id}-${currentBudgetMonth}`,type:"expense",date:d.due,amount:remaining,category:"Position",note:`Automatisch: ${d.name}`,auto:true,debtId:d.id}];
+    if(ps==="ueberfaellig"&&((d.due||"")<=monthEnd))return [{id:`auto-${d.id}-${currentBudgetMonth}`,type:"expense",date:pDate,amount:remaining,category:"Position",note:`Automatisch überfällig: ${d.name}`,auto:true,debtId:d.id}];
+    return [];
+  });
+  const suspendedDebtItems=debts.filter(d=>d.paid<d.original&&getPaymentStatus(d)==="stundung_aktiv").map(d=>({id:`susp-${d.id}-${currentBudgetMonth}`,amount:Math.max(d.original-d.paid,0),name:d.name}));
+  const items=[...manualItems,...plannedDebtExpenses].sort((a,b)=>new Date(a.date)-new Date(b.date));
+  const incItems=manualItems.filter(i=>i.type==="income");
+  const expItems=[...manualItems.filter(i=>i.type==="expense"),...plannedDebtExpenses].sort((a,b)=>new Date(a.date)-new Date(b.date));
+  const inc=incItems.reduce((s,i)=>s+(i.amount||0),0);
+  const exp=expItems.reduce((s,i)=>s+(i.amount||0),0);
+  const bal=inc-exp;
+  const suspendedTotal=suspendedDebtItems.reduce((s,i)=>s+i.amount,0);
+  const monthLabel=new Date(currentBudgetMonth+'-01T00:00:00').toLocaleDateString('de-DE',{month:'long',year:'numeric'});
+  const row=(i,type)=>`
+    <div style="display:grid;grid-template-columns:120px minmax(140px,1fr) minmax(180px,1.2fr) auto auto;gap:14px;align-items:center;padding:14px 18px;border-top:1px solid var(--b);min-width:720px">
+      <div style="font-size:13px;font-weight:600">${fD(i.date)}</div>
+      <div style="font-size:14px;font-weight:600">${i.category||"-"}</div>
+      <div style="font-size:13px;color:var(--tm)">${i.note||"-"}</div>
+      <div style="font-size:17px;font-weight:800;color:${type==="income"?"var(--em)":"var(--co)"};text-align:right;min-width:96px">${fmt(i.amount||0)}</div>
+      ${i.auto?`<span class="badge" style="justify-self:end"><span class="badge-dot" style="background:var(--sk)"></span>Auto</span>`:`<button class="btn btn-outline btn-sm" onclick="deleteBudgetItem(${i.id})">Löschen</button>`}
+    </div>
+  `;
+
+  return `
+    <div style="display:flex;flex-direction:column;gap:18px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:2px;flex-wrap:wrap;gap:14px">
+        <div>
+          <h1 style="font-size:30px;font-weight:800;letter-spacing:-0.3px;margin:0 0 4px">Meine Ein- und Ausgaben</h1>
+          <p style="font-size:13px;color:var(--tm);margin:0">Monatsübersicht ${monthLabel}</p>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+          <input type="month" value="${currentBudgetMonth}" oninput="currentBudgetMonth=this.value||'${currentBudgetMonth}';renderPage();scheduleCloudSave()" style="background:var(--bgE);border:1px solid var(--b);color:var(--t);padding:10px 12px;border-radius:12px;font-size:13px;min-width:172px">
+          <button class="btn btn-primary btn-sm" onclick="printBudget()">🖨️ Drucken / PDF</button>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px">
+        <div class="card" style="padding:18px 20px">
+          <p style="font-size:11px;color:var(--tm);margin:0;text-transform:uppercase;letter-spacing:1px">Einnahmen</p>
+          <p style="font-size:30px;font-weight:800;margin:8px 0 0;color:var(--em);line-height:1.1">${fmt(inc)}</p>
+        </div>
+        <div class="card" style="padding:18px 20px">
+          <p style="font-size:11px;color:var(--tm);margin:0;text-transform:uppercase;letter-spacing:1px">Ausgaben</p>
+          <p style="font-size:30px;font-weight:800;margin:8px 0 0;color:var(--co);line-height:1.1">${fmt(exp)}</p>
+        </div>
+        <div class="card" style="padding:18px 20px;background:linear-gradient(135deg,var(--bgC),var(--bgE));border-color:${bal>=0?'var(--ba)':'rgba(249,112,102,0.25)'}">
+          <p style="font-size:11px;color:var(--tm);margin:0;text-transform:uppercase;letter-spacing:1px">Saldo</p>
+          <p style="font-size:30px;font-weight:800;margin:8px 0 0;${bal>=0?'color:var(--em)':'color:var(--co)'};line-height:1.1">${fmt(bal)}</p>
+        </div>
+      </div>
+
+      <div class="card" style="padding:18px 20px">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+          <h3 style="font-size:16px;font-weight:700;margin:0">Saldo für ${monthLabel}</h3>
+          <span style="font-size:22px;font-weight:800;${bal>=0?'color:var(--em)':'color:var(--co)'}">${fmt(bal)}</span>
+        </div>
+        <p style="font-size:13px;color:var(--tm);margin:8px 0 0">${items.length} Buchung${items.length!==1?"en":""} in diesem Monat</p>
+        ${suspendedTotal>0?`<p style="font-size:13px;color:var(--am);margin:6px 0 0">Gestundet (nicht saldowirksam): ${fmt(suspendedTotal)}</p>`:""}
+        ${items.length===0?`<div style="text-align:center;padding:34px 0 10px"><p style="font-size:34px;margin:0 0 8px">🧾</p><p style="font-size:14px;color:var(--tm);margin:0 0 12px">Keine Beiträge für diesen Monat.</p><button class="btn btn-ghost btn-sm" onclick="openBudgetAdd()">Beitrag erfassen</button></div>`:""}
+      </div>
+
+      <div class="card" style="padding:0;overflow:auto">
+        <div style="padding:16px 20px;border-bottom:1px solid var(--b);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+          <h3 style="font-size:18px;font-weight:700;margin:0">Einnahmen</h3>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-size:18px;font-weight:800;color:var(--em)">${fmt(inc)}</span>
+            <button class="btn btn-ghost btn-sm" onclick="openBudgetAdd('income')">+ Einnahme verbuchen</button>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:120px minmax(140px,1fr) minmax(180px,1.2fr) auto auto;gap:14px;padding:11px 18px;background:var(--bgE);border-bottom:1px solid var(--b);min-width:720px">
+          <span style="font-size:11px;color:var(--ts);text-transform:uppercase;letter-spacing:0.7px;font-weight:700">Datum</span>
+          <span style="font-size:11px;color:var(--ts);text-transform:uppercase;letter-spacing:0.7px;font-weight:700">Kategorie</span>
+          <span style="font-size:11px;color:var(--ts);text-transform:uppercase;letter-spacing:0.7px;font-weight:700">Beschreibung</span>
+          <span style="font-size:11px;color:var(--ts);text-transform:uppercase;letter-spacing:0.7px;font-weight:700;text-align:right">Betrag</span>
+          <span></span>
+        </div>
+        ${incItems.length?incItems.map(i=>row(i,"income")).join(""):`<div style="padding:18px;color:var(--tm);font-style:italic">Keine Einnahmen</div>`}
+      </div>
+
+      <div class="card" style="padding:0;overflow:auto">
+        <div style="padding:16px 20px;border-bottom:1px solid var(--b);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+          <h3 style="font-size:18px;font-weight:700;margin:0">Ausgaben</h3>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-size:18px;font-weight:800;color:var(--co)">${fmt(exp)}</span>
+            <button class="btn btn-outline btn-sm" onclick="openBudgetAdd('expense')">+ Ausgabe verbuchen</button>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:120px minmax(140px,1fr) minmax(180px,1.2fr) auto auto;gap:14px;padding:11px 18px;background:var(--bgE);border-bottom:1px solid var(--b);min-width:720px">
+          <span style="font-size:11px;color:var(--ts);text-transform:uppercase;letter-spacing:0.7px;font-weight:700">Datum</span>
+          <span style="font-size:11px;color:var(--ts);text-transform:uppercase;letter-spacing:0.7px;font-weight:700">Kategorie</span>
+          <span style="font-size:11px;color:var(--ts);text-transform:uppercase;letter-spacing:0.7px;font-weight:700">Beschreibung</span>
+          <span style="font-size:11px;color:var(--ts);text-transform:uppercase;letter-spacing:0.7px;font-weight:700;text-align:right">Betrag</span>
+          <span></span>
+        </div>
+        ${expItems.length?expItems.map(i=>row(i,"expense")).join(""):`<div style="padding:18px;color:var(--tm);font-style:italic">Keine Ausgaben</div>`}
+      </div>
+    </div>
+  `;
+}
+function openBudgetAdd(defaultType='income'){
+  document.getElementById("modalContainer").innerHTML=`<div class="overlay" onclick="closeModal()"><div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-head"><h3>Beitrag erfassen</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="field">
+      <label>Typ</label>
+      <input id="bType" type="hidden" value="${defaultType}">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <button type="button" id="bTypeIncome" class="btn ${defaultType==="income"?"btn-ghost":"btn-outline"}" style="padding:12px 14px;font-size:15px;font-weight:700" onclick="setBudgetType('income')">+ Einnahme buchen</button>
+        <button type="button" id="bTypeExpense" class="btn ${defaultType==="expense"?"btn-ghost":"btn-outline"}" style="padding:12px 14px;font-size:15px;font-weight:700" onclick="setBudgetType('expense')">- Ausgabe buchen</button>
+      </div>
+    </div>
+    <div class="field"><label>Kategorie</label><div class="input-wrap"><input id="bCat" placeholder="z.B. Gehalt / Miete"></div></div>
+    <div class="field"><label>Beschreibung</label><div class="input-wrap"><input id="bDesc" placeholder="Optional..."></div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="field"><label>Datum</label><div class="input-wrap"><input id="bDate" type="date" value="${tdy()}"></div></div>
+      <div class="field"><label>Betrag</label><div class="input-wrap"><input id="bAmt" type="number" placeholder="0"><span class="suffix">€</span></div></div>
+    </div>
+    <div style="display:flex;gap:12px;margin-top:8px"><button class="btn btn-outline" style="flex:1" onclick="closeModal()">Abbrechen</button><button class="btn btn-primary" style="flex:1" onclick="sBudgetAdd()">✓ Speichern</button></div>
+  </div></div>`;
+}
+function setBudgetType(type){
+  const hidden=document.getElementById("bType");
+  const incomeBtn=document.getElementById("bTypeIncome");
+  const expenseBtn=document.getElementById("bTypeExpense");
+  if(!hidden||!incomeBtn||!expenseBtn)return;
+  hidden.value=type==="expense"?"expense":"income";
+  const isIncome=hidden.value==="income";
+  incomeBtn.className=`btn ${isIncome?"btn-ghost":"btn-outline"}`;
+  expenseBtn.className=`btn ${isIncome?"btn-outline":"btn-ghost"}`;
+}
+function sBudgetAdd(){
+  const type=(document.getElementById("bType").value||"income");
+  const category=document.getElementById("bCat").value.trim();
+  const note=document.getElementById("bDesc").value.trim();
+  const date=document.getElementById("bDate").value||tdy();
+  const amount=parseFloat(document.getElementById("bAmt").value);
+  if(!amount||amount<=0){flash("Bitte Betrag angeben");return;}
+  budgetItems.unshift({id:Date.now(),type,category,note,date,amount});
+  saveBudget();
+  closeModal();
+  flash("Beitrag gespeichert ✓");
+  renderPage();
+}
+function deleteBudgetItem(id){
+  if(!confirm("Beitrag wirklich löschen?"))return;
+  budgetItems=budgetItems.filter(i=>i.id!==id);
+  saveBudget();
+  renderPage();
+  flash("Gelöscht");
+}
+function printBudget(){
+  const month=currentBudgetMonth;
+  const label=new Date(month+'-01T00:00:00').toLocaleDateString('de-DE',{month:'long',year:'numeric'});
+  const manualItems=budgetItems.filter(i=>i.date&&i.date.startsWith(month)).sort((a,b)=>new Date(a.date)-new Date(b.date));
+  const monthEnd=`${month}-31`;
+  const plannedDebtExpenses=debts.filter(d=>d.paid<d.original).flatMap(d=>{
+    const ps=getPaymentStatus(d),remaining=Math.max(d.original-d.paid,0),dueDay=((d.due||"").split("-")[2]||"01");
+    const pDate=`${month}-${dueDay}`;
+    if(ps==="ratenplan_aktiv")return [{id:`auto-${d.id}-${month}`,type:"expense",date:pDate,amount:Math.min(d.rate||0,remaining),category:"Position",note:`Automatisch: ${d.name}`,auto:true,debtId:d.id}];
+    if(ps==="faellig_einmalig"&&(d.due||"").startsWith(month))return [{id:`auto-${d.id}-${month}`,type:"expense",date:d.due,amount:remaining,category:"Position",note:`Automatisch: ${d.name}`,auto:true,debtId:d.id}];
+    if(ps==="ueberfaellig"&&((d.due||"")<=monthEnd))return [{id:`auto-${d.id}-${month}`,type:"expense",date:pDate,amount:remaining,category:"Position",note:`Automatisch überfällig: ${d.name}`,auto:true,debtId:d.id}];
+    return [];
+  });
+  const items=[...manualItems,...plannedDebtExpenses].sort((a,b)=>new Date(a.date)-new Date(b.date));
+  const incItems=manualItems.filter(i=>i.type==="income");
+  const expItems=[...manualItems.filter(i=>i.type==="expense"),...plannedDebtExpenses].sort((a,b)=>new Date(a.date)-new Date(b.date));
+  const inc=incItems.reduce((s,i)=>s+(i.amount||0),0);
+  const exp=expItems.reduce((s,i)=>s+(i.amount||0),0);
+  const bal=inc-exp;
+  const w=window.open("","_blank");
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Meine Ein- und Ausgaben ${label}</title>
+  <style>
+    @page{size:A4;margin:18mm 16mm}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',sans-serif;color:#111827;font-size:11pt;background:#fff}
+    .page{max-width:760px;margin:0 auto}
+    .header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:20px;border-bottom:3px solid #059669;padding-bottom:14px}
+    .header h1{font-size:20pt;font-weight:800;margin:0}
+    .sub{color:#6B7280;font-size:10pt}
+    .date{color:#9CA3AF;font-size:10pt;text-align:right}
+    .summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:18px 0}
+    .card{background:#F9FAFB;border:1px solid #E5E7EB;border-radius:10px;padding:14px 16px}
+    .label{font-size:9pt;color:#6B7280;text-transform:uppercase;letter-spacing:0.8px;font-weight:700;margin-bottom:4px}
+    .value{font-size:18pt;font-weight:800}
+    .green{color:#059669}.red{color:#DC2626}
+    table{width:100%;border-collapse:collapse;margin-top:8px}
+    thead th{background:#F3F4F6;color:#374151;font-weight:700;text-align:left;padding:10px 12px;font-size:9pt;text-transform:uppercase;letter-spacing:0.5px;border-bottom:2px solid #E5E7EB}
+    tbody td{padding:10px 12px;border-bottom:1px solid #F3F4F6;font-size:10pt}
+    tfoot td{padding:12px;font-weight:700;background:#F0FDF4;border-top:2px solid #059669}
+    .right{text-align:right}
+    .mono{font-family:'SF Mono','Fira Code',monospace}
+    .section{margin-top:14px}
+  </style></head><body><div class="page">
+    <div class="header">
+      <div><h1>Meine Ein- und Ausgaben</h1><div class="sub">Monat ${label}</div></div>
+      <div class="date">Erstellt am<br><strong>${new Date().toLocaleDateString('de-DE',{day:'numeric',month:'long',year:'numeric'})}</strong></div>
+    </div>
+    <div class="summary">
+      <div class="card"><div class="label">Einnahmen (Ist)</div><div class="value green">${fmt(inc)}</div></div>
+      <div class="card"><div class="label">Ausgaben (Ist)</div><div class="value red">${fmt(exp)}</div></div>
+      <div class="card"><div class="label">Saldo</div><div class="value ${bal>=0?'green':'red'}">${fmt(bal)}</div></div>
+    </div>
+    <div class="section">
+      <div class="label" style="margin-bottom:6px">Einnahmen</div>
+      <table>
+        <thead><tr><th>Datum</th><th>Kategorie</th><th>Beschreibung</th><th class="right">Betrag</th></tr></thead>
+        <tbody>${incItems.length?incItems.map(i=>`<tr><td>${fD(i.date)}</td><td>${i.category||"–"}</td><td>${i.note||""}</td><td class="right mono" style="color:#059669;font-weight:700">${fmt(i.amount||0)}</td></tr>`).join(""):`<tr><td colspan="4" style="color:#9CA3AF;font-style:italic">Keine Einnahmen</td></tr>`}</tbody>
+        <tfoot><tr><td colspan="3">Summe Einnahmen</td><td class="right mono" style="font-weight:800;color:#059669">${fmt(inc)}</td></tr></tfoot>
+      </table>
+    </div>
+    <div class="section">
+      <div class="label" style="margin-bottom:6px">Ausgaben</div>
+      <table>
+        <thead><tr><th>Datum</th><th>Kategorie</th><th>Beschreibung</th><th class="right">Betrag</th></tr></thead>
+        <tbody>${expItems.length?expItems.map(i=>`<tr><td>${fD(i.date)}</td><td>${i.category||"–"}</td><td>${i.note||""}</td><td class="right mono" style="color:#DC2626;font-weight:700">${fmt(i.amount||0)}</td></tr>`).join(""):`<tr><td colspan="4" style="color:#9CA3AF;font-style:italic">Keine Ausgaben</td></tr>`}</tbody>
+        <tfoot><tr><td colspan="3">Summe Ausgaben</td><td class="right mono" style="font-weight:800;color:#DC2626">${fmt(exp)}</td></tr></tfoot>
+      </table>
+    </div>
+    <div class="section" style="margin-top:18px">
+      <table>
+        <thead><tr><th>Ergebnis</th><th class="right">Saldo</th></tr></thead>
+        <tbody><tr><td>Monat ${label}</td><td class="right mono" style="font-weight:800;${bal>=0?'color:#059669':'color:#DC2626'}">${fmt(bal)}</td></tr></tbody>
+      </table>
+    </div>
+  </div></body></html>`);
+  w.document.close();
+  setTimeout(()=>w.print(),400);
+}
+
+function closeModal(){document.getElementById("modalContainer").innerHTML=""}
+function openAdd(){document.getElementById("modalContainer").innerHTML=`<div class="overlay" onclick="closeModal()"><div class="modal wide" onclick="event.stopPropagation()" style="max-width:620px">
+<div class="modal-head"><h3>Neue Position</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
+<p style="font-size:13px;color:var(--tm);margin:0 0 20px">Name, Betrag und Rate sind Pflicht – alles andere optional.</p>
+
+<div style="margin-bottom:16px"><label style="display:block;font-size:12px;font-weight:600;color:var(--ts);margin-bottom:8px">Symbol</label><div style="display:flex;gap:6px;flex-wrap:wrap" id="ep">${["📄","⚡","🏠","🚗","🏥","🦷","🪑","📱","🎓","💳","🏦","👕"].map((e,i)=>`<button class="emoji-btn ${i===0?"active":""}" onclick="pE(this,'${e}')">${e}</button>`).join("")}</div></div>
+
+<p style="font-size:12px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:1px;margin:0 0 12px;padding-top:8px;border-top:1px solid var(--b)">Statusdefinition</p>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+<div class="field"><label>Klärungsstatus</label><input id="aCS" type="hidden" value="neu"><div style="display:flex;flex-wrap:wrap;gap:6px">${clarificationOptions.map(([v,l])=>`<button type="button" data-status="aCS" data-value="${v}" class="btn btn-sm ${v==="neu"?"btn-ghost":"btn-outline"}" style="padding:7px 10px" onclick="setStatus('a','CS','${v}')">${l}</button>`).join("")}</div></div>
+<div class="field"><label>Zahlungsstatus</label><input id="aPS" type="hidden" value="keine_zahlung_faellig"><div style="display:flex;flex-wrap:wrap;gap:6px">${paymentOptions.map(([v,l])=>`<button type="button" data-status="aPS" data-value="${v}" class="btn btn-sm ${v==="keine_zahlung_faellig"?"btn-ghost":"btn-outline"}" style="padding:7px 10px" onclick="setStatus('a','PS','${v}')">${l}</button>`).join("")}</div></div>
+</div>
+
+<p style="font-size:12px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:1px;margin:0 0 12px;padding-top:8px;border-top:1px solid var(--b)">💰 Grunddaten</p>
+<div class="field"><label>Bezeichnung / Gläubiger</label><div class="input-wrap"><input id="aN" placeholder="z.B. Stadtwerke"></div></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><div class="field"><label>Gesamtbetrag</label><div class="input-wrap"><input id="aA" type="number" placeholder="0"><span class="suffix">€</span></div></div><div class="field"><label>Rate/Monat</label><div class="input-wrap"><input id="aR" type="number" placeholder="0"><span class="suffix">€</span></div></div></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><div class="field"><label>Fälligkeit</label><div class="input-wrap"><input id="aD" type="date"></div></div><div class="field"><label>Notizen</label><div class="input-wrap"><input id="aNt" placeholder="Optional..."></div></div></div>
+
+<p style="font-size:12px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:1px;margin:0 0 12px;padding-top:12px;border-top:1px solid var(--b)">🏢 Gläubiger-Kontakt <span style="font-weight:400;color:var(--tf)">(optional)</span></p>
+<div class="field"><label>Firmenname / vollständiger Name</label><div class="input-wrap"><input id="aCN" placeholder="z.B. Stadtwerke München GmbH"></div></div>
+<div class="field"><label>Adresse</label><div class="input-wrap"><input id="aCA" placeholder="Straße Nr., PLZ Ort"></div></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><div class="field"><label>Telefon</label><div class="input-wrap"><input id="aCT" placeholder="089 1234-0"></div></div><div class="field"><label>E-Mail</label><div class="input-wrap"><input id="aCE" placeholder="info@firma.de"></div></div></div>
+
+<p style="font-size:12px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:1px;margin:0 0 12px;padding-top:12px;border-top:1px solid var(--b)">🏦 Bankverbindung <span style="font-weight:400;color:var(--tf)">(optional)</span></p>
+<div class="field"><label>Kontoinhaber / Bank</label><div class="input-wrap"><input id="aBN" placeholder="z.B. Stadtwerke München"></div></div>
+<div style="display:grid;grid-template-columns:2fr 1fr;gap:12px"><div class="field"><label>IBAN</label><div class="input-wrap"><input id="aBI" placeholder="DE00 0000 0000 0000 0000 00"></div></div><div class="field"><label>BIC</label><div class="input-wrap"><input id="aBB" placeholder="ABCDDEFFXXX"></div></div></div>
+<div class="field"><label>Verwendungszweck</label><div class="input-wrap"><input id="aBR" placeholder="Kd-Nr. / Vertrags-Nr. / Rechnungs-Nr."></div></div>
+
+<div style="display:flex;gap:12px;margin-top:16px"><button class="btn btn-outline" style="flex:1" onclick="closeModal()">Abbrechen</button><button class="btn btn-primary" style="flex:1" onclick="sAdd()">Hinzufügen</button></div>
+</div></div>`}
+function pE(b,e){selectedEmoji=e;document.querySelectorAll("#ep .emoji-btn").forEach(x=>x.classList.remove("active"));b.classList.add("active")}
+function sAdd(){const n=document.getElementById("aN").value,a=parseFloat(document.getElementById("aA").value),r=parseFloat(document.getElementById("aR").value),d=document.getElementById("aD").value,nt=document.getElementById("aNt").value;if(!n||!a||!r)return;const item={id:Date.now(),name:n,emoji:selectedEmoji,original:a,paid:0,rate:r,due:d||"2026-03-01",notes:nt,clarificationStatus:document.getElementById("aCS").value||"neu",paymentStatus:document.getElementById("aPS").value||"keine_zahlung_faellig",creditorName:document.getElementById("aCN").value,creditorAddress:document.getElementById("aCA").value,creditorPhone:document.getElementById("aCT").value,creditorEmail:document.getElementById("aCE").value,bankName:document.getElementById("aBN").value,bankIban:document.getElementById("aBI").value,bankBic:document.getElementById("aBB").value,bankRef:document.getElementById("aBR").value,history:[]};autoUpdateDebtStatuses(item,{respectManual:true});debts.push(item);scheduleCloudSave();selectedEmoji="📄";closeModal();flash("Hinzugefügt");renderPage()}
+function openPay(id){const d=debts.find(x=>x.id===id);if(!d)return;const rem=d.original-d.paid,pr=[{l:"Rate",v:d.rate}];if(Math.round(rem/2)!==d.rate&&rem/2>0)pr.push({l:"Hälfte",v:Math.round(rem/2)});if(rem!==d.rate&&rem>0)pr.push({l:"Alles",v:rem});
+document.getElementById("modalContainer").innerHTML=`<div class="overlay" onclick="closeModal()"><div class="modal" onclick="event.stopPropagation()"><div class="modal-head"><h3>Zahlung verbuchen</h3><button class="modal-close" onclick="closeModal()">✕</button></div><div style="display:flex;align-items:center;gap:14px;padding:16px;margin-bottom:20px;background:var(--bgE);border-radius:14px;border:1px solid var(--b)"><div style="width:46px;height:46px;border-radius:13px;background:var(--bgC);border:1px solid var(--b);display:flex;align-items:center;justify-content:center;font-size:22px">${d.emoji}</div><div><p style="font-size:15px;font-weight:700;margin:0">${d.name}</p><p style="font-size:13px;color:var(--tm);margin:2px 0 0">Offen: <strong style="color:var(--co)">${fmt(rem)}</strong> · Rate: ${fmt(d.rate)}/Mo</p></div></div><div class="field"><label>Betrag</label><div class="input-wrap"><input id="pA" type="number" placeholder="0" value="${d.rate}" oninput="uPB(${id})"><span class="suffix">€</span></div></div><div style="display:flex;gap:6px;margin-top:-8px;margin-bottom:16px;flex-wrap:wrap">${pr.filter(p=>p.v>0).map(p=>`<button class="preset-btn" onclick="document.getElementById('pA').value=${p.v};uPB(${id})">${p.l}: ${fmt(p.v)}</button>`).join("")}</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><div class="field"><label>Datum</label><div class="input-wrap"><input id="pD" type="date" value="${tdy()}"></div></div><div class="field"><label>Notiz</label><div class="input-wrap"><input id="pN" placeholder="Optional..."></div></div></div><div id="pW"></div><div style="display:flex;gap:12px;margin-top:8px"><button class="btn btn-outline" style="flex:1" onclick="closeModal()">Abbrechen</button><button class="btn btn-primary" style="flex:1" id="pB" onclick="sPay(${id})">✓ ${fmt(d.rate)} verbuchen</button></div></div></div>`}
+function uPB(id){const d=debts.find(x=>x.id===id);if(!d)return;const a=parseFloat(document.getElementById("pA").value)||0,rem=d.original-d.paid;document.getElementById("pB").textContent=`✓ ${fmt(a)} verbuchen`;document.getElementById("pW").innerHTML=a>rem?`<div style="padding:10px 14px;background:var(--amG);border:1px solid rgba(251,191,36,0.2);border-radius:10px;margin-bottom:14px;display:flex;align-items:center;gap:8px"><span>⚠️</span><p style="font-size:13px;color:var(--am);margin:0">Übersteigt offenen Betrag – es wird maximal ${fmt(rem)} verbucht.</p></div>`:"";}
+function sPay(id){const a=parseFloat(document.getElementById("pA").value);if(!a||a<=0)return;const dt=document.getElementById("pD").value||tdy(),nt=document.getElementById("pN").value.trim(),d=debts.find(x=>x.id===id);if(!d)return;d.paid=Math.min(d.paid+a,d.original);d.history.unshift({date:dt,amount:a,note:nt});autoUpdateDebtStatuses(d);scheduleCloudSave();if(d.paid>=d.original)setTimeout(showConfetti,200);closeModal();flash(`${fmt(a)} erfolgreich erfasst`);renderPage()}
+function printOverview(){
+  const T=gT();
+  const today=new Date().toLocaleDateString("de-DE",{day:"numeric",month:"long",year:"numeric"});
+  const activeDebts=debts.filter(d=>d.paid<d.original).sort((a,b)=>new Date(a.due)-new Date(b.due));
+  const doneDebts=debts.filter(d=>d.paid>=d.original);
+  const allPayments=debts.flatMap(d=>d.history.map(h=>({...h,dn:d.name,e:d.emoji}))).sort((a,b)=>new Date(b.date)-new Date(a.date));
+  const totalPayCount=debts.reduce((s,d)=>s+d.history.length,0);
+  
+  // Build progress bar SVG inline
+  const progBar=(pct,w=200)=>`<div style="display:flex;align-items:center;gap:8px"><div style="width:${w}px;height:6px;background:#E5E7EB;border-radius:3px;overflow:hidden"><div style="height:100%;width:${Math.min(pct,100)}%;background:linear-gradient(90deg,#059669,#34D399);border-radius:3px"></div></div><span style="font-size:11px;color:#6B7280;font-weight:600;min-width:36px">${pct}%</span></div>`;
+  
+  // Status label
+  const stLabel=(d)=>{const s=gS(d);const map={ok:["Aktuell","#059669","#ECFDF5"],soon:["Bald fällig","#D97706","#FFFBEB"],today:["Heute fällig","#DC2626","#FEF2F2"],overdue:["Handlungsbedarf","#DC2626","#FEF2F2"],done:["Erledigt","#059669","#ECFDF5"]};const[l,c,bg]=map[s]||map.ok;return`<span style="font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;color:${c};background:${bg}">${l}</span>`};
+  
+  const w=window.open("","_blank");
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Ratenova – Übersicht ${today}</title>
+<style>
+  @page{size:A4;margin:20mm 18mm}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',sans-serif;color:#111827;font-size:11pt;line-height:1.5;background:#fff}
+  .page{max-width:760px;margin:0 auto}
+  
+  /* Header */
+  .header{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:20px;border-bottom:3px solid #059669;margin-bottom:24px}
+  .header h1{font-size:22pt;font-weight:800;color:#111827;letter-spacing:-0.5px}
+  .header .sub{font-size:10pt;color:#6B7280;margin-top:2px}
+  .header .logo{display:flex;align-items:center;gap:8px}
+  .header .logo-dot{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#059669,#34D399);display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff}
+  .header .date{font-size:10pt;color:#9CA3AF;text-align:right}
+  
+  /* KPI Cards */
+  .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+  .kpi{background:#F9FAFB;border:1px solid #E5E7EB;border-radius:10px;padding:14px 16px}
+  .kpi .label{font-size:9pt;color:#6B7280;text-transform:uppercase;letter-spacing:0.8px;font-weight:600;margin-bottom:4px}
+  .kpi .value{font-size:18pt;font-weight:800;color:#111827;line-height:1.2}
+  .kpi .value.green{color:#059669}
+  .kpi .value.red{color:#DC2626}
+  .kpi .value.amber{color:#D97706}
+  .kpi .detail{font-size:9pt;color:#9CA3AF;margin-top:2px}
+  
+  /* Section */
+  .section{margin-bottom:22px}
+  .section-title{font-size:12pt;font-weight:700;color:#111827;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+  .section-title .dot{width:8px;height:8px;border-radius:2px;background:#059669}
+  
+  /* Table */
+  table{width:100%;border-collapse:collapse;font-size:10pt}
+  thead th{background:#F3F4F6;color:#374151;font-weight:700;text-align:left;padding:10px 12px;font-size:9pt;text-transform:uppercase;letter-spacing:0.5px;border-bottom:2px solid #E5E7EB}
+  thead th:first-child{border-radius:8px 0 0 0}
+  thead th:last-child{border-radius:0 8px 0 0}
+  tbody td{padding:10px 12px;border-bottom:1px solid #F3F4F6;vertical-align:middle}
+  tbody tr:last-child td{border-bottom:none}
+  tbody tr:hover{background:#F9FAFB}
+  .mono{font-family:'SF Mono','Fira Code',monospace;font-size:10pt}
+  .right{text-align:right}
+  .center{text-align:center}
+  
+  /* Footer row */
+  tfoot td{padding:12px;font-weight:700;background:#F0FDF4;border-top:2px solid #059669;font-size:10pt}
+  tfoot td:first-child{border-radius:0 0 0 8px}
+  tfoot td:last-child{border-radius:0 0 8px 0}
+  
+  /* Progress ring for header */
+  .ring-wrap{position:relative;display:inline-block}
+  .ring-label{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .ring-label .pct{font-size:16pt;font-weight:800;color:#059669}
+  .ring-label .sub{font-size:8pt;color:#9CA3AF}
+  
+  /* Recent payments */
+  .pay-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #F3F4F6;font-size:10pt}
+  .pay-row:last-child{border:none}
+  .pay-emoji{font-size:14px}
+  .pay-name{flex:1;color:#374151}
+  .pay-date{color:#9CA3AF;font-size:9pt}
+  .pay-amt{font-weight:700;color:#059669;min-width:70px;text-align:right}
+  
+  /* Footer */
+  .footer{margin-top:28px;padding-top:14px;border-top:1px solid #E5E7EB;display:flex;justify-content:space-between;font-size:8pt;color:#9CA3AF}
+  
+  /* Summary box */
+  .summary-box{background:linear-gradient(135deg,#F0FDF4,#ECFDF5);border:1px solid #BBF7D0;border-radius:12px;padding:16px 20px;margin-bottom:24px;display:flex;align-items:center;gap:20px}
+  .summary-box .big{font-size:28pt;font-weight:800;color:#059669;line-height:1}
+  .summary-box .info{flex:1}
+  .summary-box .info p{margin:0;font-size:10pt;color:#374151}
+  .summary-box .info .highlight{font-weight:700;color:#059669}
+
+  @media print{.page{max-width:100%} .kpi-row{break-inside:avoid} table{break-inside:avoid}}
+</style></head><body><div class="page">
+
+<!-- HEADER -->
+<div class="header">
+  <div>
+    <div class="logo"><div class="logo-dot">🕊️</div><h1>Ratenova</h1></div>
+    <p class="sub">Persönlicher Verbindlichkeitsreport</p>
+  </div>
+  <div class="date">Erstellt am<br><strong>${today}</strong></div>
+</div>
+
+<!-- SUMMARY -->
+<div class="summary-box">
+  <div style="text-align:center">
+    <svg width="80" height="80">
+      <circle cx="40" cy="40" r="34" fill="none" stroke="#E5E7EB" stroke-width="7"/>
+      <circle cx="40" cy="40" r="34" fill="none" stroke="#059669" stroke-width="7" stroke-linecap="round"
+        stroke-dasharray="${2*Math.PI*34}" stroke-dashoffset="${2*Math.PI*34-(T.pct/100)*2*Math.PI*34}" transform="rotate(-90 40 40)"/>
+      <text x="40" y="38" text-anchor="middle" font-size="16" font-weight="800" fill="#059669">${T.pct}%</text>
+      <text x="40" y="50" text-anchor="middle" font-size="8" fill="#9CA3AF">getilgt</text>
+    </svg>
+  </div>
+  <div class="info">
+    <p style="font-size:13pt;font-weight:700;margin-bottom:4px">Gesamtfortschritt</p>
+    <p>Offener Betrag: <span class="highlight">${fmt(T.r)}</span> von ${fmt(T.o)} · Bereits bezahlt: <span class="highlight">${fmt(T.p)}</span></p>
+    <p>Monatliche Belastung: <strong>${fmt(T.m)}</strong> · Voraussichtlich schuldenfrei in <span class="highlight">~${Math.ceil(T.r/T.m)} Monaten</span></p>
+  </div>
+</div>
+
+<!-- KPI CARDS -->
+<div class="kpi-row">
+  <div class="kpi"><div class="label">Gesamtpositionen</div><div class="value">${fmt(T.o)}</div><div class="detail">${debts.length} Position${debts.length!==1?"en":""}</div></div>
+  <div class="kpi"><div class="label">Bereits bezahlt</div><div class="value green">${fmt(T.p)}</div><div class="detail">${T.pct}% getilgt</div></div>
+  <div class="kpi"><div class="label">Offener Betrag</div><div class="value red">${fmt(T.r)}</div><div class="detail">${activeDebts.length} aktiv${doneDebts.length>0?` · ${doneDebts.length} erledigt`:""}</div></div>
+  <div class="kpi"><div class="label">Monatliche Rate</div><div class="value amber">${fmt(T.m)}</div><div class="detail">${totalPayCount} Zahlungen bisher</div></div>
+</div>
+
+<!-- ACTIVE DEBTS TABLE -->
+${activeDebts.length>0?`<div class="section">
+  <div class="section-title"><span class="dot"></span>Offene Verbindlichkeiten (${activeDebts.length})</div>
+  <table>
+    <thead><tr>
+      <th style="width:28px"></th>
+      <th>Gläubiger</th>
+      <th class="right">Gesamt</th>
+      <th class="right">Bezahlt</th>
+      <th class="right">Offen</th>
+      <th class="right">Rate/Mo</th>
+      <th>Fällig</th>
+      <th>Fortschritt</th>
+      <th>Status</th>
+    </tr></thead>
+    <tbody>${activeDebts.map(d=>{const rem=d.original-d.paid,p=pc(d.paid,d.original),dy=dU(d.due);return`<tr>
+      <td style="font-size:16px">${d.emoji}</td>
+      <td><strong>${d.name}</strong>${d.creditorName&&d.creditorName!==d.name?`<br><span style="font-size:9pt;color:#9CA3AF">${d.creditorName}</span>`:""}</td>
+      <td class="right mono">${fmt(d.original)}</td>
+      <td class="right mono" style="color:#059669">${fmt(d.paid)}</td>
+      <td class="right mono" style="color:#DC2626;font-weight:600">${fmt(rem)}</td>
+      <td class="right mono">${fmt(d.rate)}</td>
+      <td>${fD(d.due)}${dy<=0?' ⚠️':dy<=5?' ⏰':''}</td>
+      <td>${progBar(p,100)}</td>
+      <td>${stLabel(d)}</td>
+    </tr>`}).join("")}</tbody>
+    <tfoot><tr>
+      <td></td>
+      <td>Gesamt</td>
+      <td class="right">${fmt(activeDebts.reduce((s,d)=>s+d.original,0))}</td>
+      <td class="right" style="color:#059669">${fmt(activeDebts.reduce((s,d)=>s+d.paid,0))}</td>
+      <td class="right" style="color:#DC2626">${fmt(activeDebts.reduce((s,d)=>s+(d.original-d.paid),0))}</td>
+      <td class="right">${fmt(activeDebts.reduce((s,d)=>s+d.rate,0))}</td>
+      <td colspan="3"></td>
+    </tr></tfoot>
+  </table>
+</div>`:""}
+
+<!-- DONE DEBTS -->
+${doneDebts.length>0?`<div class="section">
+  <div class="section-title"><span class="dot" style="background:#34D399"></span>Abgeschlossene Verbindlichkeiten (${doneDebts.length})</div>
+  <table>
+    <thead><tr><th style="width:28px"></th><th>Gläubiger</th><th class="right">Betrag</th><th class="right">Zahlungen</th><th>Status</th></tr></thead>
+    <tbody>${doneDebts.map(d=>`<tr>
+      <td style="font-size:16px">${d.emoji}</td>
+      <td>${d.name}</td>
+      <td class="right mono">${fmt(d.original)}</td>
+      <td class="right">${d.history.length}</td>
+      <td>${stLabel(d)}</td>
+    </tr>`).join("")}</tbody>
+  </table>
+</div>`:""}
+
+<!-- PAYMENT SCHEDULE -->
+${activeDebts.length>0?`<div class="section">
+  <div class="section-title"><span class="dot" style="background:#D97706"></span>Fortschrittsplan – Nächste Fälligkeiten</div>
+  <table>
+    <thead><tr><th>Fälligkeit</th><th>Gläubiger</th><th class="right">Rate</th><th class="right">Offener Betrag danach</th><th>Verbl. Raten</th></tr></thead>
+    <tbody>${activeDebts.map(d=>{const rem=d.original-d.paid,afterPay=Math.max(rem-d.rate,0),mLeft=d.rate>0?Math.ceil(rem/d.rate):0;return`<tr>
+      <td><strong>${fDL(d.due)}</strong></td>
+      <td>${d.emoji} ${d.name}</td>
+      <td class="right mono">${fmt(d.rate)}</td>
+      <td class="right mono">${fmt(afterPay)}</td>
+      <td class="center">${mLeft} Monate</td>
+    </tr>`}).join("")}</tbody>
+  </table>
+</div>`:""}
+
+<!-- RECENT PAYMENTS -->
+${allPayments.length>0?`<div class="section">
+  <div class="section-title"><span class="dot" style="background:#059669"></span>Letzte Zahlungen</div>
+  <div style="background:#F9FAFB;border:1px solid #E5E7EB;border-radius:10px;padding:12px 16px">
+    ${allPayments.slice(0,8).map(h=>`<div class="pay-row">
+      <span class="pay-emoji">${h.e}</span>
+      <span class="pay-name">${h.dn}${h.note?` · <span style="color:#9CA3AF">${h.note}</span>`:""}</span>
+      <span class="pay-date">${fD(h.date)}</span>
+      <span class="pay-amt">${fmt(h.amount)}</span>
+    </div>`).join("")}
+  </div>
+</div>`:""}
+
+<!-- BANKVERBINDUNGEN -->
+${activeDebts.some(d=>d.bankIban)?`<div class="section">
+  <div class="section-title"><span class="dot" style="background:#6366F1"></span>Bankverbindungen für Überweisungen</div>
+  <table>
+    <thead><tr><th>Gläubiger</th><th>IBAN</th><th>BIC</th><th>Verwendungszweck</th></tr></thead>
+    <tbody>${activeDebts.filter(d=>d.bankIban).map(d=>`<tr>
+      <td>${d.emoji} <strong>${d.bankName||d.name}</strong></td>
+      <td class="mono" style="font-size:9pt">${d.bankIban||"–"}</td>
+      <td class="mono" style="font-size:9pt">${d.bankBic||"–"}</td>
+      <td style="font-size:9pt;color:#6B7280">${d.bankRef||"–"}</td>
+    </tr>`).join("")}</tbody>
+  </table>
+</div>`:""}
+
+<!-- FOOTER -->
+<div class="footer">
+  <span>🕊️ Ratenova – Persönlicher Verbindlichkeitsreport</span>
+  <span>Generiert am ${today}</span>
+  <span>Vertraulich – Nur für den persönlichen Gebrauch</span>
+</div>
+
+</div></body></html>`);
+  w.document.close();
+  setTimeout(()=>w.print(),400);
+}
+
+function openEdit(id){const d=debts.find(x=>x.id===id);if(!d)return;
+document.getElementById("modalContainer").innerHTML=`<div class="overlay" onclick="closeModal()"><div class="modal wide" onclick="event.stopPropagation()" style="max-width:620px">
+<div class="modal-head"><h3>${d.emoji} ${d.name} bearbeiten</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
+
+<p style="font-size:12px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:1px;margin:0 0 12px">Statusdefinition</p>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+<div class="field"><label>Klärungsstatus</label><input id="eCS" type="hidden" value="${getClarificationStatus(d)}"><div style="display:flex;flex-wrap:wrap;gap:6px">${clarificationOptions.map(([v,l])=>`<button type="button" data-status="eCS" data-value="${v}" class="btn btn-sm ${getClarificationStatus(d)===v?"btn-ghost":"btn-outline"}" style="padding:7px 10px" onclick="setStatus('e','CS','${v}')">${l}</button>`).join("")}</div></div>
+<div class="field"><label>Zahlungsstatus</label><input id="ePS" type="hidden" value="${getPaymentStatus(d)}"><div style="display:flex;flex-wrap:wrap;gap:6px">${paymentOptions.map(([v,l])=>`<button type="button" data-status="ePS" data-value="${v}" class="btn btn-sm ${getPaymentStatus(d)===v?"btn-ghost":"btn-outline"}" style="padding:7px 10px" onclick="setStatus('e','PS','${v}')">${l}</button>`).join("")}</div></div>
+</div>
+
+<p style="font-size:12px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:1px;margin:0 0 12px">💰 Grunddaten</p>
+<div class="field"><label>Bezeichnung</label><div class="input-wrap"><input id="eN" value="${d.name||''}"></div></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><div class="field"><label>Rate/Monat</label><div class="input-wrap"><input id="eR" type="number" value="${d.rate||''}"><span class="suffix">€</span></div></div><div class="field"><label>Fälligkeit</label><div class="input-wrap"><input id="eD" type="date" value="${d.due||''}"></div></div></div>
+<div class="field"><label>Notizen</label><div class="input-wrap"><input id="eNt" value="${(d.notes||'').replace(/"/g,'&quot;')}"></div></div>
+
+<p style="font-size:12px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:1px;margin:0 0 12px;padding-top:12px;border-top:1px solid var(--b)">🏢 Gläubiger-Kontakt</p>
+<div class="field"><label>Firmenname / Name</label><div class="input-wrap"><input id="eCN" value="${(d.creditorName||'').replace(/"/g,'&quot;')}"></div></div>
+<div class="field"><label>Adresse</label><div class="input-wrap"><input id="eCA" value="${(d.creditorAddress||'').replace(/"/g,'&quot;')}"></div></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><div class="field"><label>Telefon</label><div class="input-wrap"><input id="eCT" value="${d.creditorPhone||''}"></div></div><div class="field"><label>E-Mail</label><div class="input-wrap"><input id="eCE" value="${d.creditorEmail||''}"></div></div></div>
+
+<p style="font-size:12px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:1px;margin:0 0 12px;padding-top:12px;border-top:1px solid var(--b)">🏦 Bankverbindung</p>
+<div class="field"><label>Kontoinhaber / Bank</label><div class="input-wrap"><input id="eBN" value="${(d.bankName||'').replace(/"/g,'&quot;')}"></div></div>
+<div style="display:grid;grid-template-columns:2fr 1fr;gap:12px"><div class="field"><label>IBAN</label><div class="input-wrap"><input id="eBI" value="${d.bankIban||''}"></div></div><div class="field"><label>BIC</label><div class="input-wrap"><input id="eBB" value="${d.bankBic||''}"></div></div></div>
+<div class="field"><label>Verwendungszweck</label><div class="input-wrap"><input id="eBR" value="${(d.bankRef||'').replace(/"/g,'&quot;')}"></div></div>
+
+<div style="display:flex;gap:12px;margin-top:16px"><button class="btn btn-outline" style="flex:1" onclick="closeModal()">Abbrechen</button><button class="btn btn-primary" style="flex:1" onclick="saveEdit(${d.id})">💾 Speichern</button></div>
+</div></div>`}
+function saveEdit(id){const d=debts.find(x=>x.id===id);if(!d)return;d.name=document.getElementById("eN").value||d.name;d.rate=parseFloat(document.getElementById("eR").value)||d.rate;d.due=document.getElementById("eD").value||d.due;d.notes=document.getElementById("eNt").value;d.clarificationStatus=document.getElementById("eCS").value||d.clarificationStatus;d.paymentStatus=document.getElementById("ePS").value||d.paymentStatus;d.creditorName=document.getElementById("eCN").value;d.creditorAddress=document.getElementById("eCA").value;d.creditorPhone=document.getElementById("eCT").value;d.creditorEmail=document.getElementById("eCE").value;d.bankName=document.getElementById("eBN").value;d.bankIban=document.getElementById("eBI").value;d.bankBic=document.getElementById("eBB").value;d.bankRef=document.getElementById("eBR").value;autoUpdateDebtStatuses(d,{respectManual:true});scheduleCloudSave();closeModal();flash("Gespeichert ✓");renderPage()}
+function deleteDebt(id){if(!confirm("Verbindlichkeit wirklich löschen?"))return;debts=debts.filter(d=>d.id!==id);scheduleCloudSave();selectedDebtId=null;currentPage="debts";renderNav();renderPage();flash("Gelöscht")}
+normalizeDebtStatuses();
+loadBudget();
+loadUser();
+if(!isMasterMode){
+  initAuthUI();
+  renderNav();
+  renderUser();
+  renderPage();
+}else{
+  const ar=document.getElementById("authRoot");if(ar)ar.style.display="none";
+  const ly=document.querySelector(".layout");if(ly)ly.style.display="none";
+  const mn=document.getElementById("mobileNav");if(mn)mn.style.display="none";
+  const mr=document.getElementById("masterRoot");if(mr)mr.style.display="block";
+}
+(async()=>{
+  const sbReady=await initSupabaseClient();
+  if(!sbReady){
+    if(isMasterMode){
+      const mr=document.getElementById("masterRoot");
+      if(mr)mr.innerHTML=`<div class="master-shell"><div class="master-login"><div class="master-card"><h1 style="font-size:24px;font-weight:800;margin:0 0 8px">Admin Master Panel</h1><p style="font-size:13px;color:var(--co);margin:0">Supabase ist nicht konfiguriert. Bitte URL und Publishable Key setzen.</p></div></div></div>`;
+    }else{
+      showAuthPage("login");
+      authShowNotice("Supabase ist nicht konfiguriert. Bitte URL und Anon Key im Code setzen.","err");
+    }
+    return;
+  }
+  if(isMasterMode){
+    renderMasterStandalone();
+    return;
+  }
+  const authed=await ensureAppAuth();
+  if(!authed){showAuthPage("login");}
+  else{hideAuthPage();renderNav();renderUser();renderPage();}
+})();
+</script>
+</body>
+</html>
