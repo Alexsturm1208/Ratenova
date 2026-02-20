@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Cookie-Richtlinie – Ratenova Cloud</title>
+<link rel="icon" type="image/png" href="https://kdbuduwztmxxykfvqbie.supabase.co/storage/v1/object/public/public-assets/Ratenova%20Icon.png" sizes="32x32">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0C0E14;
+  --bg1: #111318;
+  --bg2: #161920;
+  --bg3: #1C1F28;
+  --em: #34D399;
+  --em2: #10B981;
+  --em3: #059669;
+  --emg: rgba(52,211,153,0.12);
+  --ba: rgba(52,211,153,0.28);
+  --sk: #38BDF8;
+  --t: #F0F2F8;
+  --ts: #9CA3B4;
+  --tm: #5C6178;
+  --b: rgba(255,255,255,0.07);
+  --bl: rgba(255,255,255,0.12);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--t);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.5;
+}
+
+/* ─── NAV ─── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  padding: 20px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(12,14,20,0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--b);
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+
+.nav-logo img { height: 32px; width: auto; }
+
+.nav-logo-text {
+  font-family: 'Syne', sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--t);
+  letter-spacing: -0.5px;
+}
+
+.nav-logo-text span { color: var(--em); }
+
+.nav-back {
+  color: var(--ts);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: 1px solid var(--bl);
+  transition: all 0.2s;
+}
+
+.nav-back:hover {
+  color: var(--t);
+  border-color: var(--ba);
+  background: var(--bg3);
+}
+
+/* ─── MAIN ─── */
+main {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 120px 40px 100px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ─── HEADER ─── */
+.page-header {
+  margin-bottom: 56px;
+}
+
+.legal-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--em);
+  background: var(--emg);
+  border: 1px solid var(--ba);
+  border-radius: 100px;
+  padding: 5px 14px;
+  margin-bottom: 20px;
+}
+
+.page-header h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(36px, 5vw, 56px);
+  font-weight: 800;
+  letter-spacing: -1.5px;
+  line-height: 1.1;
+  margin-bottom: 16px;
+}
+
+.page-header .meta {
+  color: var(--ts);
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.page-header .meta a {
+  color: var(--em);
+  text-decoration: none;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid var(--b);
+  margin: 40px 0;
+}
+
+/* ─── CONTENT ─── */
+.content h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--t);
+  margin: 40px 0 12px;
+  letter-spacing: -0.4px;
+}
+
+.content h2:first-child { margin-top: 0; }
+
+.content h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ts);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 28px 0 10px;
+}
+
+.content p {
+  color: var(--ts);
+  font-size: 16px;
+  line-height: 1.75;
+  margin-bottom: 16px;
+}
+
+.content p strong { color: var(--t); font-weight: 600; }
+
+.content a {
+  color: var(--em);
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.content a:hover { opacity: 0.75; }
+
+/* ─── TABLE ─── */
+.cookie-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0 32px;
+  font-size: 14px;
+}
+
+.cookie-table th {
+  text-align: left;
+  padding: 12px 16px;
+  background: var(--bg3);
+  color: var(--ts);
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 1px solid var(--bl);
+}
+
+.cookie-table th:first-child { border-radius: 10px 0 0 0; }
+.cookie-table th:last-child { border-radius: 0 10px 0 0; }
+
+.cookie-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--b);
+  color: var(--ts);
+  vertical-align: top;
+}
+
+.cookie-table td:first-child { color: var(--t); font-weight: 500; }
+
+.cookie-table tr:last-child td { border-bottom: none; }
+
+.cookie-table tbody tr {
+  background: var(--bg2);
+  transition: background 0.2s;
+}
+
+.cookie-table tbody tr:hover { background: var(--bg3); }
+
+/* ─── BADGE ─── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.badge-green {
+  background: var(--emg);
+  color: var(--em);
+  border: 1px solid var(--ba);
+}
+
+.badge-gray {
+  background: rgba(255,255,255,0.05);
+  color: var(--ts);
+  border: 1px solid var(--b);
+}
+
+/* ─── INFO BOX ─── */
+.info-box {
+  background: var(--bg2);
+  border: 1px solid var(--bl);
+  border-left: 3px solid var(--em);
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin: 24px 0;
+}
+
+.info-box p {
+  margin: 0;
+  color: var(--ts);
+  font-size: 15px;
+}
+
+/* ─── FOOTER ─── */
+footer {
+  border-top: 1px solid var(--b);
+  padding: 32px 40px;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+footer p {
+  color: var(--tm);
+  font-size: 13px;
+}
+
+footer a {
+  color: var(--ts);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+footer a:hover { color: var(--em); }
+
+@media (max-width: 640px) {
+  nav { padding: 16px 20px; }
+  main { padding: 100px 24px 80px; }
+  .cookie-table { font-size: 13px; }
+  .cookie-table th, .cookie-table td { padding: 10px 12px; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">
+    <img src="https://kdbuduwztmxxykfvqbie.supabase.co/storage/v1/object/public/public-assets/Ratenova%20Icon.png" alt="Ratenova Icon">
+    <span class="nav-logo-text">Rate<span>nova</span> Cloud</span>
+  </a>
+  <a href="index.html" class="nav-back">← Zurück zur Startseite</a>
+</nav>
+
+<main>
+  <div class="page-header">
+    <div class="legal-tag">🍪 Rechtliches</div>
+    <h1>Cookie-Richtlinie</h1>
+    <p class="meta">Stand: Februar 2026 · Ratenova Cloud · <a href="mailto:info@ratenova.de">info@ratenova.de</a></p>
+  </div>
+
+  <div class="content">
+
+    <div class="info-box">
+      <p>✅ Wir verwenden <strong>ausschließlich technisch notwendige Cookies</strong>. Es sind keine Marketing- oder Tracking-Cookies im Einsatz – und damit ist auch kein Cookie-Banner erforderlich.</p>
+    </div>
+
+    <hr>
+
+    <h2>Was sind Cookies?</h2>
+    <p>Cookies sind kleine Textdateien, die beim Besuch einer Website auf deinem Gerät gespeichert werden. Sie ermöglichen es, bestimmte Einstellungen und Informationen zwischen Seitenaufrufen zu erhalten. Cookies können von der besuchten Website selbst (First-Party-Cookies) oder von Drittanbietern (Third-Party-Cookies) gesetzt werden.</p>
+
+    <h2>Welche Cookies verwenden wir?</h2>
+
+    <h3>Technisch notwendige Cookies</h3>
+    <p>Diese Cookies sind für den ordnungsgemäßen Betrieb der Anwendung unbedingt erforderlich. Sie können nicht deaktiviert werden, ohne die Funktionalität der App zu beeinträchtigen. Für diese Cookies ist keine Einwilligung erforderlich (Art. 25 Abs. 2 TTDSG).</p>
+
+    <table class="cookie-table">
+      <thead>
+        <tr>
+          <th>Name / Typ</th>
+          <th>Zweck</th>
+          <th>Anbieter</th>
+          <th>Laufzeit</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Session-Cookie<br><span class="badge badge-green">Notwendig</span></td>
+          <td>Speichert deine aktive Anmeldesitzung und hält dich eingeloggt.</td>
+          <td>Supabase Auth</td>
+          <td>Sitzung / bis zum Abmelden</td>
+        </tr>
+        <tr>
+          <td>Präferenz-Cookie<br><span class="badge badge-green">Notwendig</span></td>
+          <td>Speichert deine App-Einstellungen (z. B. Anzeigeoptionen) lokal im Browser.</td>
+          <td>Ratenova Cloud<br>(localStorage)</td>
+          <td>Dauerhaft (lokal)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Tracking- &amp; Marketing-Cookies</h2>
+    <p>Wir setzen <strong>keine</strong> Tracking-, Analyse- oder Marketing-Cookies ein. Es findet keine Auswertung deines Nutzerverhaltens durch Drittanbieter statt, und es werden keine Daten zu Werbezwecken weitergegeben.</p>
+
+    <h2>Drittanbieter-Cookies</h2>
+
+    <h3>Paddle (Zahlungsabwicklung)</h3>
+    <p>Beim Abschluss eines kostenpflichtigen Abonnements (Pro-Tarif) werden Cookies von Paddle gesetzt, die ausschließlich für die sichere und korrekte Abwicklung des Zahlungsvorgangs erforderlich sind. Diese Cookies werden nur im Rahmen des Checkout-Prozesses aktiv und unterliegen der Datenschutz- und Cookie-Richtlinie von Paddle:</p>
+    <p><a href="https://www.paddle.com/legal/privacy" target="_blank">→ paddle.com/legal/privacy</a></p>
+
+    <table class="cookie-table">
+      <thead>
+        <tr>
+          <th>Name / Typ</th>
+          <th>Zweck</th>
+          <th>Anbieter</th>
+          <th>Laufzeit</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Checkout-Cookies<br><span class="badge badge-gray">Zahlungsabwicklung</span></td>
+          <td>Sichert die Zahlungssitzung während des Checkout-Prozesses ab.</td>
+          <td>Paddle.com Market Limited</td>
+          <td>Sitzung</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Cookie-Einstellungen & Browser-Kontrolle</h2>
+    <p>Da wir ausschließlich technisch notwendige Cookies einsetzen, ist keine gesonderte Einwilligung erforderlich. Du kannst Cookies jederzeit in den Einstellungen deines Browsers löschen oder blockieren.</p>
+    <p><strong>Bitte beachte:</strong> Das Blockieren von Session-Cookies führt dazu, dass du in der App nicht eingeloggt bleiben kannst. Die Grundfunktionen der öffentlichen Website bleiben davon unberührt.</p>
+    <p>Anleitung für gängige Browser:</p>
+    <p>
+      <a href="https://support.google.com/chrome/answer/95647" target="_blank">Google Chrome</a> ·
+      <a href="https://support.mozilla.org/de/kb/cookies-erlauben-und-ablehnen" target="_blank">Mozilla Firefox</a> ·
+      <a href="https://support.apple.com/de-de/guide/safari/sfri11471/mac" target="_blank">Apple Safari</a> ·
+      <a href="https://support.microsoft.com/de-de/microsoft-edge/cookies-in-microsoft-edge-löschen-63947406-40ac-c3b8-57b9-2a946a29ae09" target="_blank">Microsoft Edge</a>
+    </p>
+
+    <hr>
+
+    <h2>Rechtsgrundlage</h2>
+    <p>Technisch notwendige Cookies werden auf Grundlage von § 25 Abs. 2 Nr. 2 TTDSG gesetzt. Diese Cookies dienen ausschließlich der Übertragung einer Nachricht oder sind unbedingt erforderlich, um einen vom Nutzer ausdrücklich gewünschten Dienst zur Verfügung zu stellen.</p>
+
+    <h2>Kontakt</h2>
+    <p>Bei Fragen zu dieser Cookie-Richtlinie wende dich gerne an uns:</p>
+    <p>
+      Alexander Falco Sturm<br>
+      Böttgerstr. 10, 68775 Ketsch<br>
+      E-Mail: <a href="mailto:info@ratenova.de">info@ratenova.de</a>
+    </p>
+
+  </div>
+</main>
+
+<footer>
+  <p>© 2026 Ratenova Cloud · Alexander Falco Sturm ·
+    <a href="index.html">Startseite</a> ·
+    <a href="index.html#impressum" onclick="window.location='index.html';setTimeout(()=>openLegal&&openLegal('impressum'),500);return false;">Impressum</a> ·
+    <a href="index.html" onclick="window.location='index.html';setTimeout(()=>openLegal&&openLegal('datenschutz'),500);return false;">Datenschutz</a>
+  </p>
+</footer>
+
+</body>
+</html>
