@@ -86,7 +86,7 @@ button{font-family:inherit;cursor:pointer}input{font-family:inherit}input::place
           <span style="font-size:20px">🎁</span>
           <div><p style="font-size:13px;font-weight:700;color:var(--em);margin:0">30 Tage Pro kostenlos</p><p style="font-size:12px;color:var(--tm);margin:2px 0 0">Alle Features, danach Basic oder Upgrade.</p></div>
         </div>
-        <p style="font-size:12px;color:var(--tm);margin:0 0 12px;line-height:1.6">Mit der Registrierung stimmst du unseren <a href="#" onclick="event.preventDefault();goTo('agb')" style="color:var(--em);font-weight:600">AGB</a> zu.</p>
+        <p style="font-size:12px;color:var(--tm);margin:0 0 12px;line-height:1.6">Mit der Registrierung stimmst du unseren <a href="https://ratenova.de/agb" target="_blank" style="color:var(--em);font-weight:600">AGB</a> zu.</p>
         <button class="btn btn-primary" type="submit">Konto erstellen</button>
       </form>
       
@@ -165,7 +165,7 @@ function openUpgradeModal(featureName){
     </div>
     <button class="btn btn-primary btn-full btn-lg" onclick="closeModal();openPaddleCheckout()">Jetzt upgraden →</button>
     <button class="btn btn-outline btn-full" style="margin-top:8px" onclick="closeModal()">Später</button>
-    <p style="font-size:11px;color:var(--tf);margin:10px 0 0">Mit dem Upgrade stimmst du den <a href="#" onclick="event.preventDefault();goTo('agb')" style="color:var(--tm)">AGB</a> zu.</p>
+    <p style="font-size:11px;color:var(--tf);margin:10px 0 0">Mit dem Upgrade stimmst du den <a href="https://ratenova.de/agb" target="_blank" style="color:var(--tm)">AGB</a> zu.</p>
   </div></div>`;
 }
 function renderNav(){
@@ -1070,6 +1070,18 @@ function renderMasterStandalone(){const root=document.getElementById("masterRoot
 
 
 
+
+function showAgbModal(){
+  const agbContent=rAgbPage();
+  document.getElementById("modalContainer").innerHTML=`<div class="overlay" onclick="closeModal()"><div class="modal wide" onclick="event.stopPropagation()" style="max-width:700px;max-height:85vh;overflow:auto">
+    <div class="modal-head" style="position:sticky;top:0;background:var(--bgC);z-index:10;padding-bottom:12px">
+      <h3>AGB</h3>
+      <button class="modal-close" onclick="closeModal()">&#x2715;</button>
+    </div>
+    ${agbContent}
+  </div></div>`;
+}
+
 function rAgbPage(){
   return `<div style="max-width:760px">
     <div style="margin-bottom:28px">
@@ -1163,7 +1175,7 @@ function rPricing(){
       ${planCard("Basic","Kostenlos",basicFeatures,false,isCurrentlyBasic)}
       ${planCard("Pro","4,99 €",proFeatures,true,isCurrentlyPro||isCurrentlyTrial)}
     </div>
-    <p style="font-size:12px;color:var(--tm);text-align:center;margin:0 0 16px">Mit dem Kauf stimmst du unseren <a href="#" onclick="event.preventDefault();goTo('agb')" style="color:var(--em);font-weight:600">Allgemeinen Geschäftsbedingungen</a> zu. Monatlich kündbar.</p>
+    <p style="font-size:12px;color:var(--tm);text-align:center;margin:0 0 16px">Mit dem Kauf stimmst du unseren <a href="https://ratenova.de/agb" target="_blank" style="color:var(--em);font-weight:600">Allgemeinen Geschäftsbedingungen</a> zu. Monatlich kündbar.</p>
     <div class="card" style="padding:20px">
       <h3 style="font-size:15px;font-weight:700;margin:0 0 12px">Häufige Fragen</h3>
       ${[
