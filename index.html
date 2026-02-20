@@ -86,6 +86,7 @@ button{font-family:inherit;cursor:pointer}input{font-family:inherit}input::place
           <span style="font-size:20px">🎁</span>
           <div><p style="font-size:13px;font-weight:700;color:var(--em);margin:0">30 Tage Pro kostenlos</p><p style="font-size:12px;color:var(--tm);margin:2px 0 0">Alle Features, danach Basic oder Upgrade.</p></div>
         </div>
+        <p style="font-size:12px;color:var(--tm);margin:0 0 12px;line-height:1.6">Mit der Registrierung stimmst du unseren <a href="https://ratenova.de/agb" target="_blank" style="color:var(--em);font-weight:600">AGB</a> zu.</p>
         <button class="btn btn-primary" type="submit">Konto erstellen</button>
       </form>
       
@@ -164,6 +165,7 @@ function openUpgradeModal(featureName){
     </div>
     <button class="btn btn-primary btn-full btn-lg" onclick="closeModal();openPaddleCheckout()">Jetzt upgraden →</button>
     <button class="btn btn-outline btn-full" style="margin-top:8px" onclick="closeModal()">Später</button>
+    <p style="font-size:11px;color:var(--tf);margin:10px 0 0">Mit dem Upgrade stimmst du den <a href="https://ratenova.de/agb" target="_blank" style="color:var(--tm)">AGB</a> zu.</p>
   </div></div>`;
 }
 function renderNav(){
@@ -1121,13 +1123,14 @@ function rPricing(){
       ${planCard("Basic","Kostenlos",basicFeatures,false,isCurrentlyBasic)}
       ${planCard("Pro","4,99 €",proFeatures,true,isCurrentlyPro||isCurrentlyTrial)}
     </div>
+    <p style="font-size:12px;color:var(--tm);text-align:center;margin:0 0 16px">Mit dem Kauf stimmst du unseren <a href="https://ratenova.de/agb" target="_blank" style="color:var(--em);font-weight:600">Allgemeinen Geschäftsbedingungen</a> zu. Monatlich kündbar.</p>
     <div class="card" style="padding:20px">
       <h3 style="font-size:15px;font-weight:700;margin:0 0 12px">Häufige Fragen</h3>
       ${[
         ["Was passiert nach der 30-Tage-Testphase?","Dein Konto wechselt automatisch in den kostenlosen Basic-Plan. Deine Daten bleiben erhalten, aber Pro-Features werden gesperrt."],
         ["Wie kann ich upgraden?","Klicke auf Jetzt upgraden und schließe den Checkout ab – dein Plan wird sofort aktiviert."],
         ["Kann ich jederzeit kündigen?","Der Pro-Plan ist monatlich kündbar. Nach der Kündigung behältst du den Pro-Zugang bis zum Ende des Abrechnungszeitraums."],
-        ["Sind meine Daten sicher?","Ja. Alle Daten werden verschlüsselt in unserer Supabase-Datenbank gespeichert."],
+        ["Sind meine Daten sicher?","Ja. Alle Daten werden verschlüsselt in unserer Supabase-Datenbank gespeichert."],["Allgemeine Geschäftsbedingungen","Unsere AGB findest du unter ratenova.de/agb"],
       ].map(([q,a])=>`<div style="padding:14px 0;border-bottom:1px solid var(--b)"><p style="font-size:13px;font-weight:700;margin:0 0 4px">${q}</p><p style="font-size:13px;color:var(--tm);margin:0;line-height:1.6">${a}</p></div>`).join("")}
     </div>
   </div>`;
