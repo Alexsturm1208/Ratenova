@@ -86,7 +86,7 @@ button{font-family:inherit;cursor:pointer}input{font-family:inherit}input::place
           <span style="font-size:20px">🎁</span>
           <div><p style="font-size:13px;font-weight:700;color:var(--em);margin:0">30 Tage Pro kostenlos</p><p style="font-size:12px;color:var(--tm);margin:2px 0 0">Alle Features, danach Basic oder Upgrade.</p></div>
         </div>
-        <p style="font-size:12px;color:var(--tm);margin:0 0 12px;line-height:1.6">Mit der Registrierung stimmst du unseren <a href="https://ratenova.de/agb" target="_blank" style="color:var(--em);font-weight:600">AGB</a> zu.</p>
+        <p style="font-size:12px;color:var(--tm);margin:0 0 12px;line-height:1.6">Mit der Registrierung stimmst du unseren <a href="#" onclick="event.preventDefault();goTo('agb')" style="color:var(--em);font-weight:600">AGB</a> zu.</p>
         <button class="btn btn-primary" type="submit">Konto erstellen</button>
       </form>
       
@@ -165,7 +165,7 @@ function openUpgradeModal(featureName){
     </div>
     <button class="btn btn-primary btn-full btn-lg" onclick="closeModal();openPaddleCheckout()">Jetzt upgraden →</button>
     <button class="btn btn-outline btn-full" style="margin-top:8px" onclick="closeModal()">Später</button>
-    <p style="font-size:11px;color:var(--tf);margin:10px 0 0">Mit dem Upgrade stimmst du den <a href="https://ratenova.de/agb" target="_blank" style="color:var(--tm)">AGB</a> zu.</p>
+    <p style="font-size:11px;color:var(--tf);margin:10px 0 0">Mit dem Upgrade stimmst du den <a href="#" onclick="event.preventDefault();goTo('agb')" style="color:var(--tm)">AGB</a> zu.</p>
   </div></div>`;
 }
 function renderNav(){
@@ -180,13 +180,13 @@ function renderNav(){
   const t=document.getElementById("sidebarTools");
   if(t)t.innerHTML=`<button class="nav-btn ${currentPage==="contracts"?"active":""}" onclick="goTo('contracts')" style="width:100%;border-radius:10px"><span class="icon">📄</span>Verträge${!pro?'<span style="margin-left:auto;font-size:10px;opacity:0.5">🔒</span>':''}</button><button class="nav-btn ${currentPage==="cancelAssist"?"active":""}" onclick="goTo('cancelAssist')" style="width:100%;border-radius:10px"><span class="icon">✉</span>Kündigung${!pro?'<span style="margin-left:auto;font-size:10px;opacity:0.5">🔒</span>':''}</button>`;
   const s=document.getElementById("sidebarSettings");
-  if(s)s.innerHTML=`<button class="nav-btn ${currentPage==="settings"?"active":""}" onclick="goTo('settings')" style="width:100%;border-radius:10px"><span class="icon">⚙</span>Einstellungen</button><button class="nav-btn ${currentPage==="pricing"?"active":""}" onclick="goTo('pricing')" style="width:100%;border-radius:10px"><span class="icon">⭐</span>Pläne & Preise</button>${trial&&daysLeft<=7?`<div style="margin:6px 0 0;padding:8px 10px;border-radius:10px;background:var(--amG);border:1px solid rgba(251,191,36,0.3);font-size:11px;color:var(--am);font-weight:600">⏰ Noch ${daysLeft} Tage Testphase</div>`:""}`;
+  if(s)s.innerHTML=`<button class="nav-btn ${currentPage==="settings"?"active":""}" onclick="goTo('settings')" style="width:100%;border-radius:10px"><span class="icon">⚙</span>Einstellungen</button><button class="nav-btn ${currentPage==="pricing"?"active":""}" onclick="goTo('pricing')" style="width:100%;border-radius:10px"><span class="icon">⭐</span>Pläne & Preise</button><button class="nav-btn ${currentPage==="agb"?"active":""}" onclick="goTo('agb')" style="width:100%;border-radius:10px"><span class="icon">📋</span>AGB</button>${trial&&daysLeft<=7?`<div style="margin:6px 0 0;padding:8px 10px;border-radius:10px;background:var(--amG);border:1px solid rgba(251,191,36,0.3);font-size:11px;color:var(--am);font-weight:600">⏰ Noch ${daysLeft} Tage Testphase</div>`:""}`;
   document.getElementById("mobileNav").innerHTML=navI.map(n=>`<button class="mobile-nav-btn ${currentPage===n.id||(currentPage==="detail"&&n.id==="debts")?"active":""}" onclick="goTo('${n.id}')"><span style="font-size:20px">${n.i}</span>${n.l}</button>`).join("")+`<button class="mobile-nav-btn ${currentPage==="contracts"?"active":""}" onclick="goTo('contracts')"><span style="font-size:20px">📄</span>Verträge</button><button class="mobile-nav-btn ${currentPage==="settings"?"active":""}" onclick="goTo('settings')"><span style="font-size:20px">⚙</span>Einst.</button><button class="mobile-fab" onclick="openAdd()">＋</button>`;
   renderUser();
 }
 function goTo(p){if(isProFeaturePage(p)&&!isProPlan()){openUpgradeModal(p==="agree"?"Vereinbarungen":p==="contracts"?"Vertragsverwaltung":"Kündigungsassistent");return;}currentPage=p;if(p!=="detail")selectedDebtId=null;renderNav();renderPage();}
 function openDetail(id){selectedDebtId=id;currentPage="detail";renderNav();renderPage()}
-function renderPage(){if(isProFeaturePage(currentPage)&&!isProPlan()){openUpgradeModal();currentPage="dashboard";}const m=document.getElementById("mainContent");if(currentPage==="dashboard")m.innerHTML=rDash();else if(currentPage==="debts")m.innerHTML=rDebts();else if(currentPage==="detail")m.innerHTML=rDet();else if(currentPage==="budget")m.innerHTML=rBudget();else if(currentPage==="contracts")m.innerHTML=rContracts();else if(currentPage==="cancelAssist")m.innerHTML=rCancelAssistant();else if(currentPage==="agree")m.innerHTML=rAgree();else if(currentPage==="timeline")m.innerHTML=rTime();else if(currentPage==="settings")m.innerHTML=rSettings();else if(currentPage==="pricing")m.innerHTML=rPricing();else if(currentPage==="master")m.innerHTML=rMasterPanel();setTimeout(()=>{document.querySelectorAll("[data-ring]").forEach(el=>{const p=el.dataset.ring,s=el.dataset.size||140,w=el.dataset.sw||8;el.innerHTML=rng(0,+s,+w);setTimeout(()=>el.innerHTML=rng(+p,+s,+w),50)})},10)}
+function renderPage(){if(isProFeaturePage(currentPage)&&!isProPlan()){openUpgradeModal();currentPage="dashboard";}const m=document.getElementById("mainContent");if(currentPage==="dashboard")m.innerHTML=rDash();else if(currentPage==="debts")m.innerHTML=rDebts();else if(currentPage==="detail")m.innerHTML=rDet();else if(currentPage==="budget")m.innerHTML=rBudget();else if(currentPage==="contracts")m.innerHTML=rContracts();else if(currentPage==="cancelAssist")m.innerHTML=rCancelAssistant();else if(currentPage==="agree")m.innerHTML=rAgree();else if(currentPage==="timeline")m.innerHTML=rTime();else if(currentPage==="settings")m.innerHTML=rSettings();else if(currentPage==="pricing")m.innerHTML=rPricing();else if(currentPage==="agb")m.innerHTML=rAgbPage();else if(currentPage==="master")m.innerHTML=rMasterPanel();setTimeout(()=>{document.querySelectorAll("[data-ring]").forEach(el=>{const p=el.dataset.ring,s=el.dataset.size||140,w=el.dataset.sw||8;el.innerHTML=rng(0,+s,+w);setTimeout(()=>el.innerHTML=rng(+p,+s,+w),50)})},10)}
 
 let user={loggedIn:false,name:"",firstName:"",lastName:"",plan:"Basis",trialEnd:null,email:"",addressStreet:"",addressZip:"",addressCity:"",phone:""};
 const STORAGE_USER="sfUser";
@@ -1069,6 +1069,46 @@ function rMasterPanel(){
 function renderMasterStandalone(){const root=document.getElementById("masterRoot");if(!root)return;root.innerHTML=`<div class="master-shell">${rMasterPanel()}</div>`}
 
 
+
+function rAgbPage(){
+  return `<div style="max-width:760px">
+    <div style="margin-bottom:28px">
+      <h1 style="font-size:28px;font-weight:800;margin:0 0 6px">Allgemeine Geschäftsbedingungen</h1>
+      <p style="font-size:13px;color:var(--tm);margin:0">Stand: 20. Februar 2026 &middot; Ratenova</p>
+    </div>
+    ${[
+      ["1. Geltungsbereich","Diese AGB gelten für die Nutzung der webbasierten Plattform Ratenova (nachfolgend: Dienst). Mit der Registrierung akzeptiert der Nutzer diese AGB."],
+      ["2. Leistungsbeschreibung","Ratenova ist eine digitale Anwendung zur Verwaltung von Verbindlichkeiten, Ein- und Ausgaben sowie Verträgen für Privatpersonen. Der Anbieter stellt den Dienst als Software-as-a-Service bereit und behält sich vor, den Funktionsumfang jederzeit zu ändern."],
+      ["3. Nutzerkonto & Registrierung","Die Nutzung erfordert eine Registrierung mit gültiger E-Mail-Adresse. Der Nutzer ist verpflichtet, seine Zugangsdaten vertraulich zu behandeln. Eine Weitergabe des Kontos an Dritte ist nicht gestattet."],
+      ["4. Kostenlose Nutzung & Abonnement","Ratenova bietet einen kostenlosen Basic-Plan sowie einen kostenpflichtigen Pro-Plan (4,99 Euro/Monat) an. Nach der Registrierung erhält jeder neue Nutzer eine 30-tägige kostenlose Testphase des Pro-Plans. Nach Ablauf wechselt das Konto automatisch in den Basic-Plan, sofern kein Abonnement abgeschlossen wurde. Mit dem Abschluss bestätigst du, mindestens 18 Jahre alt zu sein."],
+      ["5. Zahlung & Abrechnung","Die Zahlungsabwicklung erfolgt über Paddle.com (Paddle Payments Ltd., 15 Scale Space, 58 Wood Lane, London, W12 7RZ, UK). Der Anbieter hat keinen Zugriff auf Zahlungsdaten. Alle Preise verstehen sich inkl. gesetzlicher MwSt."],
+      ["6. Kündigung & Widerruf","Das Pro-Abonnement kann jederzeit zum Ende des laufenden Abrechnungszeitraums gekündigt werden, über das Paddle-Kundenportal oder per E-Mail. Verbrauchern steht ein gesetzliches Widerrufsrecht von 14 Tagen ab Vertragsschluss zu, sofern der Dienst noch nicht vollständig in Anspruch genommen wurde."],
+      ["7. Datenschutz","Die Erhebung und Verarbeitung personenbezogener Daten erfolgt gemäss unserer Datenschutzerklärung unter ratenova.de/datenschutz. Daten werden auf Servern von Supabase (EU-Region) gespeichert. Eine Weitergabe an Dritte erfolgt nur zur Vertragserfüllung (z.B. Paddle)."],
+      ["8. Verfügbarkeit & Haftung","Der Anbieter übernimmt keine Garantie für ununterbrochene Verfügbarkeit. Die Haftung ist auf grobe Fahrlässigkeit und Vorsatz beschränkt. Für Datenverluste oder mittelbare Schäden wird keine Haftung übernommen."],
+      ["9. Nutzungspflichten","Der Nutzer verpflichtet sich, den Dienst nur für legale Zwecke zu nutzen. Bei Verdacht auf Missbrauch behält sich der Anbieter vor, Konten ohne Vorwarnung zu sperren."],
+      ["10. Änderungen der AGB","Änderungen werden dem Nutzer mindestens 14 Tage vor Inkrafttreten per E-Mail mitgeteilt. Bei Nichtbeachtung der Frist gelten die neuen AGB als akzeptiert."],
+      ["11. Schlussbestimmungen","Es gilt das Recht der Bundesrepublik Deutschland. Sollten einzelne Bestimmungen unwirksam sein, bleibt die Wirksamkeit der übrigen unberührt."],
+    ].map(([title,text])=>`
+      <div class="card" style="margin-bottom:12px;padding:20px 24px">
+        <h3 style="font-size:15px;font-weight:700;margin:0 0 10px;color:var(--em)">${title}</h3>
+        <p style="font-size:14px;color:var(--ts);margin:0;line-height:1.8">${text}</p>
+      </div>
+    `).join("")}
+    <div class="card" style="padding:20px 24px;border-color:var(--ba);background:var(--emG2)">
+      <h3 style="font-size:14px;font-weight:700;margin:0 0 8px">Kontakt</h3>
+      <p style="font-size:13px;color:var(--tm);margin:0;line-height:1.8">
+        Ratenova<br>
+        E-Mail: <a href="mailto:info@ratenova.de" style="color:var(--em)">info@ratenova.de</a><br>
+        Web: <a href="https://ratenova.de" target="_blank" style="color:var(--em)">ratenova.de</a>
+      </p>
+    </div>
+    <p style="font-size:11px;color:var(--tf);text-align:center;margin:20px 0 0">
+      &copy; ${new Date().getFullYear()} Ratenova &middot;
+      <a href="https://ratenova.de/datenschutz" target="_blank" style="color:var(--tm)">Datenschutz</a> &middot;
+      <a href="https://ratenova.de/impressum" target="_blank" style="color:var(--tm)">Impressum</a>
+    </p>
+  </div>`;
+}
 function rPricing(){
   const pro=isProPlan();
   const trial=isTrialActive();
@@ -1123,7 +1163,7 @@ function rPricing(){
       ${planCard("Basic","Kostenlos",basicFeatures,false,isCurrentlyBasic)}
       ${planCard("Pro","4,99 €",proFeatures,true,isCurrentlyPro||isCurrentlyTrial)}
     </div>
-    <p style="font-size:12px;color:var(--tm);text-align:center;margin:0 0 16px">Mit dem Kauf stimmst du unseren <a href="https://ratenova.de/agb" target="_blank" style="color:var(--em);font-weight:600">Allgemeinen Geschäftsbedingungen</a> zu. Monatlich kündbar.</p>
+    <p style="font-size:12px;color:var(--tm);text-align:center;margin:0 0 16px">Mit dem Kauf stimmst du unseren <a href="#" onclick="event.preventDefault();goTo('agb')" style="color:var(--em);font-weight:600">Allgemeinen Geschäftsbedingungen</a> zu. Monatlich kündbar.</p>
     <div class="card" style="padding:20px">
       <h3 style="font-size:15px;font-weight:700;margin:0 0 12px">Häufige Fragen</h3>
       ${[
