@@ -1,0 +1,1496 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Ratenova Cloud – Finanzen. Raten. Kontrolle.</title>
+<link rel="icon" type="image/png" href="https://kdbuduwztmxxykfvqbie.supabase.co/storage/v1/object/public/public-assets/Ratenova%20Icon.png" sizes="32x32">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+
+/* ═══════════════════════════════════════════
+   TOKENS
+═══════════════════════════════════════════ */
+:root {
+  --bg:   #0C0E14;
+  --bg1:  #111318;
+  --bg2:  #161920;
+  --bg3:  #1C1F28;
+  --em:   #34D399;
+  --em2:  #10B981;
+  --em3:  #059669;
+  --emg:  rgba(52,211,153,0.10);
+  --sk:   #38BDF8;
+  --am:   #FBBF24;
+  --t:    #F0F2F8;
+  --ts:   #9CA3B4;
+  --tm:   #5C6178;
+  --b:    rgba(255,255,255,0.07);
+  --bl:   rgba(255,255,255,0.12);
+  --ba:   rgba(52,211,153,0.25);
+  --nav-h: 68px;
+  --max-w: 1160px;
+  --r: 20px;
+}
+
+/* ═══════════════════════════════════════════
+   RESET & BASE
+═══════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--t);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 0; opacity: 0.6;
+}
+img { display: block; max-width: 100%; }
+a { color: inherit; }
+
+/* ═══════════════════════════════════════════
+   NAV
+═══════════════════════════════════════════ */
+nav {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 200;
+  height: var(--nav-h);
+  padding: 0 48px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(12,14,20,0.88);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid var(--b);
+  transition: box-shadow 0.3s;
+}
+nav.scrolled { box-shadow: 0 4px 40px rgba(0,0,0,0.45); }
+
+.nav-logo {
+  display: flex; align-items: center; gap: 10px;
+  text-decoration: none; flex-shrink: 0;
+}
+.nav-logo img { height: 30px; width: auto; }
+.nav-logo-text {
+  font-family: 'Syne', sans-serif;
+  font-size: 20px; font-weight: 800;
+  color: var(--t); letter-spacing: -0.3px;
+}
+.nav-logo-text span { color: var(--em); }
+
+.nav-links {
+  display: flex; align-items: center; gap: 6px;
+  list-style: none;
+}
+.nav-links a {
+  color: var(--ts); text-decoration: none;
+  font-size: 14px; font-weight: 500;
+  padding: 8px 14px; border-radius: 8px;
+  transition: color 0.2s, background 0.2s;
+}
+.nav-links a:hover { color: var(--t); background: rgba(255,255,255,0.05); }
+
+.nav-login {
+  color: var(--ts) !important;
+  border: 1px solid var(--bl) !important;
+  background: transparent !important;
+}
+.nav-login:hover {
+  color: var(--t) !important;
+  border-color: var(--ba) !important;
+  background: var(--bg3) !important;
+}
+
+.nav-cta {
+  background: linear-gradient(135deg, var(--em2), var(--em)) !important;
+  color: #042918 !important;
+  font-weight: 700 !important;
+  box-shadow: 0 4px 18px rgba(52,211,153,0.3);
+}
+.nav-cta:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 28px rgba(52,211,153,0.4) !important;
+  background: linear-gradient(135deg, var(--em), var(--em2)) !important;
+}
+
+/* hamburger */
+.nav-hamburger {
+  display: none;
+  flex-direction: column; gap: 5px;
+  cursor: pointer; padding: 8px;
+  border: none; background: none;
+}
+.nav-hamburger span {
+  display: block; width: 22px; height: 2px;
+  background: var(--t); border-radius: 2px;
+  transition: all 0.3s ease;
+}
+.nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.nav-hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* mobile overlay */
+.nav-mobile {
+  display: none;
+  position: fixed;
+  top: var(--nav-h); left: 0; right: 0; bottom: 0;
+  background: rgba(11,13,19,0.97);
+  backdrop-filter: blur(20px);
+  z-index: 190;
+  flex-direction: column; align-items: stretch;
+  padding: 24px 24px 40px;
+  gap: 6px;
+  overflow-y: auto;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+.nav-mobile.open { display: flex; opacity: 1; pointer-events: all; }
+
+.nav-mobile a {
+  font-family: 'Syne', sans-serif;
+  font-size: 20px; font-weight: 700;
+  color: var(--ts); text-decoration: none;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--b);
+  transition: color 0.2s;
+}
+.nav-mobile a:last-of-type { border-bottom: none; }
+.nav-mobile a:hover, .nav-mobile a:active { color: var(--em); }
+.nav-mobile .mob-cta {
+  margin-top: 20px;
+  background: linear-gradient(135deg, var(--em2), var(--em));
+  color: #042918 !important;
+  text-align: center;
+  border-radius: 14px;
+  padding: 17px !important;
+  font-size: 16px !important;
+  border-bottom: none !important;
+  box-shadow: 0 6px 24px rgba(52,211,153,0.3);
+}
+
+/* ═══════════════════════════════════════════
+   HERO  (two-column on desktop)
+═══════════════════════════════════════════ */
+.hero-wrap {
+  min-height: 100svh;
+  padding-top: var(--nav-h);
+  display: flex; align-items: center;
+  position: relative; overflow: hidden;
+}
+
+/* background orbs */
+.hero-wrap::before, .hero-wrap::after {
+  content: ''; position: absolute; border-radius: 50%;
+  pointer-events: none;
+}
+.hero-wrap::before {
+  width: 700px; height: 700px;
+  top: -180px; right: -180px;
+  background: radial-gradient(circle, rgba(52,211,153,0.14) 0%, transparent 65%);
+  animation: orb 9s ease-in-out infinite;
+}
+.hero-wrap::after {
+  width: 520px; height: 520px;
+  bottom: -120px; left: -120px;
+  background: radial-gradient(circle, rgba(56,189,248,0.09) 0%, transparent 65%);
+  animation: orb 11s ease-in-out infinite reverse;
+}
+@keyframes orb {
+  0%,100% { transform: scale(1); opacity:.8; }
+  50% { transform: scale(1.08); opacity:1; }
+}
+
+.hero {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 72px 48px 80px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: center;
+  position: relative; z-index: 1;
+  width: 100%;
+}
+
+.hero-content {
+  display: flex; flex-direction: column; gap: 0;
+}
+
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--emg);
+  border: 1px solid var(--ba);
+  border-radius: 100px;
+  padding: 6px 16px;
+  font-size: 12.5px; font-weight: 600;
+  color: var(--em); letter-spacing: 0.2px;
+  margin-bottom: 28px;
+  width: fit-content;
+  animation: fadeUp 0.6s ease both;
+}
+.badge-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--em); box-shadow: 0 0 8px var(--em);
+  animation: blink 2s ease infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.35} }
+
+.hero h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(34px, 3.5vw, 54px);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -1.5px;
+  margin-bottom: 20px;
+  animation: fadeUp 0.7s ease 0.1s both;
+}
+.hero h1 .accent {
+  background: linear-gradient(135deg, var(--em2), var(--em) 50%, var(--sk));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-sub {
+  font-size: 16px; color: var(--ts);
+  line-height: 1.75; font-weight: 400;
+  margin-bottom: 36px;
+  animation: fadeUp 0.7s ease 0.2s both;
+}
+
+.hero-actions {
+  display: flex; align-items: center; gap: 12px;
+  flex-wrap: wrap;
+  animation: fadeUp 0.7s ease 0.3s both;
+}
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 14px 26px;
+  border-radius: 12px;
+  font-family: 'Syne', sans-serif;
+  font-size: 15px; font-weight: 700;
+  text-decoration: none; cursor: pointer; border: none;
+  transition: all 0.25s cubic-bezier(0.16,1,0.3,1);
+  white-space: nowrap;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--em3), var(--em));
+  color: #042918;
+  box-shadow: 0 6px 28px rgba(52,211,153,0.32);
+}
+.btn-primary:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 12px 40px rgba(52,211,153,0.42); }
+.btn-secondary {
+  background: var(--bg3); color: var(--t);
+  border: 1px solid var(--bl);
+}
+.btn-secondary:hover { border-color: var(--ba); color: var(--em); transform: translateY(-2px); }
+
+.hero-note {
+  font-size: 12.5px; color: var(--tm);
+  margin-top: 16px;
+  animation: fadeUp 0.7s ease 0.4s both;
+}
+.hero-note strong { color: var(--em); font-weight: 600; }
+
+/* hero mock */
+.hero-visual {
+  animation: fadeUp 0.8s ease 0.2s both;
+}
+
+.mock {
+  background: var(--bg2);
+  border: 1px solid var(--bl);
+  border-radius: 18px;
+  padding: 22px;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04), 0 0 60px rgba(52,211,153,0.06);
+  position: relative; overflow: hidden;
+}
+.mock::before {
+  content: ''; position: absolute;
+  top: -50px; right: -50px;
+  width: 180px; height: 180px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(52,211,153,0.12) 0%, transparent 70%);
+}
+.mock-bar {
+  display: flex; align-items: center; gap: 7px;
+  margin-bottom: 18px;
+}
+.mock-dot { width: 10px; height: 10px; border-radius: 50%; }
+.mock-title {
+  font-family: 'Syne', sans-serif; font-size: 12px;
+  font-weight: 700; color: var(--ts); margin-left: 4px;
+}
+.mock-kpi {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 10px; margin-bottom: 12px;
+}
+.mock-kpi-box {
+  background: var(--bg3); border: 1px solid var(--b);
+  border-radius: 12px; padding: 14px 16px;
+}
+.mock-kpi-label { font-size: 11px; color: var(--ts); margin-bottom: 4px; }
+.mock-kpi-val {
+  font-family: 'Syne', sans-serif; font-size: 20px;
+  font-weight: 800; color: var(--em);
+}
+.mock-row {
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--bg3); border: 1px solid var(--b);
+  border-radius: 10px; padding: 12px 14px; margin-bottom: 8px;
+}
+.mock-row-left { display: flex; flex-direction: column; gap: 2px; }
+.mock-row-name { font-size: 13px; font-weight: 600; }
+.mock-row-date { font-size: 11px; color: var(--ts); }
+.mock-row-amount {
+  font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 800;
+}
+.mock-progress { margin-top: 14px; }
+.mock-progress-row {
+  display: flex; justify-content: space-between;
+  font-size: 11px; color: var(--ts); margin-bottom: 6px;
+}
+.mock-progress-row span:last-child { color: var(--em); font-weight: 700; }
+.mock-track { height: 5px; background: var(--b); border-radius: 3px; overflow: hidden; }
+.mock-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--em3), var(--em)); }
+
+/* remaining balance widget */
+.mock-balance {
+  display: flex; align-items: center; gap: 12px;
+  background: linear-gradient(135deg, rgba(52,211,153,0.08), rgba(52,211,153,0.04));
+  border: 1px solid var(--ba); border-radius: 12px;
+  padding: 14px 16px; margin-bottom: 10px;
+}
+.mock-balance-icon { font-size: 22px; flex-shrink: 0; }
+.mock-balance-label { font-size: 11px; color: var(--ts); margin-bottom: 3px; }
+.mock-balance-val {
+  font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: var(--em);
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ═══════════════════════════════════════════
+   SECTION WRAPPER
+═══════════════════════════════════════════ */
+.section {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 96px 48px;
+  position: relative; z-index: 1;
+}
+.section-center { text-align: center; }
+.section-header { margin-bottom: 56px; }
+.section-center .section-header { display: flex; flex-direction: column; align-items: center; }
+
+.tag {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 2px; color: var(--em);
+  margin-bottom: 14px;
+}
+.section-title {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(26px, 3vw, 40px);
+  font-weight: 800; letter-spacing: -1px;
+  line-height: 1.15; margin-bottom: 16px;
+}
+.section-sub {
+  font-size: 17px; color: var(--ts);
+  line-height: 1.7; font-weight: 300;
+  max-width: 540px;
+}
+
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--b) 30%, var(--b) 70%, transparent);
+}
+
+/* ═══════════════════════════════════════════
+   PROBLEM CARDS
+═══════════════════════════════════════════ */
+.problem-grid {
+  display: grid; grid-template-columns: repeat(3,1fr); gap: 20px;
+}
+.problem-card {
+  background: var(--bg2); border: 1px solid var(--b);
+  border-radius: var(--r); padding: 28px;
+  position: relative; overflow: hidden;
+  transition: border-color 0.3s, transform 0.3s;
+}
+.problem-card::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(249,112,102,0.06), transparent 60%);
+  opacity: 0; transition: opacity 0.3s;
+}
+.problem-card:hover { border-color: rgba(249,112,102,0.3); transform: translateY(-4px); }
+.problem-card:hover::after { opacity: 1; }
+.prob-icon { font-size: 30px; margin-bottom: 14px; }
+.problem-card h3 {
+  font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 700;
+  margin-bottom: 10px;
+}
+.problem-card p { font-size: 14px; color: var(--ts); line-height: 1.65; }
+
+/* ═══════════════════════════════════════════
+   FEATURES
+═══════════════════════════════════════════ */
+.features-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 56px; align-items: start;
+}
+.feature-list { display: flex; flex-direction: column; gap: 24px; }
+.feature-item { display: flex; gap: 16px; align-items: flex-start; }
+.feat-icon {
+  flex-shrink: 0; width: 42px; height: 42px;
+  border-radius: 11px; background: var(--emg);
+  border: 1px solid var(--ba);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 19px;
+}
+.feature-item h4 {
+  font-family: 'Syne', sans-serif; font-size: 16px;
+  font-weight: 700; margin-bottom: 5px;
+}
+.feature-item p { font-size: 14px; color: var(--ts); line-height: 1.65; }
+
+.features-visual {
+  display: flex; flex-direction: column; gap: 10px;
+}
+.feat-card {
+  display: flex; align-items: center; gap: 14px;
+  background: var(--bg2); border: 1px solid var(--b);
+  border-radius: 14px; padding: 16px 20px;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.feat-card:hover { border-color: var(--ba); transform: translateX(4px); }
+.feat-card-icon { font-size: 22px; flex-shrink: 0; }
+.feat-card-label { font-size: 12px; color: var(--ts); margin-bottom: 3px; }
+.feat-card-val {
+  font-family: 'Syne', sans-serif; font-weight: 800;
+}
+.feat-card-val.green { color: var(--em); font-size: 20px; }
+.feat-card-val.yellow { color: var(--am); font-size: 15px; }
+.feat-card-val.blue { color: var(--sk); font-size: 15px; }
+.feat-progress {
+  background: var(--bg2); border: 1px solid var(--b);
+  border-radius: 14px; padding: 16px 20px;
+}
+.feat-progress-top {
+  display: flex; justify-content: space-between;
+  font-size: 13px; color: var(--ts); margin-bottom: 10px;
+}
+.feat-progress-top span:last-child { color: var(--em); font-weight: 700; }
+.prog-track { height: 6px; background: var(--b); border-radius: 3px; overflow: hidden; }
+.prog-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--em3), var(--em)); }
+
+/* ═══════════════════════════════════════════
+   BENEFITS
+═══════════════════════════════════════════ */
+.benefits-grid {
+  display: grid; grid-template-columns: repeat(4,1fr); gap: 18px;
+}
+.benefit-card {
+  background: var(--bg2); border: 1px solid var(--b);
+  border-radius: var(--r); padding: 28px 22px;
+  transition: border-color 0.3s, transform 0.3s, background 0.3s;
+}
+.benefit-card:hover {
+  border-color: var(--ba); background: var(--bg3); transform: translateY(-4px);
+  box-shadow: 0 16px 48px rgba(52,211,153,0.09);
+}
+.ben-emoji { font-size: 32px; margin-bottom: 14px; display: block; }
+.benefit-card h3 {
+  font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700;
+  margin-bottom: 7px;
+}
+.benefit-card p { font-size: 13px; color: var(--ts); line-height: 1.6; }
+
+/* ═══════════════════════════════════════════
+   STEPS
+═══════════════════════════════════════════ */
+.steps-grid {
+  display: grid; grid-template-columns: repeat(4,1fr);
+  gap: 20px; position: relative;
+}
+.steps-grid::before {
+  content: ''; position: absolute;
+  top: 32px; left: 12.5%; right: 12.5%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--ba) 20%, var(--ba) 80%, transparent);
+}
+.step-card {
+  text-align: center; position: relative; z-index: 1;
+}
+.step-num {
+  width: 64px; height: 64px; border-radius: 18px;
+  background: var(--bg2); border: 1px solid var(--ba);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800;
+  color: var(--em); margin: 0 auto 18px;
+  box-shadow: 0 0 24px rgba(52,211,153,0.12);
+}
+.step-card h4 {
+  font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700;
+  margin-bottom: 7px;
+}
+.step-card p { font-size: 13px; color: var(--ts); line-height: 1.6; }
+
+/* ═══════════════════════════════════════════
+   TESTIMONIALS
+═══════════════════════════════════════════ */
+.testimonials-wrap {
+  background: var(--bg1); padding: 96px 0;
+  position: relative; z-index: 1;
+}
+.testimonials-inner {
+  max-width: var(--max-w); margin: 0 auto; padding: 0 48px;
+}
+.testimonials-grid {
+  display: grid; grid-template-columns: repeat(3,1fr); gap: 20px;
+}
+.testi-card {
+  background: var(--bg2); border: 1px solid var(--b);
+  border-radius: var(--r); padding: 26px;
+  transition: border-color 0.3s, transform 0.3s;
+}
+.testi-card:hover { border-color: var(--ba); transform: translateY(-3px); }
+.testi-stars { color: var(--am); font-size: 15px; letter-spacing: 2px; margin-bottom: 14px; }
+.testi-text {
+  font-size: 14.5px; line-height: 1.7; color: var(--ts);
+  font-style: italic; margin-bottom: 20px;
+}
+.testi-author { display: flex; align-items: center; gap: 12px; }
+.testi-avatar {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: var(--emg); border: 2px solid var(--ba);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px; flex-shrink: 0;
+}
+.testi-name { font-weight: 600; font-size: 14px; margin-bottom: 2px; }
+.testi-role { font-size: 12px; color: var(--tm); }
+
+/* ═══════════════════════════════════════════
+   PRICING
+═══════════════════════════════════════════ */
+.pricing-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 24px; max-width: 700px; margin: 0 auto;
+  align-items: start;
+}
+.price-card {
+  background: var(--bg2); border: 1px solid var(--b);
+  border-radius: 22px; padding: 34px 28px;
+  transition: border-color 0.3s;
+}
+.price-card:hover { border-color: var(--bl); }
+.price-card.featured {
+  background: linear-gradient(160deg, var(--bg3), var(--bg2));
+  border-color: var(--ba);
+  box-shadow: 0 0 0 1px var(--ba), 0 24px 70px rgba(52,211,153,0.13);
+  transform: scale(1.03);
+  transform-origin: top center;
+}
+.price-badge {
+  display: inline-block; background: var(--emg); border: 1px solid var(--ba);
+  color: var(--em); font-size: 10.5px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase;
+  border-radius: 20px; padding: 3px 11px; margin-bottom: 18px;
+}
+.price-name {
+  font-family: 'Syne', sans-serif; font-size: 21px; font-weight: 800;
+  margin-bottom: 6px;
+}
+.price-amount {
+  font-family: 'Syne', sans-serif; font-size: 46px; font-weight: 800;
+  color: var(--em); line-height: 1; margin-bottom: 3px;
+}
+.price-amount sup { font-size: 20px; vertical-align: super; color: var(--ts); }
+.price-period { font-size: 13.5px; color: var(--ts); margin-bottom: 28px; }
+.price-features {
+  list-style: none; display: flex; flex-direction: column;
+  gap: 10px; margin-bottom: 28px;
+}
+.price-features li {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 13.5px; color: var(--ts);
+}
+.price-features li .ck { color: var(--em); font-weight: 700; font-size: 15px; flex-shrink: 0; }
+.price-features li .no { color: var(--tm); font-weight: 600; flex-shrink: 0; }
+.price-features li .disabled { color: var(--tm); }
+.price-btn {
+  display: block; width: 100%; padding: 13px;
+  border-radius: 11px;
+  font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700;
+  text-align: center; text-decoration: none;
+  transition: all 0.25s; border: none; cursor: pointer;
+}
+.price-btn-primary {
+  background: linear-gradient(135deg, var(--em3), var(--em));
+  color: #042918; box-shadow: 0 5px 20px rgba(52,211,153,0.28);
+}
+.price-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(52,211,153,0.38); }
+.price-btn-outline {
+  background: transparent; border: 1px solid var(--bl); color: var(--t);
+}
+.price-btn-outline:hover { border-color: var(--ba); color: var(--em); }
+
+/* ═══════════════════════════════════════════
+   CTA
+═══════════════════════════════════════════ */
+.cta-wrap {
+  padding: 80px 48px 100px;
+  position: relative; z-index: 1;
+}
+.cta-box {
+  max-width: 780px; margin: 0 auto;
+  background: linear-gradient(160deg, var(--bg3), var(--bg2));
+  border: 1px solid var(--ba);
+  border-radius: 28px; padding: 72px 56px;
+  text-align: center;
+  position: relative; overflow: hidden;
+  box-shadow: 0 0 0 1px var(--ba), 0 36px 100px rgba(52,211,153,0.12);
+}
+.cta-orb {
+  position: absolute; top: -80px; right: -80px;
+  width: 360px; height: 360px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(52,211,153,0.18) 0%, transparent 60%);
+  pointer-events: none;
+}
+.cta-box h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(28px, 3.5vw, 46px);
+  font-weight: 800; letter-spacing: -1.2px;
+  line-height: 1.12; margin-bottom: 18px;
+  position: relative;
+}
+.cta-box p {
+  font-size: 17px; color: var(--ts);
+  margin-bottom: 36px; font-weight: 300;
+  max-width: 560px; margin-left: auto; margin-right: auto;
+  position: relative;
+}
+.cta-actions { position: relative; }
+.cta-note { font-size: 12.5px; color: var(--tm); margin-top: 16px; position: relative; }
+
+/* ═══════════════════════════════════════════
+   DISCLAIMER
+═══════════════════════════════════════════ */
+.disclaimer {
+  background: var(--bg2);
+  border-top: 1px solid var(--b); border-bottom: 1px solid var(--b);
+  padding: 18px 48px; position: relative; z-index: 1;
+}
+.disclaimer-inner {
+  max-width: var(--max-w); margin: 0 auto;
+  display: flex; align-items: flex-start; gap: 12px;
+}
+.disclaimer-icon { font-size: 16px; flex-shrink: 0; margin-top: 2px; opacity: 0.7; }
+.disclaimer p {
+  font-size: 12.5px; color: var(--tm); line-height: 1.65; margin: 0;
+}
+.disclaimer strong { color: var(--ts); font-weight: 600; }
+
+/* ═══════════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════════ */
+footer {
+  background: var(--bg1);
+  border-top: 1px solid var(--b);
+  padding: 56px 48px 36px;
+  position: relative; z-index: 1;
+}
+.footer-inner { max-width: var(--max-w); margin: 0 auto; }
+.footer-grid {
+  display: grid; grid-template-columns: 2fr 1fr 1fr;
+  gap: 56px; margin-bottom: 48px;
+}
+.footer-brand-logo {
+  font-family: 'Syne', sans-serif; font-size: 22px;
+  font-weight: 800; color: var(--t);
+  margin-bottom: 12px;
+}
+.footer-brand-logo span { color: var(--em); }
+.footer-brand p { font-size: 13.5px; color: var(--ts); line-height: 1.7; max-width: 240px; }
+.footer-col h5 {
+  font-family: 'Syne', sans-serif; font-size: 11.5px;
+  font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px;
+  color: var(--ts); margin-bottom: 18px;
+}
+.footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.footer-col ul a {
+  font-size: 13.5px; color: var(--tm); text-decoration: none;
+  transition: color 0.2s;
+}
+.footer-col ul a:hover { color: var(--em); }
+.footer-bottom {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-top: 24px; border-top: 1px solid var(--b);
+}
+.footer-copy { font-size: 12.5px; color: var(--tm); }
+.footer-em { color: var(--em); text-decoration: none; font-weight: 600; }
+
+/* ═══════════════════════════════════════════
+   SCROLL REVEAL
+═══════════════════════════════════════════ */
+.reveal {
+  opacity: 0; transform: translateY(24px);
+  transition: opacity 0.65s ease, transform 0.65s cubic-bezier(0.16,1,0.3,1);
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* ═══════════════════════════════════════════
+   LEGAL MODAL
+═══════════════════════════════════════════ */
+#legalOverlay {
+  display: none; position: fixed; inset: 0;
+  z-index: 9000; background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(8px);
+  padding: 24px; overflow-y: auto;
+}
+.legal-panel {
+  max-width: 740px; margin: 40px auto;
+  background: var(--bg2); border: 1px solid var(--bl);
+  border-radius: 22px; padding: 48px;
+  position: relative;
+  box-shadow: 0 40px 100px rgba(0,0,0,0.6);
+}
+.legal-close {
+  position: absolute; top: 18px; right: 18px;
+  width: 34px; height: 34px; border-radius: 9px;
+  border: 1px solid var(--b); background: var(--bg3);
+  color: var(--ts); font-size: 17px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: border-color 0.2s, color 0.2s;
+}
+.legal-close:hover { border-color: var(--ba); color: var(--t); }
+#legalContent h1 {
+  font-family:'Syne',sans-serif; font-size:26px; font-weight:800;
+  letter-spacing:-1px; margin-bottom:8px;
+}
+#legalContent h2 {
+  font-family:'Syne',sans-serif; font-size:17px; font-weight:700;
+  margin:28px 0 9px; color:#F0F2F8;
+}
+#legalContent h3 {
+  font-size:14px; font-weight:700; margin:18px 0 7px; color:#9CA3B4;
+  text-transform:uppercase; letter-spacing:0.8px;
+}
+#legalContent p { font-size:14px; color:#9CA3B4; line-height:1.75; margin-bottom:10px; }
+#legalContent ul { padding-left:18px; margin-bottom:10px; }
+#legalContent ul li { font-size:14px; color:#9CA3B4; line-height:1.75; margin-bottom:4px; }
+#legalContent a { color:#34D399; text-decoration:none; }
+#legalContent a:hover { text-decoration:underline; }
+#legalContent .legal-tag {
+  font-size:11px; font-weight:700; text-transform:uppercase;
+  letter-spacing:2px; color:#34D399; margin-bottom:14px; display:block;
+}
+#legalContent hr { border:none; border-top:1px solid rgba(255,255,255,0.07); margin:24px 0; }
+
+/* ═══════════════════════════════════════════
+   TABLET  ≤ 1024px
+═══════════════════════════════════════════ */
+@media (max-width: 1024px) {
+  nav { padding: 0 28px; }
+
+  .hero {
+    grid-template-columns: 1fr;
+    text-align: center;
+    padding: 64px 32px 72px;
+    gap: 40px;
+  }
+  .hero-content { align-items: center; }
+  .hero-badge { margin-left: auto; margin-right: auto; }
+  .hero-sub { max-width: 540px; }
+  .hero-visual { max-width: 500px; margin: 0 auto; width: 100%; }
+  .mock { max-width: 460px; margin: 0 auto; }
+
+  .section { padding: 72px 32px; }
+  .testimonials-inner { padding: 0 32px; }
+
+  .benefits-grid { grid-template-columns: repeat(2,1fr); }
+  .steps-grid { grid-template-columns: repeat(2,1fr); }
+  .steps-grid::before { display: none; }
+  .step-card { text-align: left; display: flex; gap: 14px; align-items: flex-start; }
+  .step-num { flex-shrink: 0; margin: 0; }
+
+  .footer-grid { grid-template-columns: 1fr 1fr 1fr; gap: 36px; }
+
+  .cta-wrap { padding: 64px 32px 80px; }
+  .cta-box { padding: 56px 40px; }
+
+  .disclaimer { padding: 16px 32px; }
+  footer { padding: 48px 32px 32px; }
+}
+
+/* ═══════════════════════════════════════════
+   MOBILE  ≤ 768px
+═══════════════════════════════════════════ */
+@media (max-width: 768px) {
+  :root { --nav-h: 60px; }
+
+  nav { padding: 0 18px; }
+  .nav-links { display: none; }
+  .nav-hamburger { display: flex; }
+  .nav-logo-text { font-size: 18px; }
+
+  /* hero */
+  .hero {
+    padding: 40px 18px 56px;
+    gap: 32px; min-height: auto;
+  }
+  .hero h1 { font-size: clamp(28px, 7.5vw, 40px); letter-spacing: -1px; margin-bottom: 16px; }
+  .hero-sub { font-size: 15px; margin-bottom: 28px; }
+  .hero-actions { flex-direction: column; width: 100%; gap: 10px; }
+  .btn { width: 100%; font-size: 15px; padding: 15px 20px; }
+  .hero-visual { display: none; } /* hide on mobile – cleaner focus on CTA */
+
+  /* sections */
+  .section { padding: 52px 18px; }
+  .section-header { margin-bottom: 36px; }
+  .section-title { font-size: clamp(22px, 5.5vw, 30px); letter-spacing: -0.5px; }
+  .section-sub { font-size: 14.5px; }
+
+  .testimonials-wrap { padding: 56px 0; }
+  .testimonials-inner { padding: 0 18px; }
+  .testimonials-grid { grid-template-columns: 1fr; gap: 14px; }
+  .testi-card { padding: 22px 20px; }
+
+  /* problems */
+  .problem-grid { grid-template-columns: 1fr; gap: 14px; }
+  .problem-card { padding: 22px 20px; }
+
+  /* features – list only, visual hidden */
+  .features-grid { grid-template-columns: 1fr; gap: 28px; }
+  .features-visual { display: none; }
+
+  /* benefits – row layout on mobile */
+  .benefits-grid { grid-template-columns: 1fr; gap: 10px; }
+  .benefit-card {
+    display: flex; align-items: flex-start; gap: 14px;
+    padding: 18px 16px; border-radius: 14px;
+  }
+  .ben-emoji { font-size: 26px; margin-bottom: 0; flex-shrink: 0; }
+
+  /* steps – vertical list */
+  .steps-grid { grid-template-columns: 1fr; gap: 14px; }
+  .steps-grid::before { display: none; }
+  .step-card { text-align: left; display: flex; gap: 14px; align-items: flex-start; }
+  .step-num { width: 48px; height: 48px; flex-shrink: 0; font-size: 16px; margin: 0; border-radius: 13px; }
+
+  /* pricing */
+  .pricing-grid { grid-template-columns: 1fr; max-width: 100%; }
+  .price-card.featured { transform: none; }
+  .price-card { padding: 26px 22px; }
+  .price-amount { font-size: 38px; }
+
+  /* cta */
+  .cta-wrap { padding: 44px 18px 64px; }
+  .cta-box { padding: 36px 22px; border-radius: 20px; }
+  .cta-box h2 { font-size: clamp(22px, 5.5vw, 30px); letter-spacing: -0.5px; }
+  .cta-box p { font-size: 14.5px; margin-bottom: 28px; }
+  .cta-actions .btn { width: 100%; font-size: 16px; padding: 17px 20px; }
+
+  /* disclaimer */
+  .disclaimer { padding: 14px 18px; }
+  .disclaimer p { font-size: 12px; }
+
+  /* footer */
+  footer { padding: 36px 18px 28px; }
+  .footer-grid { grid-template-columns: 1fr; gap: 28px; }
+  .footer-brand p { max-width: 100%; }
+  .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
+  .footer-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+
+  /* legal modal */
+  .legal-panel { padding: 32px 20px; border-radius: 16px; margin: 20px auto; }
+  #legalContent h1 { font-size: 22px; }
+}
+
+/* ═══════════════════════════════════════════
+   SMALL PHONES  ≤ 390px
+═══════════════════════════════════════════ */
+@media (max-width: 390px) {
+  .hero h1 { font-size: 26px; }
+  .hero-badge { font-size: 11px; padding: 5px 12px; }
+  .section-title { font-size: 21px; }
+}
+
+</style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav id="mainNav">
+  <a href="/" class="nav-logo">
+    <img src="https://kdbuduwztmxxykfvqbie.supabase.co/storage/v1/object/public/public-assets/Ratenova%20Logo_%20ohne%20Text.png" alt="Ratenova Logo" style="height:72px;width:auto">
+  </a>
+
+  <ul class="nav-links">
+    <li><a href="#features">Funktionen</a></li>
+    <li><a href="#how">So geht's</a></li>
+    <li><a href="#pricing">Preise</a></li>
+    <li><a href="app.html" class="nav-login">Zum Login</a></li>
+    <li><a href="app.html" class="nav-cta">30 Tage kostenlos →</a></li>
+  </ul>
+
+  <button class="nav-hamburger" id="hamburger" aria-label="Menü">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- ── MOBILE MENU ── -->
+<div class="nav-mobile" id="mobileMenu">
+  <a href="#features" onclick="closeMobile()">Funktionen</a>
+  <a href="#how" onclick="closeMobile()">So geht's</a>
+  <a href="#pricing" onclick="closeMobile()">Preise</a>
+  <a href="app.html">Zum Login</a>
+  <a href="app.html" class="mob-cta">🚀 30 Tage kostenlos starten</a>
+</div>
+
+<!-- ── HERO ── -->
+<div class="hero-wrap">
+  <div class="hero">
+    <div class="hero-content">
+      <div class="hero-badge">
+        <div class="badge-dot"></div>
+        Jetzt 30 Tage kostenlos – kein Risiko
+      </div>
+
+      <h1>Den Überblick verloren?<br><span class="accent">Ratenova schafft Klarheit.</span></h1>
+
+      <p class="hero-sub">Verbindlichkeiten auf einen Blick. Schnelle Ein- &amp; Ausgabenrechnung. Sofort sehen, was am Ende des Monats übrig bleibt – die Entscheidungen triffst du, Ratenova gibt dir die Werkzeuge dafür.</p>
+
+      <div class="hero-actions">
+        <a href="app.html" class="btn btn-primary">🚀 Jetzt kostenlos starten</a>
+        <a href="#features" class="btn btn-secondary">Mehr erfahren</a>
+      </div>
+
+      <p class="hero-note">Keine Kreditkarte. <strong>30 Tage komplett kostenlos.</strong> Danach flexibel kündbar.</p>
+    </div>
+
+    <div class="hero-visual">
+      <div class="mock">
+        <div class="mock-bar">
+          <div class="mock-dot" style="background:#f97066"></div>
+          <div class="mock-dot" style="background:#fbbf24"></div>
+          <div class="mock-dot" style="background:#34d399"></div>
+          <span class="mock-title">Ratenova · Übersicht</span>
+        </div>
+        <div class="mock-balance">
+          <span class="mock-balance-icon">💶</span>
+          <div>
+            <div class="mock-balance-label">Verbleibend diesen Monat</div>
+            <div class="mock-balance-val">€ 1.240</div>
+          </div>
+        </div>
+        <div class="mock-kpi">
+          <div class="mock-kpi-box">
+            <div class="mock-kpi-label">Monatliche Belastung</div>
+            <div class="mock-kpi-val">€ 843</div>
+          </div>
+          <div class="mock-kpi-box">
+            <div class="mock-kpi-label">Schuldenfrei in</div>
+            <div class="mock-kpi-val" style="color:#38BDF8">47 Mo.</div>
+          </div>
+        </div>
+        <div class="mock-row">
+          <div class="mock-row-left">
+            <div class="mock-row-name">🚗 Autokredit</div>
+            <div class="mock-row-date">Fällig am 05. jeden Monats</div>
+          </div>
+          <div class="mock-row-amount" style="color:#34D399">€ 389</div>
+        </div>
+        <div class="mock-row">
+          <div class="mock-row-left">
+            <div class="mock-row-name">💳 Kreditkarte</div>
+            <div class="mock-row-date">Fällig am 15. jeden Monats</div>
+          </div>
+          <div class="mock-row-amount" style="color:#FBBF24">€ 250</div>
+        </div>
+        <div class="mock-row">
+          <div class="mock-row-left">
+            <div class="mock-row-name">📱 Ratenvertrag</div>
+            <div class="mock-row-date">Fällig am 01. jeden Monats</div>
+          </div>
+          <div class="mock-row-amount" style="color:#38BDF8">€ 204</div>
+        </div>
+        <div class="mock-progress">
+          <div class="mock-progress-row">
+            <span>Tilgungsfortschritt</span>
+            <span>68%</span>
+          </div>
+          <div class="mock-track"><div class="mock-fill" style="width:68%"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── PROBLEM ── -->
+<section class="section">
+  <div class="section-header reveal">
+    <div class="tag">⚡ Das Problem</div>
+    <h2 class="section-title">Kennst du das?</h2>
+    <p class="section-sub">Raten hier, Ausgaben da, irgendwo ein Mahnbescheid – und am Ende des Monats weißt du nicht mehr, wo das Geld geblieben ist.</p>
+  </div>
+  <div class="problem-grid">
+    <div class="problem-card reveal">
+      <div class="prob-icon">😰</div>
+      <h3>Überblick verloren</h3>
+      <p>Mehrere Verträge, verschiedene Fälligkeiten, unterschiedliche Gläubiger – alles verteilt auf Ordner, Apps und E-Mails. Du weißt nicht mehr, was du wirklich schuldest.</p>
+    </div>
+    <div class="problem-card reveal" style="transition-delay:.1s">
+      <div class="prob-icon">🧮</div>
+      <h3>Keine schnelle Rechnung</h3>
+      <p>Was kommt rein, was geht raus – und was bleibt übrig? Diese einfache Frage kostet dich jedes Mal Zeit und Nerven, weil die Zahlen überall verstreut sind.</p>
+    </div>
+    <div class="problem-card reveal" style="transition-delay:.2s">
+      <div class="prob-icon">📉</div>
+      <h3>Verpasste Zahlungen</h3>
+      <p>Eine vergessene Rate reicht: Mahngebühren, Negativeinträge, steigender Kostendruck. Aus einer kleinen Unachtsamkeit wird schnell ein ernstes Problem.</p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── FEATURES ── -->
+<section class="section" id="features">
+  <div class="section-header reveal">
+    <div class="tag">✨ Funktionen</div>
+    <h2 class="section-title">Deine Werkzeuge.<br>Deine Entscheidungen.</h2>
+    <p class="section-sub">Ratenova stellt dir die Tools zur Verfügung – was du damit machst, liegt bei dir.</p>
+  </div>
+
+  <div class="features-grid">
+    <div class="feature-list reveal">
+      <div class="feature-item">
+        <div class="feat-icon">📊</div>
+        <div>
+          <h4>Echtzeit-Dashboard</h4>
+          <p>Alle Verbindlichkeiten, Einnahmen und Ausgaben auf einen Blick – inkl. nächster Fälligkeit und aktuellem Finanzstatus.</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feat-icon">🧮</div>
+        <div>
+          <h4>Schnelle Ein- &amp; Ausgabenrechnung</h4>
+          <p>Trag Einnahmen und Ausgaben ein und sieh sofort, was dir am Monatsende übrig bleibt. Klar, schnell, ohne Aufwand.</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feat-icon">🔔</div>
+        <div>
+          <h4>Automatische Erinnerungen</h4>
+          <p>Nie wieder eine Rate vergessen. Ratenova erinnert dich rechtzeitig vor jeder Fälligkeit.</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feat-icon">📈</div>
+        <div>
+          <h4>Zahlungsplan &amp; Prognose</h4>
+          <p>Sieh genau, wann du schuldenfrei bist – und was eine Sonderzahlung bewirken würde.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="features-visual reveal" style="transition-delay:.15s">
+      <div class="feat-card">
+        <div class="feat-card-icon">💶</div>
+        <div>
+          <div class="feat-card-label">Verbleibend diesen Monat</div>
+          <div class="feat-card-val green">€ 1.240</div>
+        </div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-card-icon">📅</div>
+        <div>
+          <div class="feat-card-label">Nächste Fälligkeit</div>
+          <div class="feat-card-val yellow">Autokredit · in 3 Tagen</div>
+        </div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-card-icon">🎯</div>
+        <div>
+          <div class="feat-card-label">Schuldenfrei</div>
+          <div class="feat-card-val blue">in 47 Monaten</div>
+        </div>
+      </div>
+      <div class="feat-progress">
+        <div class="feat-progress-top">
+          <span>Ausgaben vs. Einnahmen</span>
+          <span>72 %</span>
+        </div>
+        <div class="prog-track"><div class="prog-fill" style="width:72%"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── BENEFITS ── -->
+<section class="section">
+  <div class="section-header section-center reveal">
+    <div class="tag">💪 Vorteile</div>
+    <h2 class="section-title">Warum Ratenova Cloud?</h2>
+  </div>
+  <div class="benefits-grid">
+    <div class="benefit-card reveal">
+      <span class="ben-emoji">🔐</span>
+      <h3>Bankensichere Verschlüsselung</h3>
+      <p>Deine Daten werden mit AES-256 verschlüsselt. DSGVO-konform, Server in Deutschland.</p>
+    </div>
+    <div class="benefit-card reveal" style="transition-delay:.1s">
+      <span class="ben-emoji">☁️</span>
+      <h3>Überall dabei</h3>
+      <p>Browser, Smartphone, Tablet – dein Finanzplan ist immer dabei, immer aktuell.</p>
+    </div>
+    <div class="benefit-card reveal" style="transition-delay:.2s">
+      <span class="ben-emoji">⚡</span>
+      <h3>In 5 Minuten startklar</h3>
+      <p>Kein kompliziertes Setup. Registrieren, Einträge anlegen, loslegen.</p>
+    </div>
+    <div class="benefit-card reveal" style="transition-delay:.3s">
+      <span class="ben-emoji">🎯</span>
+      <h3>Klarer Finanzstatus</h3>
+      <p>Immer wissen, was reinkommt, was rausgeht – und was am Ende übrig bleibt.</p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── HOW IT WORKS ── -->
+<section class="section section-center" id="how">
+  <div class="section-header reveal">
+    <div class="tag">🗺️ So geht's</div>
+    <h2 class="section-title">In 4 Schritten zur finanziellen Übersicht</h2>
+    <p class="section-sub">Kein langer Onboarding-Prozess. Ratenova ist in wenigen Minuten einsatzbereit.</p>
+  </div>
+  <div class="steps-grid">
+    <div class="step-card reveal">
+      <div class="step-num">01</div>
+      <div>
+        <h4>Registrieren</h4>
+        <p>Kostenloses Konto erstellen. Keine Kreditkarte, kein Kleingedrucktes.</p>
+      </div>
+    </div>
+    <div class="step-card reveal" style="transition-delay:.1s">
+      <div class="step-num">02</div>
+      <div>
+        <h4>Einträge anlegen</h4>
+        <p>Verbindlichkeiten, Raten, Ein- und Ausgaben mit Fälligkeit erfassen.</p>
+      </div>
+    </div>
+    <div class="step-card reveal" style="transition-delay:.2s">
+      <div class="step-num">03</div>
+      <div>
+        <h4>Überblick gewinnen</h4>
+        <p>Sofort siehst du dein vollständiges Finanzbild – transparent und klar.</p>
+      </div>
+    </div>
+    <div class="step-card reveal" style="transition-delay:.3s">
+      <div class="step-num">04</div>
+      <div>
+        <h4>Ziele im Blick</h4>
+        <p>Verfolge deinen Fortschritt und erreich deine Finanzziele Schritt für Schritt.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── TESTIMONIALS ── -->
+<div class="testimonials-wrap">
+  <div class="testimonials-inner">
+    <div class="section-header section-center reveal">
+      <div class="tag">❤️ Kundenstimmen</div>
+      <h2 class="section-title">Menschen, die wieder schlafen können</h2>
+    </div>
+    <div class="testimonials-grid">
+      <div class="testi-card reveal">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">„Ich hatte 6 verschiedene Verträge auf 3 Ordner verteilt. Ratenova hat mir in 10 Minuten mehr Klarheit gegeben als 2 Jahre Eigenorganisation."</p>
+        <div class="testi-author">
+          <div class="testi-avatar">👨</div>
+          <div>
+            <div class="testi-name">Markus K.</div>
+            <div class="testi-role">Selbstständiger, Berlin</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card reveal" style="transition-delay:.1s">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">„Endlich sehe ich, wo mein Geld hingeht und wann welche Rate fällig ist. Habe sogar eine Sonderzahlung geleistet, weil ich die Auswirkung direkt sehen konnte."</p>
+        <div class="testi-author">
+          <div class="testi-avatar">👩</div>
+          <div>
+            <div class="testi-name">Sandra M.</div>
+            <div class="testi-role">Krankenschwester, München</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card reveal" style="transition-delay:.2s">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">„Die Erinnerungsfunktion ist Gold wert. Keine Mahngebühren mehr, kein Stress. Ich empfehle Ratenova jedem, der seine Finanzen strukturiert im Griff haben will."</p>
+        <div class="testi-author">
+          <div class="testi-avatar">🧔</div>
+          <div>
+            <div class="testi-name">Thomas R.</div>
+            <div class="testi-role">LKW-Fahrer, Hamburg</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── PRICING ── -->
+<section class="section section-center" id="pricing">
+  <div class="section-header reveal">
+    <div class="tag">💰 Preise</div>
+    <h2 class="section-title">Transparent. Fair. Flexibel.</h2>
+    <p class="section-sub">Fang kostenlos an. Upgrade wenn du mehr brauchst. Kein Druck, keine versteckten Kosten.</p>
+  </div>
+  <div class="pricing-grid reveal">
+    <div class="price-card">
+      <div class="price-name">Basic</div>
+      <div class="price-amount"><sup>€</sup>0</div>
+      <div class="price-period">Für immer kostenlos</div>
+      <ul class="price-features">
+        <li><span class="ck">✓</span> Bis zu 5 Verbindlichkeiten</li>
+        <li><span class="ck">✓</span> Dashboard &amp; Überblick</li>
+        <li><span class="ck">✓</span> Fälligkeitserinnerungen</li>
+        <li><span class="ck">✓</span> Ein- &amp; Ausgaben erfassen</li>
+        <li><span class="no">–</span> <span class="disabled">Kontaktverwaltung</span></li>
+        <li><span class="no">–</span> <span class="disabled">Zahlungsprognose</span></li>
+        <li><span class="no">–</span> <span class="disabled">PDF-Export</span></li>
+      </ul>
+      <a href="app.html" class="price-btn price-btn-outline">Kostenlos starten</a>
+    </div>
+    <div class="price-card featured">
+      <div class="price-badge">⭐ Empfohlen</div>
+      <div class="price-name">Pro</div>
+      <div class="price-amount"><sup>€</sup>4,90</div>
+      <div class="price-period">pro Monat – erste 30 Tage gratis</div>
+      <ul class="price-features">
+        <li><span class="ck">✓</span> Unbegrenzte Einträge</li>
+        <li><span class="ck">✓</span> Vollständiges Dashboard</li>
+        <li><span class="ck">✓</span> Automatische Erinnerungen</li>
+        <li><span class="ck">✓</span> Ein- &amp; Ausgabenverwaltung</li>
+        <li><span class="ck">✓</span> Vollständige Kontaktverwaltung</li>
+        <li><span class="ck">✓</span> Zahlungsplan &amp; Prognose</li>
+        <li><span class="ck">✓</span> PDF-Export &amp; Bankdaten</li>
+      </ul>
+      <a href="app.html" class="price-btn price-btn-primary">30 Tage gratis testen</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ── -->
+<div class="cta-wrap">
+  <div class="cta-box reveal">
+    <div class="cta-orb"></div>
+    <h2>Bereit, endlich wieder den Überblick zu haben?</h2>
+    <p>Ratenova gibt dir die Werkzeuge für Klarheit über deine Finanzen. Schnell. Einfach. Ohne Schnickschnack. Die Entscheidungen triffst du – wir sorgen dafür, dass du sie informiert treffen kannst.</p>
+    <div class="cta-actions">
+      <a href="app.html" class="btn btn-primary" style="font-size:16px;padding:17px 36px">🚀 Jetzt kostenlos starten</a>
+    </div>
+    <div class="cta-note">30 Tage kostenlos · Keine Kreditkarte · Jederzeit kündbar</div>
+  </div>
+</div>
+
+<!-- ── DISCLAIMER ── -->
+<div class="disclaimer">
+  <div class="disclaimer-inner">
+    <span class="disclaimer-icon">ℹ️</span>
+    <p><strong>Hinweis:</strong> Ratenova Cloud ist ein Werkzeug zur persönlichen Finanzverwaltung und stellt ausschließlich technische Hilfsmittel zur Erfassung und Übersicht deiner Verbindlichkeiten, Ein- und Ausgaben bereit. Ratenova übernimmt keine Zahlungen, trifft keine finanziellen Entscheidungen und ersetzt keine professionelle Finanz-, Steuer- oder Rechtsberatung. Alle Aktionen und Entscheidungen liegen vollständig in deiner eigenen Verantwortung.</p>
+  </div>
+</div>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="footer-brand-logo"><img src="https://kdbuduwztmxxykfvqbie.supabase.co/storage/v1/object/public/public-assets/Ratenova%20Logo_%20ohne%20Text.png" alt="Ratenova" style="height:72px;width:auto"></div>
+        <p>Dein digitaler Finanzmanager für Verbindlichkeiten, Raten, Ein- und Ausgaben. Transparent, sicher, motivierend. Entwickelt in Deutschland.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Produkt</h5>
+        <ul>
+          <li><a href="#features">Funktionen</a></li>
+          <li><a href="#pricing">Preise</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Rechtliches</h5>
+        <ul>
+          <li><a href="datenschutz.html" target="_blank">Datenschutz</a></li>
+          <li><a href="impressum.html" target="_blank">Impressum</a></li>
+          <li><a href="agb.html" target="_blank">AGB</a></li>
+          <li><a href="cookie-richtlinie.html">Cookie-Richtlinie</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2026 Ratenova Cloud. Alle Rechte vorbehalten. Entwickelt mit ❤️ in Deutschland.</div>
+      <div class="footer-copy">DSGVO-konform · Verschlüsselt · <a href="#" class="footer-em">Sicher</a></div>
+    </div>
+  </div>
+</footer>
+
+<!-- ── LEGAL MODAL ── -->
+<div id="legalOverlay">
+  <div class="legal-panel">
+    <button class="legal-close" onclick="closeLegal()">✕</button>
+    <div id="legalContent"></div>
+  </div>
+</div>
+
+<script>
+/* ── NAV scroll ── */
+const mainNav = document.getElementById('mainNav');
+window.addEventListener('scroll', () => {
+  mainNav.classList.toggle('scrolled', window.scrollY > 50);
+}, { passive: true });
+
+/* ── Mobile menu ── */
+const hamburger = document.getElementById('hamburger');
+const mobileMenu = document.getElementById('mobileMenu');
+
+function closeMobile() {
+  hamburger.classList.remove('open');
+  mobileMenu.classList.remove('open');
+  document.body.style.overflow = '';
+}
+hamburger.addEventListener('click', () => {
+  const open = mobileMenu.classList.toggle('open');
+  hamburger.classList.toggle('open', open);
+  document.body.style.overflow = open ? 'hidden' : '';
+});
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeMobile(); });
+
+/* ── Scroll reveal ── */
+const reveals = document.querySelectorAll('.reveal');
+const revealObs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+reveals.forEach(el => revealObs.observe(el));
+
+/* ── Legal modal ── */
+const legalTexts = {
+  impressum: `
+    <span class="legal-tag">Rechtliches</span>
+    <h1>Impressum</h1>
+    <p>Angaben gemäß § 5 DDG (Digitale-Dienste-Gesetz)</p>
+    <hr>
+    <h2>Verantwortlich</h2>
+    <p>Alexander Falco Sturm<br>Böttgerstr. 10<br>68775 Ketsch<br>Deutschland</p>
+    <h2>Kontakt</h2>
+    <p>Telefon: <strong style="color:#FBBF24">[TEL – bitte ergänzen]</strong><br>E-Mail: <a href="mailto:info@ratenova.de">info@ratenova.de</a></p>
+    <h2>Umsatzsteuer</h2>
+    <p>Als Kleinunternehmer im Sinne von § 19 Abs. 1 UStG wird keine Umsatzsteuer berechnet und daher auch nicht ausgewiesen.</p>
+    <hr>
+    <h2>Haftung für Inhalte</h2>
+    <p>Als Diensteanbieter sind wir gemäß § 7 Abs. 1 DDG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 DDG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen.</p>
+    <h2>Haftung für Links</h2>
+    <p>Unser Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte wir keinen Einfluss haben. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter verantwortlich.</p>
+    <h2>Urheberrecht</h2>
+    <p>Die durch die Seitenbetreiber erstellten Inhalte und Werke unterliegen dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung.</p>
+    <h2>EU-Streitschlichtung</h2>
+    <p>Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit: <a href="https://ec.europa.eu/consumers/odr" target="_blank">https://ec.europa.eu/consumers/odr</a>. Wir sind nicht bereit und nicht verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.</p>
+  `,
+  datenschutz: `
+    <span class="legal-tag">Rechtliches</span>
+    <h1>Datenschutzerklärung</h1>
+    <p>Stand: Februar 2026 · Alexander Falco Sturm, Böttgerstr. 10, 68775 Ketsch · <a href="mailto:info@ratenova.de">info@ratenova.de</a></p>
+    <hr>
+    <h2>1. Grundsätze</h2>
+    <p>Der Schutz deiner persönlichen Daten ist uns ein wichtiges Anliegen. Wir verarbeiten deine Daten ausschließlich auf Grundlage der gesetzlichen Bestimmungen (DSGVO, DDG).</p>
+    <h2>2. Verantwortlicher</h2>
+    <p>Alexander Falco Sturm<br>Böttgerstr. 10, 68775 Ketsch<br>E-Mail: <a href="mailto:info@ratenova.de">info@ratenova.de</a><br>Telefon: <strong style="color:#FBBF24">[TEL – bitte ergänzen]</strong></p>
+    <h2>3. Hosting & Infrastruktur</h2>
+    <h3>Supabase</h3>
+    <p>Wir nutzen Supabase (Supabase Inc.) als Backend-Infrastruktur. Die Daten werden auf Servern in der EU (Frankfurt, AWS) gespeichert. Datenübertragungen in Drittländer erfolgen auf Grundlage von Standardvertragsklauseln gemäß Art. 46 DSGVO. Weitere Informationen: <a href="https://supabase.com/privacy" target="_blank">supabase.com/privacy</a></p>
+    <h2>4. Zahlungsabwicklung</h2>
+    <h3>Paddle</h3>
+    <p>Für die Zahlungsabwicklung nutzen wir Paddle (Paddle.com Market Limited, Dublin, Irland). Paddle fungiert als Merchant of Record. Deine Zahlungsdaten unterliegen deren Datenschutzrichtlinie: <a href="https://www.paddle.com/legal/privacy" target="_blank">paddle.com/legal/privacy</a></p>
+    <h2>5. Registrierung & Nutzerkonto</h2>
+    <p>Bei der Registrierung erheben wir: E-Mail-Adresse, Passwort (verschlüsselt). Rechtsgrundlage: Art. 6 Abs. 1 lit. b DSGVO.</p>
+    <h2>6. Von dir eingegebene Daten</h2>
+    <p>Alle in der App erfassten Finanzdaten werden ausschließlich für dich gespeichert und nicht an Dritte weitergegeben. Rechtsgrundlage: Art. 6 Abs. 1 lit. b DSGVO.</p>
+    <h2>7. Cookies</h2>
+    <p>Wir verwenden ausschließlich technisch notwendige Session-Cookies. Es werden keine Tracking- oder Marketing-Cookies eingesetzt.</p>
+    <h2>8. Analyse-Tools</h2>
+    <p>Wir setzen derzeit keine Analyse- oder Tracking-Tools ein.</p>
+    <h2>9. Deine Rechte</h2>
+    <p>Du hast das Recht auf Auskunft (Art. 15), Berichtigung (Art. 16), Löschung (Art. 17), Einschränkung (Art. 18), Datenübertragbarkeit (Art. 20) sowie Widerspruch (Art. 21 DSGVO). Anfragen an: <a href="mailto:info@ratenova.de">info@ratenova.de</a></p>
+    <p>Beschwerderecht bei der zuständigen Aufsichtsbehörde: Landesbeauftragter für den Datenschutz und die Informationsfreiheit Baden-Württemberg.</p>
+    <h2>10. Speicherdauer</h2>
+    <p>Nutzerdaten werden nach Kontolöschung innerhalb von 30 Tagen gelöscht, sofern keine gesetzlichen Aufbewahrungspflichten entgegenstehen (z. B. 10 Jahre für Zahlungsdaten).</p>
+    <h2>11. Datensicherheit</h2>
+    <p>Alle Daten werden verschlüsselt übertragen (TLS/SSL) und verschlüsselt gespeichert.</p>
+  `,
+  agb: `
+    <span class="legal-tag">Rechtliches</span>
+    <h1>Allgemeine Geschäftsbedingungen</h1>
+    <p>Stand: Februar 2026 · Ratenova Cloud · Alexander Falco Sturm</p>
+    <hr>
+    <h2>§ 1 Geltungsbereich</h2>
+    <p>Diese AGB gelten für die Nutzung der Webanwendung „Ratenova Cloud", betrieben von Alexander Falco Sturm, Böttgerstr. 10, 68775 Ketsch. Mit der Registrierung akzeptiert der Nutzer diese AGB.</p>
+    <h2>§ 2 Leistungsbeschreibung</h2>
+    <p>Ratenova Cloud ist eine webbasierte Anwendung zur Verwaltung von Verbindlichkeiten, Raten sowie Ein- und Ausgaben (SaaS). Der Anbieter behält sich vor, den Funktionsumfang jederzeit anzupassen.</p>
+    <h2>§ 3 Vertragsschluss & Tarife</h2>
+    <p>Der Vertrag kommt mit erfolgreicher Registrierung zustande.</p>
+    <ul>
+      <li><strong>Basic (kostenlos):</strong> Dauerhaft kostenfrei mit eingeschränktem Funktionsumfang.</li>
+      <li><strong>Pro (€ 4,90/Monat):</strong> Vollständiger Funktionsumfang. Die ersten 30 Tage sind kostenfrei. Danach automatische Abrechnung über Paddle.</li>
+    </ul>
+    <h2>§ 4 Zahlung</h2>
+    <p>Die Zahlungsabwicklung erfolgt über Paddle (Merchant of Record). Die Abrechnung erfolgt monatlich im Voraus.</p>
+    <h2>§ 5 Kündigung & Widerruf</h2>
+    <p>Der Pro-Tarif kann jederzeit zum Ende des laufenden Abrechnungszeitraums gekündigt werden. Danach Rückstufung auf Basic.</p>
+    <p><strong>Widerrufsbelehrung:</strong> Als Verbraucher hast du das Recht, diesen Vertrag binnen 14 Tagen ohne Angabe von Gründen zu widerrufen. Widerrufserklärungen an: <a href="mailto:info@ratenova.de">info@ratenova.de</a></p>
+    <p><strong>Erlöschen:</strong> Bei digitalen Inhalten erlischt das Widerrufsrecht, wenn du ausdrücklich zugestimmt hast, dass vor Ablauf der Widerrufsfrist mit der Ausführung begonnen wird.</p>
+    <h2>§ 6 Verfügbarkeit</h2>
+    <p>Der Anbieter bemüht sich um hohe Verfügbarkeit, übernimmt jedoch keine Garantie für ununterbrochene Verfügbarkeit.</p>
+    <h2>§ 7 Haftung</h2>
+    <p>Der Anbieter haftet unbeschränkt bei Vorsatz und grober Fahrlässigkeit sowie bei Verletzung von Leben, Körper und Gesundheit. Ratenova Cloud ersetzt keine professionelle Finanz- oder Rechtsberatung.</p>
+    <h2>§ 8 Datenschutz</h2>
+    <p>Es gilt die separate Datenschutzerklärung, abrufbar über den Footer dieser Website.</p>
+    <h2>§ 9 Änderungen der AGB</h2>
+    <p>Änderungen werden dem Nutzer per E-Mail mindestens 30 Tage vor Inkrafttreten mitgeteilt. Ohne Widerspruch innerhalb von 30 Tagen gelten die neuen AGB als akzeptiert.</p>
+    <h2>§ 10 Anwendbares Recht & Gerichtsstand</h2>
+    <p>Es gilt deutsches Recht unter Ausschluss des UN-Kaufrechts. Gerichtsstand ist, soweit gesetzlich zulässig, Ketsch.</p>
+    <h2>§ 11 EU-Streitschlichtung</h2>
+    <p>OS-Plattform: <a href="https://ec.europa.eu/consumers/odr" target="_blank">https://ec.europa.eu/consumers/odr</a>. Wir nehmen nicht an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teil.</p>
+  `
+};
+
+function openLegal(key) {
+  document.getElementById('legalContent').innerHTML = legalTexts[key];
+  const o = document.getElementById('legalOverlay');
+  o.style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  o.scrollTop = 0;
+}
+function closeLegal() {
+  document.getElementById('legalOverlay').style.display = 'none';
+  document.body.style.overflow = '';
+}
+document.getElementById('legalOverlay').addEventListener('click', function(e) {
+  if(e.target === this) closeLegal();
+});
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeLegal(); });
+</script>
+</body>
+</html>
