@@ -1266,29 +1266,31 @@ footer {
       <div class="price-amount"><sup>€</sup>0</div>
       <div class="price-period">Für immer kostenlos</div>
       <ul class="price-features">
-        <li><span class="ck">✓</span> Bis zu 5 Verbindlichkeiten</li>
-        <li><span class="ck">✓</span> Dashboard &amp; Überblick</li>
-        <li><span class="ck">✓</span> Fälligkeitserinnerungen</li>
-        <li><span class="ck">✓</span> Ein- &amp; Ausgaben erfassen</li>
-        <li><span class="no">–</span> <span class="disabled">Kontaktverwaltung</span></li>
-        <li><span class="no">–</span> <span class="disabled">Zahlungsprognose</span></li>
-        <li><span class="no">–</span> <span class="disabled">PDF-Export</span></li>
+        <li><span class="ck">✓</span> Bis zu 3 Verbindlichkeiten</li>
+        <li><span class="ck">✓</span> Dashboard &amp; Übersicht</li>
+        <li><span class="ck">✓</span> Zahlungshistorie</li>
+        <li><span class="ck">✓</span> Ein- &amp; Ausgaben (Basis)</li>
+        <li><span class="no">✕</span> <span class="disabled">Vereinbarungsvorlagen</span></li>
+        <li><span class="no">✕</span> <span class="disabled">Vertragsverwaltung</span></li>
+        <li><span class="no">✕</span> <span class="disabled">Kündigungsassistent</span></li>
+        <li><span class="no">✕</span> <span class="disabled">Zeitverlauf &amp; Export</span></li>
       </ul>
       <a href="app.html" class="price-btn price-btn-outline">Kostenlos starten</a>
     </div>
     <div class="price-card featured">
       <div class="price-badge">⭐ Empfohlen</div>
       <div class="price-name">Pro</div>
-      <div class="price-amount"><sup>€</sup>4,90</div>
+      <div class="price-amount"><sup>€</sup>4,99</div>
       <div class="price-period">pro Monat – erste 30 Tage gratis</div>
       <ul class="price-features">
-        <li><span class="ck">✓</span> Unbegrenzte Einträge</li>
-        <li><span class="ck">✓</span> Vollständiges Dashboard</li>
-        <li><span class="ck">✓</span> Automatische Erinnerungen</li>
-        <li><span class="ck">✓</span> Ein- &amp; Ausgabenverwaltung</li>
-        <li><span class="ck">✓</span> Vollständige Kontaktverwaltung</li>
-        <li><span class="ck">✓</span> Zahlungsplan &amp; Prognose</li>
-        <li><span class="ck">✓</span> PDF-Export &amp; Bankdaten</li>
+        <li><span class="ck">✓</span> Unbegrenzte Verbindlichkeiten</li>
+        <li><span class="ck">✓</span> Dashboard &amp; Übersicht</li>
+        <li><span class="ck">✓</span> Zahlungshistorie</li>
+        <li><span class="ck">✓</span> Ein- &amp; Ausgaben (vollständig)</li>
+        <li><span class="ck">✓</span> Vereinbarungsvorlagen &amp; Briefe</li>
+        <li><span class="ck">✓</span> Vertragsverwaltung</li>
+        <li><span class="ck">✓</span> Kündigungsassistent</li>
+        <li><span class="ck">✓</span> Zeitverlauf &amp; Export</li>
       </ul>
       <a href="app.html" class="price-btn price-btn-primary">30 Tage gratis testen</a>
     </div>
@@ -1453,7 +1455,7 @@ const legalTexts = {
     <p>Der Vertrag kommt mit erfolgreicher Registrierung zustande.</p>
     <ul>
       <li><strong>Basic (kostenlos):</strong> Dauerhaft kostenfrei mit eingeschränktem Funktionsumfang.</li>
-      <li><strong>Pro (€ 4,90/Monat):</strong> Vollständiger Funktionsumfang. Die ersten 30 Tage sind kostenfrei. Danach automatische Abrechnung über Paddle.</li>
+      <li><strong>Pro (€ 4,99/Monat):</strong> Vollständiger Funktionsumfang. Die ersten 30 Tage sind kostenfrei. Danach automatische Abrechnung über Paddle.</li>
     </ul>
     <h2>§ 4 Zahlung</h2>
     <p>Die Zahlungsabwicklung erfolgt über Paddle (Merchant of Record). Die Abrechnung erfolgt monatlich im Voraus.</p>
@@ -1492,5 +1494,97 @@ document.getElementById('legalOverlay').addEventListener('click', function(e) {
 });
 document.addEventListener('keydown', e => { if(e.key==='Escape') closeLegal(); });
 </script>
+<!-- ── COOKIE BANNER ── -->
+<div id="cookieBanner" style="
+  display:none;
+  position:fixed;
+  bottom:24px;
+  right:24px;
+  z-index:9999;
+  max-width:380px;
+  width:calc(100% - 48px);
+  background:#1C1E27;
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:18px;
+  padding:22px 24px;
+  box-shadow:0 20px 60px rgba(0,0,0,0.5);
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  animation: slideUp 0.35s cubic-bezier(0.16,1,0.3,1);
+">
+  <style>
+    @keyframes slideUp {
+      from { opacity:0; transform:translateY(20px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    #cookieBanner .cb-icon { font-size:28px; margin-bottom:10px; display:block; }
+    #cookieBanner h4 { font-size:15px; font-weight:700; color:#F1F2F6; margin:0 0 8px; }
+    #cookieBanner p  { font-size:12.5px; color:#A0A3B1; line-height:1.6; margin:0 0 18px; }
+    #cookieBanner p a { color:#34D399; text-decoration:none; }
+    #cookieBanner p a:hover { text-decoration:underline; }
+    #cookieBanner .cb-btns { display:flex; gap:8px; }
+    #cookieBanner .cb-accept {
+      flex:1; padding:10px; border-radius:10px;
+      background:linear-gradient(135deg,#34D399,#10B981);
+      color:#0a0a0a; font-size:13px; font-weight:700;
+      border:none; cursor:pointer; transition:opacity 0.15s;
+    }
+    #cookieBanner .cb-accept:hover { opacity:0.88; }
+    #cookieBanner .cb-decline {
+      flex:1; padding:10px; border-radius:10px;
+      background:transparent;
+      border:1px solid rgba(255,255,255,0.1);
+      color:#A0A3B1; font-size:13px; font-weight:600;
+      cursor:pointer; transition:all 0.15s;
+    }
+    #cookieBanner .cb-decline:hover { border-color:rgba(255,255,255,0.2); color:#F1F2F6; }
+    #cookieBanner .cb-close {
+      position:absolute; top:14px; right:16px;
+      background:none; border:none; color:#6B6F80;
+      font-size:18px; cursor:pointer; line-height:1;
+      padding:2px 6px;
+    }
+    #cookieBanner .cb-close:hover { color:#A0A3B1; }
+  </style>
+
+  <button class="cb-close" onclick="cookieDecline()" title="Schließen">✕</button>
+  <span class="cb-icon">🍪</span>
+  <h4>Nur das Nötigste</h4>
+  <p>
+    Wir verwenden ausschließlich <strong style="color:#F1F2F6">technisch notwendige Cookies</strong> für Login und App-Funktion. Kein Tracking, keine Werbung.
+    <br><a href="https://ratenova.de/cookie-richtlinie.html" target="_blank">Mehr erfahren →</a>
+  </p>
+  <div class="cb-btns">
+    <button class="cb-decline" onclick="cookieDecline()">Nur notwendige</button>
+    <button class="cb-accept" onclick="cookieAccept()">Alle akzeptieren ✓</button>
+  </div>
+</div>
+
+<script>
+  (function(){
+    // Show banner only if no choice made yet
+    if(!localStorage.getItem('cookieConsent')){
+      setTimeout(function(){
+        document.getElementById('cookieBanner').style.display='block';
+      }, 1200);
+    }
+  })();
+
+  function cookieAccept(){
+    localStorage.setItem('cookieConsent','accepted');
+    hideCookieBanner();
+  }
+  function cookieDecline(){
+    localStorage.setItem('cookieConsent','declined');
+    hideCookieBanner();
+  }
+  function hideCookieBanner(){
+    var b=document.getElementById('cookieBanner');
+    b.style.transition='opacity 0.3s, transform 0.3s';
+    b.style.opacity='0';
+    b.style.transform='translateY(20px)';
+    setTimeout(function(){ b.style.display='none'; }, 300);
+  }
+</script>
+
 </body>
 </html>
