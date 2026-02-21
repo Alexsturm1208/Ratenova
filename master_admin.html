@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Ratenova · Master Admin</title>
+<link rel="icon" type="image/png" href="https://kdbuduwztmxxykfvqbie.supabase.co/storage/v1/object/public/public-assets/Ratenova%20Icon.png" sizes="32x32">
+<style>
+:root{--bg:#0F1117;--bgS:#161820;--bgC:#1C1E27;--bgH:#22242E;--bgE:#252836;--em:#34D399;--emD:#059669;--emG:rgba(52,211,153,0.15);--emG2:rgba(52,211,153,0.08);--co:#F97066;--coG:rgba(249,112,102,0.12);--am:#FBBF24;--amG:rgba(251,191,36,0.12);--sk:#38BDF8;--t:#F1F2F6;--ts:#A0A3B1;--tm:#6B6F80;--tf:#454857;--b:rgba(255,255,255,0.06);--bl:rgba(255,255,255,0.1);--ba:rgba(52,211,153,0.3)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh}
+::selection{background:var(--emG);color:var(--em)}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--b);border-radius:4px}
+button{font-family:inherit;cursor:pointer}input{font-family:inherit}input::placeholder{color:var(--tf)}
+select option{background:var(--bgC);color:var(--t)}
+.btn{padding:11px 22px;font-size:14px;font-weight:600;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:all 0.2s ease;border:none}
+.btn:hover{filter:brightness(1.12);transform:translateY(-1px)}
+.btn-primary{background:linear-gradient(135deg,var(--emD),var(--em));color:#fff;box-shadow:0 4px 20px rgba(52,211,153,0.25)}
+.btn-ghost{background:var(--emG);color:var(--em);border:1px solid var(--ba)}
+.btn-outline{background:transparent;color:var(--ts);border:1px solid var(--bl)}
+.btn-danger{background:var(--coG);color:var(--co);border:1px solid rgba(249,112,102,0.2)}
+.btn-sm{padding:8px 16px;font-size:13px}.btn-full{width:100%}
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px}
+.badge-dot{width:5px;height:5px;border-radius:50%}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:12px;font-weight:600;color:var(--ts);margin-bottom:6px;letter-spacing:0.5px}
+.field .input-wrap{display:flex;align-items:center;background:var(--bgE);border:1px solid var(--b);border-radius:10px;padding:0 14px;transition:border-color 0.2s,box-shadow 0.2s;position:relative}
+.field .input-wrap:focus-within{border-color:var(--ba);box-shadow:0 0 0 3px var(--emG)}
+.field input{flex:1;border:none;outline:none;padding:13px 0;font-size:15px;color:var(--t);background:transparent}
+.chip{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid var(--b);background:var(--bgC);color:var(--tm);transition:all 0.2s;cursor:pointer}
+.chip.active{background:var(--emG);color:var(--em);border-color:var(--ba)}
+.master-root{min-height:100vh;background:radial-gradient(1200px 600px at 90% -20%,rgba(52,211,153,0.14),transparent 60%),radial-gradient(1000px 500px at -20% 120%,rgba(56,189,248,0.1),transparent 60%),var(--bg);padding:24px}
+.master-shell{max-width:1400px;margin:0 auto}
+.master-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.master-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.master-grid{display:grid;grid-template-columns:1.15fr 1fr;gap:12px}
+.master-card{background:linear-gradient(155deg,var(--bgC),var(--bgS));border:1px solid var(--b);border-radius:16px;padding:16px}
+.master-list{display:flex;flex-direction:column;gap:10px;max-height:55vh;overflow:auto}
+.master-login{max-width:440px;margin:10vh auto 0}
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:3000;background:var(--bgE);color:var(--em);border:1px solid var(--ba);padding:12px 24px;border-radius:14px;font-size:14px;font-weight:600;box-shadow:0 24px 64px rgba(0,0,0,0.4);display:flex;align-items:center;gap:8px;animation:slideUp 0.3s ease}
+.toast-dot{width:8px;height:8px;border-radius:50%;background:var(--em);box-shadow:0 0 8px var(--em)}
+@keyframes slideUp{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+@media(max-width:980px){.master-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="master-root">
+  <div class="master-shell" id="root"></div>
+</div>
+<div id="toastContainer"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL="https://kdbuduwztmxxykfvqbie.supabase.co";
+const SUPABASE_ANON_KEY="sb_publishable_ZZpjQ4Lqcqd2uVpGrSthcQ_nnCYSGPv";
+const MASTER_USERNAME="master";
+const MASTER_AUTH_EMAIL="master@ratenova.local";
+
+let supabaseClient=null;
+let masterState={loggedIn:false,tab:"stats",users:[],states:[],selectedUserId:null,error:"",query:"",deleteConfirm:null};
+
+const fmt=n=>new Intl.NumberFormat("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2}).format(n)+" €";
+const mNum=v=>{const n=Number(v);return Number.isFinite(n)?n:0};
+const mEsc=v=>String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+
+function flash(m){
+  const c=document.getElementById("toastContainer");
+  c.innerHTML=`<div class="toast"><span class="toast-dot"></span>${m}</div>`;
+  setTimeout(()=>c.innerHTML="",2800);
+}
+
+window.addEventListener("load",async()=>{
+  if(window.supabase?.createClient){
+    supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+    const {data}=await supabaseClient.auth.getSession();
+    if(data?.session?.user){
+      const {data:profile}=await supabaseClient.from("user_profiles").select("role").eq("id",data.session.user.id).maybeSingle();
+      if((profile?.role||"")==="master"||data.session.user.email===MASTER_AUTH_EMAIL){
+        masterState.loggedIn=true;
+        await loadMasterData();
+      }
+    }
+  }
+  render();
+});
+
+async function masterLogin(){
+  const u=(document.getElementById("mUser")?.value||"").trim().toLowerCase();
+  const p=(document.getElementById("mPass")?.value||"").trim();
+  if(!supabaseClient){masterState.error="Supabase nicht verbunden";render();return;}
+  if(u!==MASTER_USERNAME||!p){masterState.error="Login fehlgeschlagen";render();return;}
+  const {data,error}=await supabaseClient.auth.signInWithPassword({email:MASTER_AUTH_EMAIL,password:p});
+  if(error||!data?.user){masterState.error="Login fehlgeschlagen: "+(error?.message||"");render();return;}
+  const {data:profile}=await supabaseClient.from("user_profiles").select("role").eq("id",data.user.id).maybeSingle();
+  const roleOk=(profile?.role||"")==="master";
+  const emailOk=(data.user.email||"").toLowerCase()===MASTER_AUTH_EMAIL.toLowerCase();
+  if(!roleOk&&!emailOk){
+    try{await supabaseClient.auth.signOut()}catch(e){}
+    masterState.error="Keine Berechtigung für Master-Panel";
+    render();return;
+  }
+  masterState.loggedIn=true;masterState.error="";masterState.tab="stats";
+  await loadMasterData();
+  render();
+}
+
+async function masterLogout(){
+  try{if(supabaseClient)await supabaseClient.auth.signOut()}catch(e){}
+  masterState={loggedIn:false,tab:"stats",users:[],states:[],selectedUserId:null,error:"",query:"",deleteConfirm:null};
+  render();
+}
+
+async function loadMasterData(){
+  if(!supabaseClient){masterState.error="Supabase nicht verbunden";return;}
+  const [{data:users,error:uErr},{data:states,error:sErr}]=await Promise.all([
+    supabaseClient.from("user_profiles").select("id,email,first_name,last_name,plan,trial_end,address_street,address_zip,address_city,phone,updated_at,is_blocked,admin_note"),
+    supabaseClient.from("app_state").select("user_id,debts,budget_items,contracts,updated_at")
+  ]);
+  if(uErr||sErr){
+    const e=(err,t)=>err?`${t}: ${err.message||"Fehler"}`:"";
+    masterState.error=`Lesefehler: ${e(uErr,"user_profiles")} ${e(sErr,"app_state")}`.trim();
+    return;
+  }
+  masterState.users=users||[];
+  masterState.states=states||[];
+  if(!masterState.selectedUserId&&masterState.users.length)masterState.selectedUserId=masterState.users[0].id;
+  masterState.error="";
+}
+
+function masterStateMap(){const m={};masterState.states.forEach(s=>{if(s?.user_id)m[s.user_id]=s});return m}
+
+function contractAnnualCost(c){
+  const m=mNum(c?.monthlyCost),y=mNum(c?.yearlyCost);
+  if(y>0)return y;
+  if(m>0)return m*12;
+  return 0;
+}
+
+function masterUserMetrics(u,stateMap){
+  const s=stateMap[u.id]||{};
+  const debtList=Array.isArray(s.debts)?s.debts:[];
+  const budgetList=Array.isArray(s.budget_items)?s.budget_items:[];
+  const contractList=Array.isArray(s.contracts)?s.contracts:[];
+  let income=0,expense=0,sales=0,debtOpen=0,debtMonthly=0,contractMonthly=0,contractYearly=0,entries=0;
+  budgetList.forEach(b=>{
+    const amount=mNum(b?.amount);if(!amount)return;entries++;
+    if(b.type==="income"){income+=amount;const sig=`${b.category||""} ${b.note||""}`.toLowerCase();if(/verkauf|umsatz|rechnung|auftrag|shop|sale/.test(sig))sales+=amount;}
+    else if(b.type==="expense")expense+=amount;
+  });
+  debtList.forEach(d=>{const open=Math.max(0,mNum(d?.original)-mNum(d?.paid));debtOpen+=open;if(open>0)debtMonthly+=Math.max(0,mNum(d?.rate));});
+  contractList.forEach(c=>{contractMonthly+=Math.max(0,mNum(c?.monthlyCost));contractYearly+=Math.max(0,contractAnnualCost(c||{}));});
+  return{user:u,state:s,income,expense,sales,balance:income-expense,debtOpen,debtMonthly,contractMonthly,contractYearly,entries,debtCount:debtList.length,contractCount:contractList.length};
+}
+
+function masterMetricsList(){const map=masterStateMap();return masterState.users.map(u=>masterUserMetrics(u,map));}
+
+function masterStats(){
+  const metrics=masterMetricsList();
+  return{
+    total:masterState.users.length,
+    withState:metrics.filter(m=>m.entries+m.debtCount+m.contractCount>0).length,
+    totalDebts:metrics.reduce((a,m)=>a+m.debtCount,0),
+    totalContracts:metrics.reduce((a,m)=>a+m.contractCount,0),
+    totalIncome:metrics.reduce((a,m)=>a+m.income,0),
+    totalExpense:metrics.reduce((a,m)=>a+m.expense,0),
+    totalSales:metrics.reduce((a,m)=>a+m.sales,0),
+    debtExposure:metrics.reduce((a,m)=>a+m.debtOpen,0),
+    monthlyObligation:metrics.reduce((a,m)=>a+m.debtMonthly+m.contractMonthly,0),
+    metrics
+  };
+}
+
+async function masterSaveUser(id){
+  const get=k=>document.getElementById(`${k}-${id}`)?.value?.trim()||"";
+  const trialRaw=document.getElementById(`muTrial-${id}`)?.value||"";
+  const {error}=await supabaseClient.from("user_profiles").upsert({
+    id,first_name:get("muFirst"),last_name:get("muLast"),plan:get("muPlan")||"Basic",
+    trial_end:trialRaw?new Date(trialRaw).toISOString():null,
+    address_street:get("muStreet"),address_zip:get("muZip"),address_city:get("muCity"),
+    phone:get("muPhone"),admin_note:get("muNote")||null,updated_at:new Date().toISOString()
+  });
+  if(error){flash("Speichern fehlgeschlagen: "+error.message);return;}
+  flash("Nutzerdaten gespeichert ✓");
+  await loadMasterData();render();
+}
+
+async function masterBlockUser(id){
+  const u=masterState.users.find(x=>x.id===id);
+  const isBlocked=!!(u?.is_blocked);
+  if(!confirm(`Nutzer wirklich ${isBlocked?"entsperren":"sperren"}?`))return;
+  const {error}=await supabaseClient.from("user_profiles").update({is_blocked:!isBlocked,updated_at:new Date().toISOString()}).eq("id",id);
+  if(error){flash("Aktion fehlgeschlagen");return;}
+  flash(isBlocked?"Nutzer entsperrt ✓":"Nutzer gesperrt 🔒");
+  await loadMasterData();render();
+}
+
+async function masterDeleteUser(id){
+  if(masterState.deleteConfirm!==id){masterState.deleteConfirm=id;render();flash("⚠️ Nochmals klicken zum endgültigen Löschen");return;}
+  masterState.deleteConfirm=null;
+  await Promise.all([
+    supabaseClient.from("app_state").delete().eq("user_id",id),
+    supabaseClient.from("user_profiles").delete().eq("id",id)
+  ]);
+  if(masterState.selectedUserId===id)masterState.selectedUserId=null;
+  flash("Nutzerdaten gelöscht ✓");
+  await loadMasterData();render();
+}
+
+async function masterResetUserState(id){
+  if(!confirm("Alle App-Daten für diesen Nutzer zurücksetzen?"))return;
+  const {error}=await supabaseClient.from("app_state").upsert({user_id:id,debts:[],budget_items:[],contracts:[],updated_at:new Date().toISOString()});
+  if(error){flash("Reset fehlgeschlagen");return;}
+  flash("Nutzerdaten zurückgesetzt ✓");
+  await loadMasterData();render();
+}
+
+async function masterCreateCustomer(){
+  const firstName=(document.getElementById("mcFirst")?.value||"").trim();
+  const lastName=(document.getElementById("mcLast")?.value||"").trim();
+  const email=(document.getElementById("mcEmail")?.value||"").trim().toLowerCase();
+  const password=(document.getElementById("mcPass")?.value||"").trim();
+  const plan=(document.getElementById("mcPlan")?.value||"Basic").trim();
+  if(!email||!password){flash("E-Mail und Passwort sind Pflicht");return;}
+  if(password.length<6){flash("Passwort muss mindestens 6 Zeichen haben");return;}
+  const {data:sessionData}=await supabaseClient.auth.getSession();
+  const masterSession=sessionData?.session||null;
+  const {data,error}=await supabaseClient.auth.signUp({email,password,options:{data:{first_name:firstName,last_name:lastName,full_name:[firstName,lastName].join(" ").trim(),plan}}});
+  if(error){flash(`Anlage fehlgeschlagen: ${error.message||"Fehler"}`);if(masterSession?.access_token&&masterSession?.refresh_token)try{await supabaseClient.auth.setSession({access_token:masterSession.access_token,refresh_token:masterSession.refresh_token})}catch(e){}return;}
+  const newUserId=data?.user?.id;
+  if(!newUserId){flash("Angelegt, aber ohne User-ID (E-Mail-Bestätigung prüfen)");if(masterSession?.access_token&&masterSession?.refresh_token)try{await supabaseClient.auth.setSession({access_token:masterSession.access_token,refresh_token:masterSession.refresh_token})}catch(e){}return;}
+  const trialEnd=new Date();trialEnd.setDate(trialEnd.getDate()+30);
+  const [{error:pErr},{error:sErr}]=await Promise.all([
+    supabaseClient.from("user_profiles").upsert({id:newUserId,email,first_name:firstName||null,last_name:lastName||null,plan,trial_end:trialEnd.toISOString(),updated_at:new Date().toISOString()}),
+    supabaseClient.from("app_state").upsert({user_id:newUserId,debts:[],budget_items:[],contracts:[],budget_month:new Date().toISOString().slice(0,7),updated_at:new Date().toISOString()})
+  ]);
+  if(masterSession?.access_token&&masterSession?.refresh_token)try{await supabaseClient.auth.setSession({access_token:masterSession.access_token,refresh_token:masterSession.refresh_token})}catch(e){}
+  if(pErr||sErr){flash(`Sync fehlgeschlagen: ${pErr?.message||sErr?.message||"Fehler"}`);return;}
+  ["mcFirst","mcLast","mcEmail","mcPass"].forEach(id=>{const el=document.getElementById(id);if(el)el.value="";});
+  await loadMasterData();render();
+  flash("Kunde angelegt und synchronisiert ✓");
+}
+
+// ══════════════════ RENDER ══════════════════
+function render(){document.getElementById("root").innerHTML=rMasterPanel();}
+
+function rMasterPanel(){
+  if(!masterState.loggedIn) return rLoginView();
+  const st=masterStats();
+  const tab=masterState.tab;
+  const navItems=[
+    {id:"stats",icon:"◉",label:"Übersicht"},
+    {id:"users",icon:"👥",label:"Kunden"},
+    {id:"create",icon:"＋",label:"Neu anlegen"},
+    {id:"finance",icon:"€",label:"Finanzen"},
+    {id:"plans",icon:"⭐",label:"Abo-Pläne"},
+    {id:"system",icon:"⚙",label:"System"},
+  ];
+  const sidebar=`
+    <div style="width:200px;flex-shrink:0;background:var(--bgS);border-radius:16px;border:1px solid var(--b);padding:16px 0;display:flex;flex-direction:column;min-height:70vh">
+      <div style="padding:0 16px 16px;border-bottom:1px solid var(--b);margin-bottom:8px;display:flex;align-items:center;gap:10px">
+        <img src="https://kdbuduwztmxxykfvqbie.supabase.co/storage/v1/object/public/public-assets/Ratenova%20Logo_%20ohne%20Text.png" style="height:32px;width:auto" alt="Ratenova">
+        <div>
+          <p style="font-size:10px;font-weight:700;letter-spacing:.8px;color:#86E8C0;margin:0 0 1px">ADMIN PANEL</p>
+          <p style="font-size:13px;font-weight:800;margin:0;color:var(--t)">Master</p>
+        </div>
+      </div>
+      ${navItems.map(n=>`<button onclick="masterState.tab='${n.id}';render()" style="display:flex;align-items:center;gap:9px;width:100%;padding:10px 16px;border:none;border-right:2px solid ${tab===n.id?'var(--em)':'transparent'};background:${tab===n.id?'var(--emG2)':'transparent'};color:${tab===n.id?'var(--em)':'var(--tm)'};font-size:13px;font-weight:${tab===n.id?'700':'400'};cursor:pointer;text-align:left;transition:all 0.15s">
+        <span style="font-size:15px;width:20px;text-align:center">${n.icon}</span>${n.label}
+      </button>`).join("")}
+      <div style="flex:1"></div>
+      <div style="padding:12px 16px;border-top:1px solid var(--b);margin-top:8px;display:flex;flex-direction:column;gap:6px">
+        <button class="btn btn-outline btn-sm btn-full" onclick="loadMasterData().then(()=>render())">🔄 Aktualisieren</button>
+        <button class="btn btn-danger btn-sm btn-full" onclick="masterLogout()">Logout</button>
+      </div>
+    </div>`;
+
+  const contentMap={
+    stats:rStatsView(st),
+    users:rUsersView(st),
+    create:rCreateView(),
+    finance:rFinanceView(st),
+    plans:rPlansView(st),
+    system:rSystemView()
+  };
+
+  return `
+    <div style="display:flex;gap:16px;align-items:flex-start">
+      ${sidebar}
+      <div style="flex:1;min-width:0">
+        ${masterState.error?`<div class="master-card" style="border-color:rgba(249,112,102,0.35);margin-bottom:12px;padding:12px 16px"><p style="font-size:13px;color:var(--co);margin:0">⚠️ ${masterState.error}</p></div>`:""}
+        ${contentMap[tab]||contentMap.stats}
+      </div>
+    </div>`;
+}
+
+function rLoginView(){
+  return `<div class="master-login">
+    <div class="master-card" style="background:linear-gradient(160deg,var(--bgS),var(--bgC))">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+        <img src="https://kdbuduwztmxxykfvqbie.supabase.co/storage/v1/object/public/public-assets/Ratenova%20Logo_%20ohne%20Text.png" style="height:40px;width:auto" alt="">
+        <div>
+          <p style="font-size:11px;font-weight:700;letter-spacing:.8px;color:#86E8C0;margin:0 0 2px">RATENOVA ADMIN</p>
+          <h1 style="font-size:22px;font-weight:800;margin:0">Master Login</h1>
+        </div>
+      </div>
+      <p style="font-size:13px;color:var(--tm);margin:0 0 20px">Separater Zugang für interne Verwaltung.</p>
+      <div class="field"><label>Benutzername</label><div class="input-wrap"><input id="mUser" placeholder="master" onkeydown="if(event.key==='Enter')masterLogin()"></div></div>
+      <div class="field"><label>Passwort</label><div class="input-wrap"><input id="mPass" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')masterLogin()"></div></div>
+      ${masterState.error?`<p style="font-size:12px;color:var(--co);margin:0 0 12px;padding:10px;background:var(--coG);border-radius:8px;border:1px solid rgba(249,112,102,0.3)">${masterState.error}</p>`:""}
+      <button class="btn btn-primary btn-full" onclick="masterLogin()">Einloggen</button>
+    </div>
+  </div>`;
+}
+
+function rStatsView(st){
+  return `<div>
+    <h2 style="font-size:20px;font-weight:800;margin:0 0 16px">Systemübersicht</h2>
+    <div class="master-kpis" style="margin-bottom:12px">
+      <div class="master-card"><p style="font-size:11px;color:var(--tm);margin:0">Kunden gesamt</p><p style="font-size:30px;font-weight:800;margin:6px 0 0">${st.total}</p></div>
+      <div class="master-card"><p style="font-size:11px;color:var(--tm);margin:0">Aktive Datensätze</p><p style="font-size:30px;font-weight:800;margin:6px 0 0">${st.withState}</p></div>
+      <div class="master-card"><p style="font-size:11px;color:var(--tm);margin:0">Einnahmen gesamt</p><p style="font-size:30px;font-weight:800;margin:6px 0 0;color:var(--em)">${fmt(st.totalIncome)}</p></div>
+      <div class="master-card"><p style="font-size:11px;color:var(--tm);margin:0">Ausgaben gesamt</p><p style="font-size:30px;font-weight:800;margin:6px 0 0;color:var(--co)">${fmt(st.totalExpense)}</p></div>
+    </div>
+    <div class="master-kpis">
+      <div class="master-card"><p style="font-size:11px;color:var(--tm);margin:0">Verkaufs-Einnahmen</p><p style="font-size:30px;font-weight:800;margin:6px 0 0;color:#7DE6BE">${fmt(st.totalSales)}</p></div>
+      <div class="master-card"><p style="font-size:11px;color:var(--tm);margin:0">Offene Verbindlichkeiten</p><p style="font-size:30px;font-weight:800;margin:6px 0 0;color:var(--am)">${fmt(st.debtExposure)}</p></div>
+      <div class="master-card"><p style="font-size:11px;color:var(--tm);margin:0">Monatl. Verpflichtung</p><p style="font-size:30px;font-weight:800;margin:6px 0 0">${fmt(st.monthlyObligation)}</p></div>
+      <div class="master-card"><p style="font-size:11px;color:var(--tm);margin:0">Verträge / Schulden</p><p style="font-size:30px;font-weight:800;margin:6px 0 0">${st.totalContracts} / ${st.totalDebts}</p></div>
+    </div>
+    <div class="master-card" style="margin-top:12px">
+      <h3 style="font-size:15px;font-weight:700;margin:0 0 12px">Alle Kunden auf einen Blick</h3>
+      <div style="overflow:auto"><table style="width:100%;border-collapse:collapse;min-width:700px">
+        <thead><tr>
+          ${["Name / E-Mail","Plan","Einnahmen","Ausgaben","Offen","Status"].map(h=>`<th style="text-align:${["Einnahmen","Ausgaben","Offen"].includes(h)?'right':'left'};padding:8px 10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">${h}</th>`).join("")}
+        </tr></thead>
+        <tbody>${st.metrics.map(m=>{const bl=!!(m.user.is_blocked);return`<tr style="opacity:${bl?'0.6':'1'}">
+          <td style="padding:8px 10px;border-bottom:1px solid var(--b)">
+            <p style="font-size:13px;font-weight:700;margin:0">${mEsc(([m.user.first_name||"",m.user.last_name||""].join(" ").trim()||m.user.email||"Nutzer"))}</p>
+            <p style="font-size:11px;color:var(--tm);margin:0">${mEsc(m.user.email||"-")}</p>
+          </td>
+          <td style="padding:8px 10px;border-bottom:1px solid var(--b)"><span style="font-size:12px;font-weight:700;color:var(--sk)">${mEsc(m.user.plan||"Basic")}${m.user.trial_end&&new Date(m.user.trial_end)>new Date()?'<span style="color:var(--am);font-size:9px;margin-left:4px">TRIAL</span>':''}</span></td>
+          <td style="padding:8px 10px;border-bottom:1px solid var(--b);text-align:right;color:var(--em);font-weight:700">${fmt(m.income)}</td>
+          <td style="padding:8px 10px;border-bottom:1px solid var(--b);text-align:right;color:var(--co);font-weight:700">${fmt(m.expense)}</td>
+          <td style="padding:8px 10px;border-bottom:1px solid var(--b);text-align:right;color:var(--am);font-weight:700">${fmt(m.debtOpen)}</td>
+          <td style="padding:8px 10px;border-bottom:1px solid var(--b);text-align:center">${bl?'<span style="font-size:11px;font-weight:700;color:var(--co);background:var(--coG);padding:3px 8px;border-radius:20px">🔒 Gesperrt</span>':'<span style="font-size:11px;font-weight:700;color:var(--em);background:var(--emG);padding:3px 8px;border-radius:20px">● Aktiv</span>'}</td>
+        </tr>`}).join("")||`<tr><td colspan="6" style="padding:20px;text-align:center;color:var(--tm)">Keine Kunden.</td></tr>`}</tbody>
+      </table></div>
+    </div>
+  </div>`;
+}
+
+function rUsersView(st){
+  const q=(masterState.query||"").trim().toLowerCase();
+  const filtered=masterState.users.filter(u=>!q||`${u.first_name||""} ${u.last_name||""} ${u.email||""} ${u.plan||""}`.toLowerCase().includes(q));
+  const selected=masterState.users.find(x=>x.id===masterState.selectedUserId)||null;
+  const selectedMetric=selected?(st.metrics.find(x=>x.user.id===selected.id)||masterUserMetrics(selected,masterStateMap())):null;
+
+  const usersList=filtered.map(u=>{
+    const isSel=masterState.selectedUserId===u.id;
+    const isBlocked=!!(u.is_blocked);
+    const name=([u.first_name||"",u.last_name||""].join(" ").trim()||u.email||"Nutzer");
+    return`<div onclick="masterState.selectedUserId='${u.id}';render()" style="cursor:pointer;padding:10px 12px;border-radius:10px;border:1px solid ${isSel?'var(--ba)':'var(--b)'};background:${isSel?'var(--emG2)':'transparent'};margin-bottom:6px;display:flex;align-items:center;gap:10px;transition:all 0.15s">
+      <div style="width:34px;height:34px;border-radius:10px;background:${isBlocked?'var(--coG)':'linear-gradient(135deg,var(--emD),var(--em))'};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:${isBlocked?'var(--co)':'#fff'};flex-shrink:0">${isBlocked?'🔒':name.slice(0,1).toUpperCase()}</div>
+      <div style="flex:1;min-width:0">
+        <p style="font-size:13px;font-weight:700;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${mEsc(name)}${isBlocked?' <span style="font-size:10px;color:var(--co)">[GESPERRT]</span>':''}</p>
+        <p style="font-size:11px;color:var(--tm);margin:2px 0 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${mEsc(u.email||"-")} · <span style="color:var(--sk)">${mEsc(u.plan||"Basic")}</span></p>
+      </div>
+      ${isSel?'<span style="color:var(--em);font-size:16px">›</span>':''}
+    </div>`;
+  }).join("")||`<p style="font-size:13px;color:var(--tm);padding:16px 0">Keine Nutzer gefunden.</p>`;
+
+  let detail=`<div class="master-card" style="text-align:center;padding:32px"><p style="font-size:24px;margin:0 0 8px">👈</p><p style="font-size:13px;color:var(--tm)">Kunden links auswählen</p></div>`;
+  if(selected){
+    const isBlocked=!!(selected.is_blocked);
+    const isDelConfirm=masterState.deleteConfirm===selected.id;
+    detail=`<div class="master-card">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;padding-bottom:16px;border-bottom:1px solid var(--b)">
+        <div style="width:46px;height:46px;border-radius:14px;background:${isBlocked?'var(--coG)':'linear-gradient(135deg,var(--emD),var(--em))'};display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:${isBlocked?'var(--co)':'#fff'};flex-shrink:0">${isBlocked?'🔒':mEsc(([selected.first_name||"",selected.last_name||""].join(" ").trim()||selected.email||"?").slice(0,1).toUpperCase())}</div>
+        <div style="flex:1">
+          <h3 style="font-size:16px;font-weight:800;margin:0">${mEsc(([selected.first_name||"",selected.last_name||""].join(" ").trim()||selected.email||"Nutzer"))}</h3>
+          <p style="font-size:12px;color:var(--tm);margin:2px 0 0">${mEsc(selected.email||"-")}</p>
+        </div>
+        ${isBlocked?'<span class="badge" style="color:var(--co);background:var(--coG)">🔒 GESPERRT</span>':'<span class="badge" style="color:var(--em);background:var(--emG)">● Aktiv</span>'}
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:18px">
+        <div style="background:var(--bgE);border-radius:10px;padding:10px;border:1px solid var(--b)"><p style="font-size:11px;color:var(--tm);margin:0">Einnahmen</p><p style="font-size:18px;font-weight:800;margin:4px 0 0;color:var(--em)">${fmt(selectedMetric?.income||0)}</p></div>
+        <div style="background:var(--bgE);border-radius:10px;padding:10px;border:1px solid var(--b)"><p style="font-size:11px;color:var(--tm);margin:0">Ausgaben</p><p style="font-size:18px;font-weight:800;margin:4px 0 0;color:var(--co)">${fmt(selectedMetric?.expense||0)}</p></div>
+        <div style="background:var(--bgE);border-radius:10px;padding:10px;border:1px solid var(--b)"><p style="font-size:11px;color:var(--tm);margin:0">Offen</p><p style="font-size:18px;font-weight:800;margin:4px 0 0;color:var(--am)">${fmt(selectedMetric?.debtOpen||0)}</p></div>
+      </div>
+      <p style="font-size:11px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:0.6px;margin:0 0 10px">Persönliche Daten</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+        <div class="field" style="margin-bottom:0"><label>Vorname</label><div class="input-wrap"><input id="muFirst-${selected.id}" value="${mEsc(selected.first_name||"")}"></div></div>
+        <div class="field" style="margin-bottom:0"><label>Nachname</label><div class="input-wrap"><input id="muLast-${selected.id}" value="${mEsc(selected.last_name||"")}"></div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 100px 1fr;gap:10px;margin-bottom:12px">
+        <div class="field" style="margin-bottom:0"><label>Straße</label><div class="input-wrap"><input id="muStreet-${selected.id}" value="${mEsc(selected.address_street||"")}"></div></div>
+        <div class="field" style="margin-bottom:0"><label>PLZ</label><div class="input-wrap"><input id="muZip-${selected.id}" value="${mEsc(selected.address_zip||"")}"></div></div>
+        <div class="field" style="margin-bottom:0"><label>Ort</label><div class="input-wrap"><input id="muCity-${selected.id}" value="${mEsc(selected.address_city||"")}"></div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+        <div class="field" style="margin-bottom:0"><label>Telefon</label><div class="input-wrap"><input id="muPhone-${selected.id}" value="${mEsc(selected.phone||"")}"></div></div>
+        <div class="field" style="margin-bottom:0"><label>Trial bis</label><div class="input-wrap"><input id="muTrial-${selected.id}" type="date" value="${selected.trial_end?new Date(selected.trial_end).toISOString().split('T')[0]:''}"></div></div>
+      </div>
+      <p style="font-size:11px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:0.6px;margin:12px 0 10px;padding-top:12px;border-top:1px solid var(--b)">Abo-Plan</p>
+      <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">
+        ${["Basic","Pro"].map(p=>`<button class="chip ${(selected.plan||"Basic")===p?"active":""}" onclick="document.getElementById('muPlan-${selected.id}').value='${p}';masterSaveUser('${selected.id}')">${p}</button>`).join("")}
+        <input type="hidden" id="muPlan-${selected.id}" value="${mEsc(selected.plan||"Basic")}">
+      </div>
+      <p style="font-size:11px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:0.6px;margin:0 0 10px;padding-top:12px;border-top:1px solid var(--b)">Admin-Notiz</p>
+      <div class="field" style="margin-bottom:14px"><div class="input-wrap"><input id="muNote-${selected.id}" value="${mEsc(selected.admin_note||"")}" placeholder="Interne Notizen..."></div></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+        <button class="btn btn-primary btn-sm" onclick="masterSaveUser('${selected.id}')">💾 Speichern</button>
+        <button class="btn btn-outline btn-sm" onclick="masterResetUserState('${selected.id}')">🗑 Daten zurücksetzen</button>
+      </div>
+      <div style="border-top:1px solid var(--b);padding-top:14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <button class="btn btn-sm" style="${isBlocked?'background:var(--emG);color:var(--em);border:1px solid var(--ba)':'background:var(--amG);color:var(--am);border:1px solid rgba(251,191,36,0.3)'}" onclick="masterBlockUser('${selected.id}')">${isBlocked?'🔓 Entsperren':'🔒 Sperren'}</button>
+        <button class="btn btn-danger btn-sm" onclick="masterDeleteUser('${selected.id}')" style="${isDelConfirm?'background:var(--co);color:#fff':''}">⚠️ ${isDelConfirm?'BESTÄTIGEN – Endgültig löschen':'Nutzer löschen'}</button>
+        ${isDelConfirm?`<button class="btn btn-outline btn-sm" onclick="masterState.deleteConfirm=null;render()">Abbrechen</button>`:''}
+      </div>
+    </div>`;
+  }
+
+  return `<div style="display:grid;grid-template-columns:300px 1fr;gap:14px;align-items:start">
+    <div>
+      <div class="master-card" style="margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <h3 style="font-size:15px;font-weight:700;margin:0">Kunden (${masterState.users.length})</h3>
+          <button class="btn btn-ghost btn-sm" onclick="masterState.tab='create';render()">＋ Neu</button>
+        </div>
+        <div style="background:var(--bgE);border:1px solid var(--b);border-radius:10px;padding:0 14px;margin-bottom:12px;display:flex;align-items:center">
+          <input placeholder="Suchen..." value="${mEsc(masterState.query)}" oninput="masterState.query=this.value;render()" style="flex:1;border:none;outline:none;padding:10px 0;font-size:14px;color:var(--t);background:transparent">
+        </div>
+        <div style="max-height:60vh;overflow-y:auto;padding-right:2px">${usersList}</div>
+      </div>
+    </div>
+    <div>${detail}</div>
+  </div>`;
+}
+
+function rCreateView(){
+  return `<div class="master-card" style="max-width:560px">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px">
+      <button onclick="masterState.tab='users';render()" style="background:none;border:none;color:var(--tm);cursor:pointer;font-size:22px;line-height:1">←</button>
+      <h3 style="font-size:18px;font-weight:800;margin:0">Neuen Kunden anlegen</h3>
+    </div>
+    <p style="font-size:12px;color:var(--tm);margin:0 0 16px;line-height:1.6">Legt einen Auth-Nutzer an und synchronisiert Profil + App-State direkt in Supabase.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="field"><label>Vorname</label><div class="input-wrap"><input id="mcFirst" placeholder="Max"></div></div>
+      <div class="field"><label>Nachname</label><div class="input-wrap"><input id="mcLast" placeholder="Mustermann"></div></div>
+    </div>
+    <div class="field"><label>E-Mail *</label><div class="input-wrap"><input id="mcEmail" type="email" placeholder="kunde@domain.de"></div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="field"><label>Passwort * (min. 6 Zeichen)</label><div class="input-wrap"><input id="mcPass" type="password" placeholder="••••••••"></div></div>
+      <div class="field"><label>Startplan</label>
+        <div class="input-wrap" style="padding:0 14px">
+          <select id="mcPlan" style="appearance:none;-webkit-appearance:none;border:none;background:transparent;color:var(--t);padding:13px 28px 13px 0;font-size:15px;width:100%;outline:none;cursor:pointer">
+            <option value="Basic">Basic (kostenlos)</option>
+            <option value="Pro">Pro (4,99 €/Monat)</option>
+          </select>
+          <span style="color:var(--tm);pointer-events:none;font-size:12px">▾</span>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:6px">
+      <button class="btn btn-outline" style="flex:1" onclick="masterState.tab='users';render()">Abbrechen</button>
+      <button class="btn btn-primary" style="flex:1" onclick="masterCreateCustomer()">✓ Kundenkonto anlegen</button>
+    </div>
+  </div>`;
+}
+
+function rFinanceView(st){
+  const q=(masterState.query||"").trim().toLowerCase();
+  const filtered=st.metrics.filter(m=>!q||`${m.user.first_name||""} ${m.user.last_name||""} ${m.user.email||""} ${m.user.plan||""}`.toLowerCase().includes(q));
+  return`<div>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px">
+      <h2 style="font-size:20px;font-weight:800;margin:0">Finanzübersicht</h2>
+      <div style="background:var(--bgE);border:1px solid var(--b);border-radius:10px;padding:0 14px;display:flex;align-items:center;max-width:280px">
+        <input placeholder="Suche..." value="${mEsc(masterState.query)}" oninput="masterState.query=this.value;render()" style="flex:1;border:none;outline:none;padding:10px 0;font-size:14px;color:var(--t);background:transparent">
+      </div>
+    </div>
+    <div class="master-card"><div style="overflow:auto"><table style="width:100%;border-collapse:collapse;min-width:900px">
+      <thead><tr>${["Kunde","Einnahmen","Verkäufe","Ausgaben","Saldo","Offen","Monatl. Last","Verträge/Jahr"].map((h,i)=>`<th style="text-align:${i>0?'right':'left'};padding:10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">${h}</th>`).join("")}</tr></thead>
+      <tbody>${filtered.map(m=>`<tr>
+        <td style="padding:10px;border-bottom:1px solid var(--b)">
+          <div style="font-size:13px;font-weight:700">${mEsc(([m.user.first_name||"",m.user.last_name||""].join(" ").trim()||m.user.email||"Nutzer"))}</div>
+          <div style="font-size:11px;color:var(--tm)">${mEsc(m.user.email||"-")} · <span style="color:var(--sk)">${mEsc(m.user.plan||"Basic")}</span></div>
+        </td>
+        <td style="padding:10px;border-bottom:1px solid var(--b);text-align:right;color:var(--em);font-weight:700">${fmt(m.income)}</td>
+        <td style="padding:10px;border-bottom:1px solid var(--b);text-align:right;color:#7DE6BE;font-weight:700">${fmt(m.sales)}</td>
+        <td style="padding:10px;border-bottom:1px solid var(--b);text-align:right;color:var(--co);font-weight:700">${fmt(m.expense)}</td>
+        <td style="padding:10px;border-bottom:1px solid var(--b);text-align:right;font-weight:700;color:${m.balance>=0?'var(--em)':'var(--co)'}">${fmt(m.balance)}</td>
+        <td style="padding:10px;border-bottom:1px solid var(--b);text-align:right">${fmt(m.debtOpen)}</td>
+        <td style="padding:10px;border-bottom:1px solid var(--b);text-align:right">${fmt(m.debtMonthly+m.contractMonthly)}</td>
+        <td style="padding:10px;border-bottom:1px solid var(--b);text-align:right">${fmt(m.contractYearly)}</td>
+      </tr>`).join("")||`<tr><td colspan="8" style="padding:18px;text-align:center;color:var(--tm)">Keine Kunden.</td></tr>`}</tbody>
+    </table></div></div>
+  </div>`;
+}
+
+function rPlansView(st){
+  const plansMap={};masterState.users.forEach(u=>{const p=u.plan||"Basic";plansMap[p]=(plansMap[p]||0)+1;});
+  return`<div>
+    <h2 style="font-size:20px;font-weight:800;margin:0 0 16px">Abo-Plan Verwaltung</h2>
+    <div style="display:grid;grid-template-columns:200px 1fr;gap:14px;align-items:start">
+      <div class="master-card">
+        <h3 style="font-size:14px;font-weight:700;margin:0 0 12px">Verteilung</h3>
+        ${Object.entries(plansMap).map(([k,v])=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--b)"><span style="font-size:13px;color:var(--sk);font-weight:600">${mEsc(k)}</span><strong>${v}</strong></div>`).join("")||`<p style="font-size:13px;color:var(--tm)">Keine Daten.</p>`}
+      </div>
+      <div class="master-card">
+        <h3 style="font-size:14px;font-weight:700;margin:0 0 12px">Plan pro Nutzer ändern</h3>
+        <div style="overflow:auto"><table style="width:100%;border-collapse:collapse;min-width:500px">
+          <thead><tr>${["Name","E-Mail","Plan","Aktion"].map(h=>`<th style="text-align:left;padding:8px 10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">${h}</th>`).join("")}</tr></thead>
+          <tbody>${masterState.users.map(u=>`<tr>
+            <td style="padding:8px 10px;border-bottom:1px solid var(--b);font-size:13px;font-weight:600">${mEsc(([u.first_name||"",u.last_name||""].join(" ").trim()||"Nutzer"))}</td>
+            <td style="padding:8px 10px;border-bottom:1px solid var(--b);font-size:12px;color:var(--tm)">${mEsc(u.email||"-")}</td>
+            <td style="padding:8px 10px;border-bottom:1px solid var(--b)">
+              <div style="display:flex;gap:6px">${["Basic","Pro"].map(p=>`<button class="chip ${(u.plan||"Basic")===p?"active":""}" style="font-size:11px;padding:4px 10px" onclick="document.getElementById('uPlan-${u.id}').value='${p}'">${p}</button>`).join("")}</div>
+              <input type="hidden" id="uPlan-${u.id}" value="${mEsc(u.plan||"Basic")}">
+            </td>
+            <td style="padding:8px 10px;border-bottom:1px solid var(--b);text-align:right"><button class="btn btn-primary btn-sm" onclick="masterState.users.find(x=>x.id==='${u.id}').plan=document.getElementById('uPlan-${u.id}').value;masterSaveUser('${u.id}')">Speichern</button></td>
+          </tr>`).join("")}</tbody>
+        </table></div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function rSystemView(){
+  return`<div>
+    <h2 style="font-size:20px;font-weight:800;margin:0 0 16px">System</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="master-card">
+        <h3 style="font-size:14px;font-weight:700;margin:0 0 12px">Systemstatus</h3>
+        ${[
+          ["Supabase Client",supabaseClient?'✓ Verbunden':'✕ Fehler',supabaseClient],
+          ["Master Session",masterState.loggedIn?'✓ Aktiv':'✕ Inaktiv',masterState.loggedIn],
+          ["Datensätze geladen",masterState.states.length,true],
+          ["Nutzer gesamt",masterState.users.length,true],
+          ["Letztes Update",new Date().toLocaleString("de-DE"),true]
+        ].map(([l,v,ok])=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:10px;background:var(--bgE);border:1px solid var(--b);margin-bottom:8px">
+          <span style="font-size:13px;color:var(--tm)">${l}</span>
+          <span style="font-size:13px;font-weight:700;color:${typeof ok==='boolean'?ok?'var(--em)':'var(--co)':'var(--t)'}">${v}</span>
+        </div>`).join("")}
+      </div>
+      <div class="master-card">
+        <h3 style="font-size:14px;font-weight:700;margin:0 0 12px">Admin Aktionen</h3>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <button class="btn btn-outline btn-sm btn-full" onclick="loadMasterData().then(()=>render())">🔄 Daten neu laden</button>
+          <button class="btn btn-outline btn-sm btn-full" onclick="masterState.tab='finance';render()">💰 Zu Finanzen</button>
+          <button class="btn btn-outline btn-sm btn-full" onclick="masterState.tab='users';render()">👥 Zu Kunden</button>
+          <button class="btn btn-outline btn-sm btn-full" onclick="masterState.tab='create';render()">＋ Neuen Kunden anlegen</button>
+          <button class="btn btn-danger btn-sm btn-full" style="margin-top:8px" onclick="masterLogout()">Logout</button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+</script>
+</body>
+</html>
