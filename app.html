@@ -1458,6 +1458,7 @@ function rAgreePreview(){
       <button class="btn btn-outline" onclick="agreeForm.step=2;renderPage()">✏️ Bearbeiten</button>
       <button class="btn btn-ghost" onclick="copyAgreement()">📋 Text kopieren</button>
       <button class="btn btn-primary" onclick="printAgreement()">🖨️ Drucken / PDF</button>
+      <button class="btn btn-primary" onclick="openAgreementPdfPreview()" style="background:linear-gradient(135deg,#7C3AED,#6D28D9)">📄 PDF Vorschau</button>
       <a class="btn btn-primary" href="${mailLink}" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#3B82F6,#2563EB)">✉️ Per E-Mail senden</a>
       <button class="btn btn-outline" onclick="agreeForm={debt:null,template:null,step:1,data:{name:'',street:'',zip:'',city:'',creditor:'',creditorStreet:'',creditorZip:'',creditorCity:'',amount:'',rate:'',startDate:'',reason:'',offerAmount:'',pauseUntil:''}};renderPage()">🔄 Neue Vereinbarung</button>
     </div>`;
@@ -1811,7 +1812,7 @@ function rCancelPreview(){
   const doc=getCancelDocContent(),d=cancelForm.data;
   const letter=`${d.senderName}\n${d.senderStreet}\n${d.senderZip} ${d.senderCity}\n${d.senderEmail?`\n${d.senderEmail}\n`:""}\n${doc.today}\n\n${c.provider||"Vertragspartner"}\n\nBetreff: ${doc.subject}\n\nSehr geehrte Damen und Herren,\n\n${doc.body}\n\n${doc.closing}\n\nMit freundlichen Grüßen\n${d.senderName}`;
   return `<button onclick="cancelForm.step=2;renderPage()" style="background:none;border:none;color:var(--tm);font-size:13px;display:flex;align-items:center;gap:6px;margin-bottom:24px;padding:0">← Zurück zur Bearbeitung</button>
-  <div class="card" style="padding:20px"><h3 style="font-size:18px;font-weight:700;margin:0 0 10px">Vorschau Kündigung</h3><p style="font-size:12px;color:var(--tm);margin:0 0 12px">${doc.subject}</p><div class="input-wrap" style="padding:10px"><textarea id="caPreviewText" style="width:100%;min-height:360px;background:transparent;border:none;outline:none;color:var(--t);font-family:inherit;font-size:14px;line-height:1.5">${letter}</textarea></div><div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px"><button class="btn btn-ghost btn-sm" onclick="navigator.clipboard.writeText(document.getElementById('caPreviewText').value).then(()=>flash('Kündigungstext kopiert ✓'))">📋 Text kopieren</button><button class="btn btn-outline btn-sm" onclick="printContractLetter()">🖨️ Drucken / PDF</button><button class="btn btn-primary btn-sm" onclick="sendCancelMail()" style="background:linear-gradient(135deg,#3B82F6,#2563EB)">✉️ Per E-Mail senden</button><button class="btn btn-primary btn-sm" onclick="cancelForm={contractId:${c.id},template:null,step:1,data:{senderName:'${(d.senderName||"").replace(/'/g,"\\'")}',senderStreet:'${(d.senderStreet||"").replace(/'/g,"\\'")}',senderZip:'${(d.senderZip||"").replace(/'/g,"\\'")}',senderCity:'${(d.senderCity||"").replace(/'/g,"\\'")}',senderEmail:'${(d.senderEmail||"").replace(/'/g,"\\'")}',reason:'',effectiveDate:'',customNote:''}};renderPage()">Neue Vorlage</button></div></div>`;
+  <div class="card" style="padding:20px"><h3 style="font-size:18px;font-weight:700;margin:0 0 10px">Vorschau Kündigung</h3><p style="font-size:12px;color:var(--tm);margin:0 0 12px">${doc.subject}</p><div class="input-wrap" style="padding:10px"><textarea id="caPreviewText" style="width:100%;min-height:360px;background:transparent;border:none;outline:none;color:var(--t);font-family:inherit;font-size:14px;line-height:1.5">${letter}</textarea></div><div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px"><button class="btn btn-ghost btn-sm" onclick="navigator.clipboard.writeText(document.getElementById('caPreviewText').value).then(()=>flash('Kündigungstext kopiert ✓'))">📋 Text kopieren</button><button class="btn btn-outline btn-sm" onclick="printContractLetter()">🖨️ Drucken / PDF</button><button class="btn btn-primary btn-sm" onclick="openCancelPdfPreview()" style="background:linear-gradient(135deg,#7C3AED,#6D28D9)">📄 PDF Vorschau</button><button class="btn btn-primary btn-sm" onclick="sendCancelMail()" style="background:linear-gradient(135deg,#3B82F6,#2563EB)">✉️ Per E-Mail senden</button><button class="btn btn-primary btn-sm" onclick="cancelForm={contractId:${c.id},template:null,step:1,data:{senderName:'${(d.senderName||"").replace(/'/g,"\\'")}',senderStreet:'${(d.senderStreet||"").replace(/'/g,"\\'")}',senderZip:'${(d.senderZip||"").replace(/'/g,"\\'")}',senderCity:'${(d.senderCity||"").replace(/'/g,"\\'")}',senderEmail:'${(d.senderEmail||"").replace(/'/g,"\\'")}',reason:'',effectiveDate:'',customNote:''}};renderPage()">Neue Vorlage</button></div></div>`;
 }
 function sendCancelMail(){
   const c=selectedCancelContract();
@@ -1866,6 +1867,85 @@ function printContractLetter(){
   w.document.close();
   setTimeout(()=>w.print(),350);
 }
+// ─── PDF Vorschau: Vereinbarungsbrief ───────────────────────────────────────
+async function openAgreementPdfPreview(){
+  const doc = getDocContent();
+  const d   = agreeForm.data;
+  const payload = {
+    senderName:    d.name    || "",
+    senderStreet:  d.street  || "",
+    senderZip:     d.zip     || "",
+    senderCity:    d.city    || "",
+    senderEmail:   "",
+    recipientName:   d.creditor       || "",
+    recipientStreet: d.creditorStreet || "",
+    recipientZip:    d.creditorZip    || "",
+    recipientCity:   d.creditorCity   || "",
+    date:    doc.today,
+    subject: doc.betreff,
+    salutation: "Sehr geehrte Damen und Herren,",
+    body:    doc.body,
+    closing: doc.closing,
+    signatureName: d.name || "",
+  };
+  await generateLetterPdf(payload, doc.betreff);
+}
+
+// ─── PDF Vorschau: Kündigungsbrief ──────────────────────────────────────────
+async function openCancelPdfPreview(){
+  const doc = getCancelDocContent();
+  const d   = cancelForm.data;
+  const c   = selectedCancelContract();
+  const payload = {
+    senderName:   d.senderName   || "",
+    senderStreet: d.senderStreet || "",
+    senderZip:    d.senderZip    || "",
+    senderCity:   d.senderCity   || "",
+    senderEmail:  d.senderEmail  || "",
+    recipientName:   c?.provider || "",
+    recipientStreet: "",
+    recipientZip:    "",
+    recipientCity:   "",
+    date:    doc.today,
+    subject: doc.subject,
+    salutation: "Sehr geehrte Damen und Herren,",
+    body:    doc.body,
+    closing: doc.closing,
+    signatureName: d.senderName || "",
+  };
+  await generateLetterPdf(payload, doc.subject);
+}
+
+// ─── Gemeinsame Funktion: POST → Netlify Function → PDF in neuem Tab ────────
+async function generateLetterPdf(payload, title){
+  flash("📄 PDF wird erstellt…");
+  try {
+    const response = await fetch("/.netlify/functions/generate-letter", {
+      method:  "POST",
+      headers: { "Content-Type": "application/json" },
+      body:    JSON.stringify(payload),
+    });
+    if (!response.ok) {
+      const errText = await response.text();
+      flash("PDF-Fehler: " + (errText || response.status));
+      return;
+    }
+    const blob = await response.blob();
+    const url  = URL.createObjectURL(blob);
+    const tab  = window.open(url, "_blank");
+    if (!tab) {
+      flash("Popup blockiert – bitte Popups für diese Seite erlauben");
+      return;
+    }
+    // ObjectURL nach 5 Minuten freigeben
+    setTimeout(() => URL.revokeObjectURL(url), 5 * 60 * 1000);
+    flash("✓ PDF geöffnet");
+  } catch (err) {
+    console.error("PDF generation failed:", err);
+    flash("PDF-Fehler: " + (err.message || "Unbekannter Fehler"));
+  }
+}
+
 function deleteContract(id){if(!confirm("Vertrag wirklich löschen?"))return;contracts=contracts.filter(c=>c.id!==id);scheduleCloudSave();renderPage();flash("Vertrag gelöscht")}
 function attachContractDocs(id,e){const c=contracts.find(x=>x.id===id);if(!c)return;const files=[...(e?.target?.files||[])];if(!files.length)return;c.documents=[...(c.documents||[]),...files.map(f=>({name:f.name,size:f.size,uploadedAt:new Date().toISOString()}))];scheduleCloudSave();renderPage();flash("Dokument(e) hinzugefügt")}
 function loadBudget(){try{const raw=localStorage.getItem("budgetItems");if(raw){const arr=JSON.parse(raw);if(Array.isArray(arr))budgetItems=arr}else{budgetItems=[];saveBudget()}}catch(e){}}
