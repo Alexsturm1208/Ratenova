@@ -1209,9 +1209,11 @@ function rSettings(){
   const trial=isTrialActive(),daysLeft=trialDaysLeft(),pro=isProPlan();
   const manageSubBtn=pro&&!trial?`<div style="margin-bottom:14px"><button class="btn btn-outline btn-sm" onclick="if(window.Paddle&&paddleReady){Paddle.Retain&&Paddle.Retain.initCancellationFlow?Paddle.Retain.initCancellationFlow():window.open('https://customer.paddle.com','_blank')}else{window.open('https://customer.paddle.com','_blank')}">⚙ Abo verwalten / kündigen</button></div>`:"";
   const planBanner=trial?`<div style="background:var(--amG);border:1px solid rgba(251,191,36,0.3);border-radius:14px;padding:14px 18px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:12px"><div style="display:flex;align-items:center;gap:10px"><span style="font-size:20px">⏰</span><div><p style="font-size:13px;font-weight:700;color:var(--am);margin:0">Pro-Testphase – noch ${daysLeft} Tage</p><p style="font-size:12px;color:var(--tm);margin:0">Danach wechselst du automatisch auf Basic.</p></div></div><button class="btn btn-sm" style="background:var(--am);color:#000;font-weight:700;white-space:nowrap" onclick="goTo('pricing')">Upgraden</button></div>`:!pro?`<div style="background:var(--bgE);border:1px solid var(--b);border-radius:14px;padding:14px 18px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:12px"><div style="display:flex;align-items:center;gap:10px"><span style="font-size:20px">🔓</span><div><p style="font-size:13px;font-weight:700;margin:0">Du nutzt den Basic-Plan</p><p style="font-size:12px;color:var(--tm);margin:0">Upgrade für unbegrenzte Features ab 4,99 €/Monat.</p></div></div><button class="btn btn-ghost btn-sm" onclick="openPaddleCheckout()">⭐ Upgrade auf Pro</button></div>`:"";
+  const proSub=pro&&!trial;
   return `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:12px"><h1 style="font-size:24px;font-weight:800;margin:0">Einstellungen</h1><span class="badge" style="background:var(--emG);color:var(--em)"><span class="badge-dot" style="background:var(--em)"></span>Konto</span></div>${planBanner}
+
   <div class="card" style="margin-bottom:14px;padding:14px 16px;background:var(--bgE)"><p style="font-size:12px;font-weight:700;color:var(--ts);margin:0 0 8px;text-transform:uppercase;letter-spacing:0.8px">Benutzerdaten</p><p style="font-size:13px;color:var(--tm);margin:0;line-height:1.6">Hier verwaltest du deine persönlichen Einstellungen wie Adresse und Kontaktdaten.</p></div>
-  <div class="card" style="padding:18px">
+  <div class="card" style="padding:18px;margin-bottom:14px">
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
       <div class="field"><label>Vorname</label><div class="input-wrap"><input id="setFirstName" value="${(user.firstName||"").replace(/"/g,'&quot;')}" placeholder="Max"></div></div>
       <div class="field"><label>Nachname</label><div class="input-wrap"><input id="setLastName" value="${(user.lastName||"").replace(/"/g,'&quot;')}" placeholder="Mustermann"></div></div>
@@ -1225,7 +1227,43 @@ function rSettings(){
     <div class="field"><label>Telefon</label><div class="input-wrap"><input id="setPhone" value="${(user.phone||"").replace(/"/g,'&quot;')}" placeholder="+49 ..."></div></div>
     <button class="btn btn-primary" onclick="saveSettings()">✓ Einstellungen speichern</button>
   </div>
-  </div>`;
+
+  ${proSub?`
+  <div class="card" style="margin-bottom:14px;padding:0;overflow:hidden">
+    <div style="padding:14px 18px;background:var(--bgE);border-bottom:1px solid var(--b)">
+      <p style="font-size:12px;font-weight:700;color:var(--ts);margin:0;text-transform:uppercase;letter-spacing:0.8px">⭐ Aboverwaltung</p>
+    </div>
+    <div style="padding:18px">
+      <div style="display:flex;align-items:center;gap:14px;padding:14px;border-radius:12px;background:var(--emG2);border:1px solid var(--ba);margin-bottom:16px">
+        <div style="width:40px;height:40px;border-radius:12px;background:var(--emG);border:1px solid var(--ba);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">⭐</div>
+        <div style="flex:1">
+          <p style="font-size:14px;font-weight:700;color:var(--em);margin:0">Ratenova Pro – Aktiv</p>
+          <p style="font-size:12px;color:var(--tm);margin:2px 0 0">Unbegrenzte Verbindlichkeiten · alle Features · PDF-Export</p>
+        </div>
+      </div>
+      <p style="font-size:13px;color:var(--tm);margin:0 0 14px;line-height:1.6">Dein Abonnement läuft über Paddle. Du kannst es jederzeit kündigen – du behältst den Zugang bis zum Ende des aktuellen Abrechnungszeitraums.</p>
+      <button class="btn btn-outline btn-sm" onclick="openCancelSubModal()">Abo kündigen</button>
+    </div>
+  </div>`:""}
+
+  <div class="card" style="margin-bottom:14px;padding:0;overflow:hidden;border-color:rgba(239,68,68,0.25)">
+    <div style="padding:14px 18px;background:rgba(239,68,68,0.06);border-bottom:1px solid rgba(239,68,68,0.2)">
+      <p style="font-size:12px;font-weight:700;color:#ef4444;margin:0;text-transform:uppercase;letter-spacing:0.8px">⚠ Gefahrenzone</p>
+    </div>
+    <div style="padding:18px">
+      <div style="margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--b)">
+        <p style="font-size:14px;font-weight:700;margin:0 0 4px">Abmelden</p>
+        <p style="font-size:13px;color:var(--tm);margin:0 0 12px">Du wirst auf diesem Gerät ausgeloggt. Deine Daten bleiben gespeichert.</p>
+        <button class="btn btn-outline btn-sm" onclick="doLogout()">Abmelden</button>
+      </div>
+      <div>
+        <p style="font-size:14px;font-weight:700;margin:0 0 4px;color:#ef4444">Account dauerhaft löschen</p>
+        <p style="font-size:13px;color:var(--tm);margin:0 0 12px;line-height:1.6">Löscht deinen Account und alle damit verbundenen Daten unwiderruflich. Diese Aktion kann nicht rückgängig gemacht werden.</p>
+        <button class="btn btn-sm" style="background:rgba(239,68,68,0.12);color:#ef4444;border:1px solid rgba(239,68,68,0.3)" onclick="openDeleteAccountModal()">🗑 Account löschen</button>
+      </div>
+    </div>
+  </div>
+  `;
 }
 
 function saveSettings(){
@@ -1252,6 +1290,81 @@ function saveSettings(){
   renderPage();
   flash("Einstellungen gespeichert ✓");
 }
+
+function openCancelSubModal(){
+  document.getElementById("modalContainer").innerHTML=`
+  <div class="overlay" onclick="closeModal()">
+    <div class="modal" onclick="event.stopPropagation()" style="max-width:460px">
+      <div class="modal-head">
+        <h3>Abo kündigen</h3>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div style="padding:4px 0 8px">
+        <div style="padding:14px;border-radius:12px;background:var(--amG);border:1px solid rgba(251,191,36,0.3);margin-bottom:16px;display:flex;gap:10px;align-items:flex-start">
+          <span style="font-size:18px">⏰</span>
+          <div>
+            <p style="font-size:13px;font-weight:700;color:var(--am);margin:0 0 2px">Zugang bleibt aktiv</p>
+            <p style="font-size:12px;color:var(--tm);margin:0;line-height:1.5">Nach der Kündigung hast du bis zum Ende deines aktuellen Abrechnungszeitraums noch vollen Pro-Zugang.</p>
+          </div>
+        </div>
+        <p style="font-size:13px;color:var(--tm);margin:0 0 20px;line-height:1.6">Dein Abo wird über Paddle verwaltet. Klicke unten um den Kündigungsprozess zu starten:</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btn-outline" onclick="closeModal()">Abbrechen</button>
+          <button class="btn btn-sm" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#000;font-weight:700;border:none;padding:10px 18px;border-radius:10px;cursor:pointer" onclick="closeModal();if(window.Paddle&&paddleReady&&Paddle.Retain&&Paddle.Retain.initCancellationFlow){Paddle.Retain.initCancellationFlow()}else{window.open('https://customer.paddle.com','_blank')}">Abo jetzt kündigen →</button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function openDeleteAccountModal(){
+  document.getElementById("modalContainer").innerHTML=`
+  <div class="overlay" onclick="closeModal()">
+    <div class="modal" onclick="event.stopPropagation()" style="max-width:460px">
+      <div class="modal-head" style="border-bottom-color:rgba(239,68,68,0.25)">
+        <h3 style="color:#ef4444">Account löschen</h3>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div style="padding:4px 0 8px">
+        <div style="padding:14px;border-radius:12px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);margin-bottom:16px">
+          <p style="font-size:13px;font-weight:700;color:#ef4444;margin:0 0 6px">⚠ Diese Aktion ist unwiderruflich</p>
+          <p style="font-size:12px;color:var(--tm);margin:0;line-height:1.7">Folgendes wird dauerhaft gelöscht:<br>· Alle Verbindlichkeiten und Zahlungshistorie<br>· Alle Verträge und Budgetdaten<br>· Dein Profil und alle Einstellungen<br>· Dein gesamter Account bei Ratenova</p>
+        </div>
+        <p style="font-size:13px;color:var(--tm);margin:0 0 14px;line-height:1.6">Zur Bestätigung bitte deine E-Mail-Adresse eingeben:</p>
+        <div class="field" style="margin-bottom:16px">
+          <div class="input-wrap" style="border-color:rgba(239,68,68,0.4)">
+            <input id="deleteConfirmEmail" placeholder="${user.email||'deine@email.de'}" style="flex:1;border:none;outline:none;background:transparent;color:var(--t);font-size:14px">
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btn-outline" onclick="closeModal()">Abbrechen</button>
+          <button class="btn btn-sm" style="background:#ef4444;color:#fff;font-weight:700;border:none;padding:10px 18px;border-radius:10px;cursor:pointer" onclick="confirmDeleteAccount()">Account unwiderruflich löschen</button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+async function confirmDeleteAccount(){
+  const input=(document.getElementById("deleteConfirmEmail")?.value||"").trim().toLowerCase();
+  const expected=(user.email||"").trim().toLowerCase();
+  if(!input||input!==expected){flash("E-Mail stimmt nicht überein ✗");return;}
+  closeModal();
+  flash("Account wird gelöscht…");
+  try{
+    if(window.supabase&&currentUserId){
+      await supabase.from("profiles").delete().eq("id",currentUserId);
+      await supabase.from("app_state").delete().eq("user_id",currentUserId);
+      try{await supabase.rpc("delete_user")}catch(e){}
+      await supabase.auth.signOut();
+    }
+  }catch(e){console.error("Delete error:",e);}
+  try{localStorage.clear();sessionStorage.clear();}catch(e){}
+  debts=[];contracts=[];budgetItems=[];
+  user={loggedIn:false,name:"",firstName:"",lastName:"",email:"",plan:"basic",addressStreet:"",addressZip:"",addressCity:"",phone:""};
+  setTimeout(()=>{flash("Account gelöscht. Auf Wiedersehen!");currentPage="dashboard";renderNav();renderPage();},800);
+}
+
 function rDash(){const T=gT(),enc=encs[Math.floor(Date.now()/864e5)%encs.length],B=calcBudgetStats();const nxt=T.next?`<div class="card clickable" onclick="openDetail(${T.next.id})" style="border-left:3px solid ${dU(T.next.due)<=2?"var(--co)":"var(--am)"}"><div style="display:flex;align-items:center;gap:14px"><div style="width:44px;height:44px;border-radius:12px;background:${dU(T.next.due)<=2?"var(--coG)":"var(--amG)"};display:flex;align-items:center;justify-content:center;font-size:20px">${T.next.emoji}</div><div style="flex:1"><p style="font-size:14px;font-weight:600;margin:0">${dU(T.next.due)===0?"Heute fällig":dU(T.next.due)<0?"Handlungsbedarf":`In ${dU(T.next.due)} Tagen fällig`}</p><p style="font-size:13px;color:var(--tm);margin:2px 0 0">${T.next.name} · ${fmt(T.next.rate)}</p></div><span style="color:var(--tm);font-size:20px">›</span></div></div>`:"";
 return`<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px;flex-wrap:wrap;gap:12px"><div><p style="font-size:13px;color:var(--tm);margin:0 0 4px">${new Date().toLocaleDateString("de-DE",{day:"numeric",month:"long",year:"numeric"})}</p><h1 style="font-size:32px;font-weight:800;margin:0 0 6px">Guten Tag, ${user.firstName||user.name.split(" ")[0]||"dort"}</h1><p style="font-size:14px;color:var(--tm);margin:0">${enc}</p></div><button class="btn btn-ghost btn-sm" onclick="printOverview()" style="margin-top:6px">🖨️ Übersicht drucken</button></div>
 <div class="hero"><div class="hero-orb1"></div><div class="hero-orb2"></div><div style="display:flex;gap:24px;align-items:center;flex-wrap:wrap;position:relative"><div style="flex:1;min-width:220px"><p style="font-size:12px;color:var(--tm);margin:0 0 6px;text-transform:uppercase;letter-spacing:1.5px;font-weight:600">Offen gesamt</p><p style="font-size:48px;font-weight:800;margin:0 0 2px;line-height:1;letter-spacing:-1px">${fmt(T.r)}</p><p style="font-size:13px;color:var(--tm);margin:0 0 20px">von ${fmt(T.o)} ursprünglich</p><div style="display:flex;gap:28px;flex-wrap:wrap"><div><p style="font-size:11px;color:var(--tm);margin:0;text-transform:uppercase;letter-spacing:1px">Bezahlt</p><p style="font-size:17px;font-weight:700;margin:3px 0 0;color:var(--em)">${fmt(T.p)}</p></div><div><p style="font-size:11px;color:var(--tm);margin:0;text-transform:uppercase;letter-spacing:1px">Monat</p><p style="font-size:17px;font-weight:700;margin:3px 0 0">${fmt(T.m)}</p></div><div><p style="font-size:11px;color:var(--tm);margin:0;text-transform:uppercase;letter-spacing:1px">Streak</p><p style="font-size:17px;font-weight:700;margin:3px 0 0;color:var(--am)">6 Mo 🔥</p></div></div></div><div style="position:relative;flex-shrink:0"><div data-ring="${T.pct}" data-size="150" data-sw="9"></div><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center"><p style="font-size:36px;font-weight:800;margin:0;color:var(--em)">${T.pct}%</p><p style="font-size:11px;color:var(--tm);margin:0">geschafft</p></div></div></div></div>
@@ -1305,38 +1418,59 @@ const templates=[
   {id:"haertefall",name:"Härtefallantrag",icon:"🛡️",desc:"Antrag auf besondere Berücksichtigung bei finanzieller Notlage",tags:["Notlage","Sozial"]},
 ];
 
-let agreeForm={debt:null,template:null,step:1,data:{name:"",street:"",zip:"",city:"",creditor:"",creditorStreet:"",creditorZip:"",creditorCity:"",amount:"",rate:"",startDate:"",reason:"",offerAmount:"",pauseUntil:""}};
+let agreeForm={debt:null,template:null,style:"formell",step:1,editBetreff:"",editBody:"",editClosing:"",data:{name:"",street:"",zip:"",city:"",creditor:"",creditorStreet:"",creditorZip:"",creditorCity:"",amount:"",rate:"",startDate:"",reason:"",offerAmount:"",pauseUntil:""}};
 function prefillAgreeFromUser(){const d=agreeForm.data||{};const fullName=(user.firstName||user.lastName)?[user.firstName||"",user.lastName||""].join(" ").trim():user.name;if(!d.name)d.name=fullName||"";if(!d.street)d.street=user.addressStreet||"";if(!d.zip)d.zip=user.addressZip||"";if(!d.city)d.city=user.addressCity||"";agreeForm.data=d}
 
 function rAgree(){
   if(agreeForm.step===3) return rAgreePreview();
   if(agreeForm.step===2) return rAgreeForm();
-  // Step 1: Template selection
   const activeDebts=debts.filter(d=>d.paid<d.original);
+  const styles=[
+    {id:"formell",icon:"⚖️",label:"Formell",desc:"Sachlich und juristisch präzise – klassischer Behördenstil"},
+    {id:"kooperativ",icon:"🤝",label:"Kooperativ",desc:"Lösungsorientiert und freundlich – signalisiert guten Willen"},
+    {id:"bestimmt",icon:"⚡",label:"Bestimmt",desc:"Mit Nachdruck und klaren Fristen – zeigt Entschlossenheit"},
+  ];
   return`
     <h1 style="font-size:24px;font-weight:800;margin:0 0 6px">Zahlungsvereinbarung</h1>
-    <p style="font-size:14px;color:var(--tm);margin:0 0 28px">Erstelle professionelle Schreiben an deine Gläubiger. Wähle eine Vorlage und fülle die Daten aus.</p>
-    
+    <p style="font-size:14px;color:var(--tm);margin:0 0 28px">Erstelle professionelle Schreiben an deine Gläubiger. Wähle Vorlage, Stil und fülle die Daten aus.</p>
+
     ${activeDebts.length>0?`<div style="margin-bottom:24px">
       <label style="display:block;font-size:12px;font-weight:600;color:var(--ts);margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">1. Für welche Position?</label>
       <div style="display:flex;gap:8px;flex-wrap:wrap">${activeDebts.map(d=>`<button class="card clickable" onclick="selectAgreeDebt(${d.id})" style="padding:12px 16px;flex:none;${agreeForm.debt&&agreeForm.debt.id===d.id?'border-color:var(--ba);background:var(--emG2)':''}"><div style="display:flex;align-items:center;gap:10px"><span style="font-size:20px">${d.emoji}</span><div><p style="font-size:14px;font-weight:600;margin:0;text-align:left">${d.name}</p><p style="font-size:12px;color:var(--tm);margin:2px 0 0">${fmt(d.original-d.paid)} offen</p></div></div></button>`).join("")}</div>
     </div>`:`<div class="card" style="text-align:center;padding:32px;margin-bottom:24px"><p style="font-size:28px;margin:0 0 8px">✅</p><p style="font-size:15px;font-weight:600;margin:0 0 4px">Keine offenen Verbindlichkeiten</p><p style="font-size:13px;color:var(--tm);margin:0">Du hast alle Verbindlichkeiten abgeschlossen!</p></div>`}
-    
-    <label style="display:block;font-size:12px;font-weight:600;color:var(--ts);margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">2. Vorlage wählen</label>
+
+    <label style="display:block;font-size:12px;font-weight:600;color:var(--ts);margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">2. Briefstil wählen</label>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:28px">
+      ${styles.map(s=>`<div class="card clickable" onclick="agreeForm.style='${s.id}';renderPage()" style="padding:16px;${agreeForm.style===s.id?'border-color:var(--ba);background:var(--emG2)':''}">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+          <span style="font-size:24px">${s.icon}</span>
+          <p style="font-size:14px;font-weight:700;margin:0;color:${agreeForm.style===s.id?'var(--em)':'var(--t)'}">${s.label}</p>
+          ${agreeForm.style===s.id?'<span style="margin-left:auto;color:var(--em);font-size:16px">✓</span>':''}
+        </div>
+        <p style="font-size:12px;color:var(--tm);margin:0;line-height:1.5">${s.desc}</p>
+      </div>`).join("")}
+    </div>
+
+    <label style="display:block;font-size:12px;font-weight:600;color:var(--ts);margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">3. Vorlage wählen</label>
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px">
       ${templates.map(t=>`<div class="card clickable" onclick="selectTemplate('${t.id}')" style="padding:18px;${agreeForm.template===t.id?'border-color:var(--ba);background:var(--emG2)':''}">
         <div style="display:flex;align-items:flex-start;gap:12px">
           <span style="font-size:28px">${t.icon}</span>
-          <div>
-            <p style="font-size:14px;font-weight:700;margin:0 0 4px">${t.name}</p>
+          <div style="flex:1">
+            <p style="font-size:14px;font-weight:700;margin:0 0 4px;color:${agreeForm.template===t.id?'var(--em)':'var(--t)'}">${t.name}</p>
             <p style="font-size:12px;color:var(--tm);margin:0 0 8px;line-height:1.5">${t.desc}</p>
-            <div style="display:flex;gap:4px">${t.tags.map(tag=>`<span style="font-size:10px;padding:3px 8px;border-radius:6px;background:var(--bgE);color:var(--ts);font-weight:600">${tag}</span>`).join("")}</div>
+            <div style="display:flex;gap:4px;flex-wrap:wrap">${t.tags.map(tag=>`<span style="font-size:10px;padding:3px 8px;border-radius:6px;background:var(--bgE);color:var(--ts);font-weight:600">${tag}</span>`).join("")}</div>
           </div>
+          ${agreeForm.template===t.id?'<span style="color:var(--em);font-size:18px;flex-shrink:0">✓</span>':''}
         </div>
       </div>`).join("")}
     </div>
-    
-    ${agreeForm.debt&&agreeForm.template?`<div style="margin-top:24px;text-align:right"><button class="btn btn-primary btn-lg" onclick="agreeForm.step=2;renderPage()">Weiter → Daten eingeben</button></div>`:""}
+
+    ${agreeForm.template?`<div style="margin-top:20px;padding:14px 18px;border-radius:12px;background:var(--emG2);border:1px solid var(--ba);display:flex;align-items:center;gap:12px">
+      <span style="font-size:20px">${styles.find(s=>s.id===agreeForm.style)?.icon||'⚖️'}</span>
+      <div style="flex:1"><p style="font-size:13px;font-weight:700;color:var(--em);margin:0">Stil: ${styles.find(s=>s.id===agreeForm.style)?.label||'Formell'} · Vorlage: ${templates.find(t=>t.id===agreeForm.template)?.name||''}</p><p style="font-size:12px;color:var(--tm);margin:2px 0 0">Klicke auf Weiter um die Adressdaten einzugeben</p></div>
+      <button class="btn btn-primary" onclick="agreeForm.step=2;renderPage()">Weiter →</button>
+    </div>`:`<div style="margin-top:20px;padding:14px 18px;border-radius:12px;background:var(--bgE);border:1px solid var(--b)"><p style="font-size:13px;color:var(--tm);margin:0">← Wähle eine Vorlage um fortzufahren</p></div>`}
   `;
 }
 
@@ -1408,58 +1542,115 @@ function rAgreeForm(){
 function generateAgreement(){
   const d=agreeForm.data;
   if(!d.name||!d.creditor||!d.amount){flash("Bitte mindestens Name, Gläubiger und Betrag ausfüllen");return;}
+  const doc=getDocContent();
+  agreeForm.editBetreff=doc.betreff;
+  agreeForm.editBody=doc.body;
+  agreeForm.editClosing=doc.closing;
   agreeForm.step=3;renderPage();
 }
 function rAgreePreview(){
   const d=agreeForm.data;
   const t=templates.find(x=>x.id===agreeForm.template);
-  const doc=getDocContent();
-  const creditorEmail=agreeForm.debt?.creditorEmail||"";
-  const mailSubject=encodeURIComponent(doc.betreff);
-  const mailBody=encodeURIComponent(`Sehr geehrte Damen und Herren,\n\n${doc.body}\n\n${doc.closing}\n\nMit freundlichen Grüßen\n${d.name}`);
-  const mailLink=creditorEmail?`mailto:${creditorEmail}?subject=${mailSubject}&body=${mailBody}`:`mailto:?subject=${mailSubject}&body=${mailBody}`;
+  const today=new Date().toLocaleDateString("de-DE",{day:"numeric",month:"long",year:"numeric"});
+  const styleLabels={formell:"⚖️ Formell",kooperativ:"🤝 Kooperativ",bestimmt:"⚡ Bestimmt"};
 
-  const letterHtml=`
-    <div style="background:#fff;color:#1a1a1a;border-radius:12px;padding:36px 40px;font-family:'Georgia','Times New Roman',serif;font-size:13.5px;line-height:1.75;max-width:700px">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:14px;margin-bottom:20px">
+  function sendAgreeMail(){
+    const betreff=document.getElementById("agEditBetreff")?.value||agreeForm.editBetreff;
+    const body=document.getElementById("agEditBody")?.value||agreeForm.editBody;
+    const closing=document.getElementById("agEditClosing")?.value||agreeForm.editClosing;
+    const creditorEmail=agreeForm.debt?.creditorEmail||"";
+    const fullText="Sehr geehrte Damen und Herren,\n\n"+body+"\n\n"+closing+"\n\nMit freundlichen Grüßen\n"+d.name;
+    window.location.href="mailto:"+creditorEmail+"?subject="+encodeURIComponent(betreff)+"&body="+encodeURIComponent(fullText);
+  }
+
+  return`
+    <button onclick="agreeForm.step=2;renderPage()" style="background:none;border:none;color:var(--tm);font-size:13px;display:flex;align-items:center;gap:6px;margin-bottom:20px;padding:0;cursor:pointer">← Zurück zur Bearbeitung</button>
+
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:20px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="width:46px;height:46px;border-radius:14px;background:var(--emG);border:1px solid var(--ba);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">${t.icon}</div>
         <div>
-          <div style="font-size:11px;color:#888;margin-bottom:6px;border-bottom:1px solid #ddd;padding-bottom:4px">${d.name||""} · ${d.street||""} · ${d.zip||""} ${d.city||""}</div>
-          <div style="font-size:15px;font-weight:700">${d.name||"[Name]"}</div>
-          <div style="font-size:13px">${d.street||"[Straße]"}</div>
-          <div style="font-size:13px">${d.zip||"[PLZ]"} ${d.city||"[Ort]"}</div>
+          <h2 style="font-size:20px;font-weight:800;margin:0">${t.name}</h2>
+          <p style="font-size:12px;color:var(--tm);margin:3px 0 0">Stil: <span style="color:var(--em);font-weight:600">${styleLabels[agreeForm.style]||"⚖️ Formell"}</span> · Prüfe und passe den Text an</p>
         </div>
-        <div style="text-align:right;font-size:13px;color:#444">${d.city||""}, ${doc.today}</div>
       </div>
-      <div style="margin-bottom:22px;font-size:13.5px">
-        <strong>${d.creditor||"[Gläubiger]"}</strong><br>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-ghost btn-sm" onclick="navigator.clipboard.writeText((document.getElementById('agEditBetreff')?.value||agreeForm.editBetreff)+'\n\nSehr geehrte Damen und Herren,\n\n'+(document.getElementById('agEditBody')?.value||agreeForm.editBody)+'\n\n'+(document.getElementById('agEditClosing')?.value||agreeForm.editClosing)+'\n\nMit freundlichen Grüßen\n${d.name}').then(()=>flash('Text kopiert 📋'))">📋 Kopieren</button>
+        <button class="btn btn-outline btn-sm" onclick="sendAgreeMail()">✉️ E-Mail</button>
+        <button class="btn btn-primary btn-sm" onclick="agreeForm.editBetreff=document.getElementById('agEditBetreff')?.value||agreeForm.editBetreff;agreeForm.editBody=document.getElementById('agEditBody')?.value||agreeForm.editBody;agreeForm.editClosing=document.getElementById('agEditClosing')?.value||agreeForm.editClosing;openAgreementPdfPreview()" style="background:linear-gradient(135deg,#7C3AED,#6D28D9)">📄 PDF</button>
+      </div>
+    </div>
+
+    <div class="card" style="padding:0;overflow:hidden;margin-bottom:12px">
+      <div style="padding:12px 18px;background:var(--bgE);border-bottom:1px solid var(--b);display:flex;align-items:center;gap:10px">
+        <span style="font-size:11px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:0.8px">Absender</span>
+      </div>
+      <div style="padding:14px 18px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px">
+        <div style="font-size:13px;line-height:1.7;color:var(--t)">
+          <strong>${d.name||""}</strong><br>
+          ${d.street||""}<br>
+          ${d.zip||""} ${d.city||""}
+        </div>
+        <div style="font-size:13px;color:var(--tm)">${d.city||""}, ${today}</div>
+      </div>
+    </div>
+
+    <div class="card" style="padding:0;overflow:hidden;margin-bottom:12px">
+      <div style="padding:12px 18px;background:var(--bgE);border-bottom:1px solid var(--b)">
+        <span style="font-size:11px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:0.8px">Empfänger</span>
+      </div>
+      <div style="padding:14px 18px;font-size:13px;line-height:1.7;color:var(--t)">
+        <strong>${d.creditor||""}</strong><br>
         ${d.creditorStreet||""}<br>
         ${d.creditorZip||""} ${d.creditorCity||""}
       </div>
-      <div style="font-weight:700;font-size:14px;text-decoration:underline;text-underline-offset:3px;margin:0 0 20px">Betreff: ${doc.betreff}</div>
-      <p style="margin:0 0 16px">Sehr geehrte Damen und Herren,</p>
-      <div style="white-space:pre-wrap;margin:0 0 18px;text-align:justify">${doc.body}</div>
-      <p style="margin:0 0 32px;text-align:justify">${doc.closing}</p>
-      <p style="margin:0 0 8px">Mit freundlichen Grüßen</p>
-      <div style="margin-top:44px;border-top:1px solid #1a1a1a;width:220px;padding-top:4px">
-        <span style="font-weight:700">${d.name||"[Unterschrift]"}</span>
-      </div>
-    </div>`;
+    </div>
 
-  return`
-    <button onclick="agreeForm.step=2;renderPage()" style="background:none;border:none;color:var(--tm);font-size:13px;display:flex;align-items:center;gap:6px;margin-bottom:24px;padding:0">← Zurück zur Bearbeitung</button>
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
-      <span style="font-size:28px">${t.icon}</span>
-      <div><h2 style="font-size:20px;font-weight:800;margin:0">${t.name}</h2><p style="font-size:13px;color:var(--tm);margin:2px 0 0">Vorschau – prüfe den Text und sende, kopiere oder drucke ihn</p></div>
+    <div class="card" style="padding:0;overflow:hidden;margin-bottom:12px">
+      <div style="padding:12px 18px;background:var(--bgE);border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between">
+        <span style="font-size:11px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:0.8px">Betreff</span>
+        <span style="font-size:11px;color:var(--tm)">Bearbeitbar</span>
+      </div>
+      <div style="padding:4px 14px">
+        <div class="input-wrap" style="border:none;background:transparent;padding:10px 4px">
+          <input id="agEditBetreff" value="${(agreeForm.editBetreff||"").replace(/"/g,'&quot;')}" oninput="agreeForm.editBetreff=this.value" style="flex:1;border:none;outline:none;background:transparent;color:var(--t);font-size:14px;font-weight:700;width:100%">
+        </div>
+      </div>
     </div>
-    <div style="border:1px solid var(--bl);border-radius:16px;padding:4px;margin-bottom:20px;background:var(--bgE)">
-      ${letterHtml}
+
+    <div class="card" style="padding:0;overflow:hidden;margin-bottom:12px">
+      <div style="padding:12px 18px;background:var(--bgE);border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between">
+        <span style="font-size:11px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:0.8px">Brieftext</span>
+        <span style="font-size:11px;color:var(--tm)">Bearbeitbar</span>
+      </div>
+      <div style="padding:14px 18px">
+        <p style="font-size:13px;color:var(--tm);margin:0 0 10px">Sehr geehrte Damen und Herren,</p>
+        <textarea id="agEditBody" oninput="agreeForm.editBody=this.value" style="width:100%;min-height:220px;background:var(--bgE);border:1px solid var(--b);border-radius:10px;padding:12px 14px;color:var(--t);font-size:13px;line-height:1.6;font-family:inherit;resize:vertical;outline:none;transition:border-color 0.2s" onfocus="this.style.borderColor='var(--ba)'" onblur="this.style.borderColor='var(--b)'">${agreeForm.editBody||""}</textarea>
+      </div>
     </div>
-    <div style="display:flex;gap:12px;flex-wrap:wrap">
-      <button class="btn btn-outline" onclick="agreeForm.step=2;renderPage()">✏️ Bearbeiten</button>
-      <button class="btn btn-ghost" onclick="copyAgreement()">📋 Text kopieren</button>
-      <button class="btn btn-primary" onclick="openAgreementPdfPreview()" style="background:linear-gradient(135deg,#7C3AED,#6D28D9)">📄 PDF Vorschau</button>
-      <a class="btn btn-primary" href="${mailLink}" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#3B82F6,#2563EB)">✉️ Per E-Mail senden</a>
-      <button class="btn btn-outline" onclick="agreeForm={debt:null,template:null,step:1,data:{name:'',street:'',zip:'',city:'',creditor:'',creditorStreet:'',creditorZip:'',creditorCity:'',amount:'',rate:'',startDate:'',reason:'',offerAmount:'',pauseUntil:''}};renderPage()">🔄 Neue Vereinbarung</button>
+
+    <div class="card" style="padding:0;overflow:hidden;margin-bottom:20px">
+      <div style="padding:12px 18px;background:var(--bgE);border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between">
+        <span style="font-size:11px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:0.8px">Abschlusssatz</span>
+        <span style="font-size:11px;color:var(--tm)">Bearbeitbar</span>
+      </div>
+      <div style="padding:4px 14px">
+        <div class="input-wrap" style="border:none;background:transparent;padding:10px 4px">
+          <input id="agEditClosing" value="${(agreeForm.editClosing||"").replace(/"/g,'&quot;')}" oninput="agreeForm.editClosing=this.value" style="flex:1;border:none;outline:none;background:transparent;color:var(--t);font-size:13px;width:100%">
+        </div>
+      </div>
+      <div style="padding:10px 18px 14px;font-size:13px;color:var(--tm)">
+        Mit freundlichen Grüßen<br>
+        <span style="color:var(--t);font-weight:600">${d.name||""}</span>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:8px;flex-wrap:wrap;padding-top:4px">
+      <button class="btn btn-outline" onclick="agreeForm.step=2;renderPage()">✏️ Daten bearbeiten</button>
+      <button class="btn btn-outline" onclick="agreeForm={debt:null,template:null,style:'formell',step:1,editBetreff:'',editBody:'',editClosing:'',data:{name:'',street:'',zip:'',city:'',creditor:'',creditorStreet:'',creditorZip:'',creditorCity:'',amount:'',rate:'',startDate:'',reason:'',offerAmount:'',pauseUntil:''}};renderPage()">🔄 Neue Vereinbarung</button>
+      <button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="navigator.clipboard.writeText((document.getElementById('agEditBetreff')?.value||agreeForm.editBetreff)+'\n\nSehr geehrte Damen und Herren,\n\n'+(document.getElementById('agEditBody')?.value||agreeForm.editBody)+'\n\n'+(document.getElementById('agEditClosing')?.value||agreeForm.editClosing)+'\n\nMit freundlichen Grüßen\n${d.name}').then(()=>flash('Text kopiert 📋'))">📋 Kopieren</button>
+      <button class="btn btn-outline" onclick="sendAgreeMail()">✉️ E-Mail</button>
+      <button class="btn btn-primary" onclick="agreeForm.editBetreff=document.getElementById('agEditBetreff')?.value||agreeForm.editBetreff;agreeForm.editBody=document.getElementById('agEditBody')?.value||agreeForm.editBody;agreeForm.editClosing=document.getElementById('agEditClosing')?.value||agreeForm.editClosing;openAgreementPdfPreview()" style="background:linear-gradient(135deg,#7C3AED,#6D28D9)">📄 PDF generieren</button>
     </div>`;
 }
 
@@ -1532,115 +1723,235 @@ function getDocContent(){
   const offer=parseFloat(d.offerAmount)||0;
   const months=rate>0?Math.ceil(amt/rate):0;
   const t=agreeForm.template;
+  const s=agreeForm.style||"formell";
   const debtName=agreeForm.debt?agreeForm.debt.name:"die offene Forderung";
   const iban=agreeForm.debt?.bankIban||"";
   const bic=agreeForm.debt?.bankBic||"";
   const bankRef=agreeForm.debt?.bankRef||"";
-
-  let betreff="",body="",closing="";
-
-  if(t==="ratenzahlung"){
-    betreff=`Antrag auf Einräumung einer Ratenzahlungsvereinbarung – Forderung: ${fmt(amt)}`;
-    body=`mit diesem Schreiben wende ich mich an Sie in der Angelegenheit der oben bezeichneten offenen Forderung in Höhe von ${fmt(amt)} betreffend ${debtName}.
-
-Ich bin mir meiner Zahlungsverpflichtung Ihnen gegenüber vollständig bewusst und möchte diese in jedem Fall erfüllen. Meine derzeitige finanzielle Situation${d.reason?` – bedingt durch ${d.reason} –`:""} erlaubt es mir jedoch nicht, den Gesamtbetrag in einer Summe zu begleichen. Um eine einvernehmliche und für beide Seiten tragfähige Lösung zu finden, erlaube ich mir, folgenden Ratenplan vorzuschlagen:
-
-    Offene Gesamtforderung:      ${fmt(amt)}
+  const zahlungsblock=(extra="")=>`    Offene Gesamtforderung:      ${fmt(amt)}
     Vorgeschlagene Monatsrate:   ${fmt(rate)}
     Voraussichtliche Laufzeit:   ${months} Monate
     Zahlungsbeginn:              ${d.startDate?fDL(d.startDate):"ab dem nächsten Monatsersten"}
-    Zahlungsweg:                 monatliche Überweisung${iban?`\n    Empfänger-IBAN:              ${iban}`:""}${bic?`\n    BIC:                         ${bic}`:""}${bankRef?`\n    Verwendungszweck:            ${bankRef}`:""}
+    Zahlungsweg:                 monatliche Überweisung${iban?`\n    Empfänger-IBAN:              ${iban}`:""}${bic?`\n    BIC:                         ${bic}`:""}${bankRef?`\n    Verwendungszweck:            ${bankRef}`:""}${extra}`;
 
-Die Raten werden jeweils spätestens zum 1. Werktag des Monats auf Ihr Konto überwiesen. Ich versichere ausdrücklich, die vereinbarten Beträge pünktlich und vollständig zu leisten. Sollte sich meine finanzielle Lage verbessern, werde ich Ihnen eine Erhöhung der Raten anbieten, um die Forderung schnellstmöglich zu tilgen.
+  let betreff="",body="",closing="";
 
-Ich bitte Sie herzlich, diesem Vorschlag zuzustimmen, und stehe für Rückfragen jederzeit zur Verfügung.`;
-    closing=`Ich ersuche Sie, mir Ihr Einverständnis schriftlich zu bestätigen, damit die vereinbarte Ratenzahlung planmäßig aufgenommen werden kann. Für Ihre Kooperationsbereitschaft in dieser Angelegenheit bedanke ich mich im Voraus.`;
+  // ─── RATENZAHLUNG ───────────────────────────────────────────
+  if(t==="ratenzahlung"){
+    betreff=`Antrag auf Einräumung einer Ratenzahlungsvereinbarung – Forderung: ${fmt(amt)}`;
+    if(s==="kooperativ"){
+      body=`ich hoffe, dieses Schreiben erreicht Sie gut. Ich möchte mich wegen der offenen Forderung über ${fmt(amt)} aus ${debtName} bei Ihnen melden – und zwar mit einem konkreten Lösungsvorschlag.
+
+Ich stehe zu meiner Zahlungsverpflichtung und möchte alles dafür tun, diese zu erfüllen. Meine aktuelle Situation${d.reason?` – ${d.reason} –`:""} macht eine Einmalzahlung leider schwierig. Daher schlage ich folgenden Ratenplan vor, mit dem ich die Forderung zuverlässig abtragen kann:
+
+${zahlungsblock()}
+
+Ich bin zuversichtlich, dass wir gemeinsam eine gute Lösung finden. Falls Sie Anpassungswünsche haben, spreche ich gerne darüber.`;
+      closing=`Bitte lassen Sie mich wissen, ob Sie mit dem Ratenplan einverstanden sind – am liebsten kurz schriftlich, damit wir direkt starten können. Ich freue mich auf Ihre Rückmeldung und danke Ihnen herzlich für Ihre Offenheit.`;
+    } else if(s==="bestimmt"){
+      body=`hiermit stelle ich Ihnen einen verbindlichen Ratenplan zur Begleichung der offenen Forderung von ${fmt(amt)} aus ${debtName} vor.
+
+Ich bin zahlungswillig und -fähig im Rahmen der unten genannten Konditionen. Eine Einmalzahlung ist${d.reason?` aufgrund von ${d.reason}`:" aus finanziellen Gründen"} nicht möglich. Ich erwarte, dass Sie diesen Vorschlag ernsthaft prüfen:
+
+${zahlungsblock()}
+
+Die Raten werden pünktlich zum 1. Werktag des Monats überwiesen. Ich weise ausdrücklich darauf hin, dass dieser Plan das Maximum meiner aktuellen Leistungsfähigkeit darstellt. Eine Ablehnung ohne Gegenangebot würde die Angelegenheit für beide Seiten unnötig verkomplizieren.`;
+      closing=`Ich bitte um schriftliche Bestätigung Ihres Einverständnisses innerhalb von 10 Werktagen. Nur so kann die Ratenzahlung plangemäß aufgenommen werden.`;
+    } else {
+      body=`mit diesem Schreiben wende ich mich an Sie in der Angelegenheit der oben bezeichneten offenen Forderung in Höhe von ${fmt(amt)} betreffend ${debtName}.
+
+Ich bin mir meiner Zahlungsverpflichtung Ihnen gegenüber vollständig bewusst und möchte diese in jedem Fall erfüllen. Meine derzeitige finanzielle Situation${d.reason?` – bedingt durch ${d.reason} –`:""} erlaubt es mir jedoch nicht, den Gesamtbetrag in einer Summe zu begleichen. Um eine einvernehmliche und für beide Seiten tragfähige Lösung zu finden, erlaube ich mir, folgenden Ratenplan vorzuschlagen:
+
+${zahlungsblock()}
+
+Die Raten werden jeweils spätestens zum 1. Werktag des Monats auf Ihr Konto überwiesen. Ich versichere ausdrücklich, die vereinbarten Beträge pünktlich und vollständig zu leisten.`;
+      closing=`Ich ersuche Sie, mir Ihr Einverständnis schriftlich zu bestätigen, damit die vereinbarte Ratenzahlung planmäßig aufgenommen werden kann. Für Ihre Kooperationsbereitschaft in dieser Angelegenheit bedanke ich mich im Voraus.`;
+    }
   }
+
+  // ─── VERGLEICH ──────────────────────────────────────────────
   else if(t==="vergleich"){
     const pct=amt>0?Math.round(offer/amt*100):0;
-    betreff=`Außergerichtliches Vergleichsangebot – Offene Forderung: ${fmt(amt)}`;
-    body=`mit diesem Schreiben unterbreite ich Ihnen ein formelles Vergleichsangebot zur einvernehmlichen Beilegung der zwischen uns bestehenden Forderung in Höhe von ${fmt(amt)} aus ${debtName}.
-
-Meine aktuelle finanzielle Situation${d.reason?`, die durch ${d.reason} entstanden ist,`:""} macht es mir leider unmöglich, den vollständigen Forderungsbetrag zu begleichen. Gleichwohl liegt mir sehr daran, diese Angelegenheit für beide Seiten abschließend zu klären. Ich schlage daher folgende Einigung vor:
-
-    Ursprüngliche Forderung:     ${fmt(amt)}
-    Mein Vergleichsangebot:      ${fmt(offer)} (entspricht ${pct}% der Gesamtforderung)
+    betreff=`${s==="bestimmt"?"Letztes Vergleichsangebot":"Außergerichtliches Vergleichsangebot"} – Offene Forderung: ${fmt(amt)}`;
+    const vergleichsblock=`    Ursprüngliche Forderung:     ${fmt(amt)}
+    Mein Vergleichsangebot:      ${fmt(offer)} (${pct}% der Gesamtforderung)
     Restforderungserlass:        ${fmt(amt-offer)}
-    Zahlungsfrist:               14 Tage nach schriftlicher Annahme dieses Angebots
-    Zahlungsweg:                 Überweisung auf Ihr Konto${iban?`\n    Empfänger-IBAN:              ${iban}`:""}${bankRef?`\n    Verwendungszweck:            ${bankRef}`:""}
+    Zahlungsfrist:               ${s==="bestimmt"?"7":"14"} Tage nach schriftlicher Annahme
+    Zahlungsweg:                 Überweisung${iban?`\n    Empfänger-IBAN:              ${iban}`:""}${bankRef?`\n    Verwendungszweck:            ${bankRef}`:""}`;
+    if(s==="kooperativ"){
+      body=`ich möchte Ihnen heute ein konkretes Vergleichsangebot unterbreiten, mit dem wir die offene Forderung von ${fmt(amt)} aus ${debtName} gemeinsam und für beide Seiten abschließend lösen können.
 
-Im Gegenzug zu dieser Zahlung bitte ich Sie, die Restforderung in Höhe von ${fmt(amt-offer)} dauerhaft zu erlassen und die gesamte Angelegenheit als vollständig erledigt und abgeschlossen zu betrachten. Sämtliche Maßnahmen, einschließlich Mahn- und Inkassoverfahren, würden damit gegenstandslos.
+Meine finanzielle Situation${d.reason?`, bedingt durch ${d.reason},`:""} lässt leider keine vollständige Begleichung zu. Dafür bin ich in der Lage, folgende Einmalzahlung anzubieten:
 
-Ich möchte betonen, dass der angebotene Betrag das absolute Maximum meiner derzeitigen finanziellen Leistungsfähigkeit darstellt. Ich bitte Sie daher, dieses Angebot ernsthaft zu prüfen.`;
-    closing=`Falls Sie dieses Vergleichsangebot annehmen, ersuche ich Sie um eine schriftliche Bestätigung sowie um Mitteilung Ihrer Bankverbindung. Bei Annahme werde ich die vereinbarte Summe unverzüglich überweisen. Für Rückfragen stehe ich Ihnen selbstverständlich jederzeit zur Verfügung.`;
+${vergleichsblock}
+
+Im Gegenzug bitte ich Sie, die Restforderung als erledigt zu betrachten und alle laufenden Maßnahmen einzustellen. Ich denke, das ist für uns beide die praktischste Lösung.`;
+      closing=`Ich würde mich sehr freuen, wenn Sie dieses Angebot annehmen. Bitte bestätigen Sie mir kurz schriftlich – dann überweise ich den Betrag umgehend.`;
+    } else if(s==="bestimmt"){
+      body=`ich unterbreite Ihnen hiermit ein letztes Vergleichsangebot zur Forderung von ${fmt(amt)} aus ${debtName}. Dies ist mein abschließendes Angebot.
+
+${vergleichsblock}
+
+Bei Annahme erlosche ich sämtliche Restforderungen als beglichen. Bei Ablehnung sehe ich mich gezwungen, andere rechtliche Wege zu prüfen. Ich weise darauf hin, dass ${fmt(offer)} das absolute Maximum meiner finanziellen Leistungsfähigkeit ist.`;
+      closing=`Bitte teilen Sie mir Ihre Entscheidung innerhalb von 7 Werktagen schriftlich mit. Nach Ablauf dieser Frist gilt das Angebot als zurückgezogen.`;
+    } else {
+      body=`mit diesem Schreiben unterbreite ich Ihnen ein formelles Vergleichsangebot zur einvernehmlichen Beilegung der zwischen uns bestehenden Forderung in Höhe von ${fmt(amt)} aus ${debtName}.
+
+Meine aktuelle finanzielle Situation${d.reason?`, die durch ${d.reason} entstanden ist,`:""} macht es mir leider unmöglich, den vollständigen Forderungsbetrag zu begleichen. Ich schlage daher folgende Einigung vor:
+
+${vergleichsblock}
+
+Im Gegenzug bitte ich Sie, die Restforderung dauerhaft zu erlassen und die Angelegenheit als vollständig erledigt zu betrachten.`;
+      closing=`Falls Sie dieses Vergleichsangebot annehmen, ersuche ich Sie um eine schriftliche Bestätigung. Bei Annahme werde ich die vereinbarte Summe unverzüglich überweisen.`;
+    }
   }
+
+  // ─── STUNDUNG ────────────────────────────────────────────────
   else if(t==="stundung"){
     betreff=`Antrag auf vorübergehende Stundung der Forderung – ${fmt(amt)}`;
-    body=`mit diesem Schreiben bitte ich Sie formell um eine vorübergehende Stundung der bestehenden Forderung in Höhe von ${fmt(amt)} aus ${debtName}.
-
-${d.reason?`Durch das Eintreten von ${d.reason} befinde ich mich derzeit in einer unverschuldeten finanziellen Ausnahmesituation.`:"Aufgrund unvorhergesehener Umstände befinde ich mich derzeit in einer temporären finanziellen Notlage."} Ich gehe jedoch mit Nachdruck davon aus, dass sich meine wirtschaftliche Lage in absehbarer Zeit stabilisieren und ich anschließend meinen Zahlungsverpflichtungen wieder vollumfänglich nachkommen werde.
-
-Ich beantrage daher folgende Stundungsregelung:
-
-    Offene Forderung:            ${fmt(amt)}
+    const stundungsblock=`    Offene Forderung:            ${fmt(amt)}
     Beantragte Stundung bis:     ${d.pauseUntil?fDL(d.pauseUntil):"[Datum bitte ergänzen]"}
-    Wiederaufnahme der Zahlung:  ${d.pauseUntil?`ab dem ${fDL(d.pauseUntil)}`:"nach Ablauf der Stundungsfrist"}${rate>0?`\n    Monatliche Rate danach:      ${fmt(rate)}`:""}
+    Wiederaufnahme der Zahlung:  ${d.pauseUntil?`ab ${fDL(d.pauseUntil)}`:"nach Ablauf der Stundungsfrist"}${rate>0?`\n    Monatliche Rate danach:      ${fmt(rate)}`:""}`;
+    if(s==="kooperativ"){
+      body=`ich wende mich heute mit einer Bitte an Sie – und ich hoffe auf Ihr Verständnis.
 
-Ich versichere Ihnen, dass ich während der Stundungszeit alle notwendigen Schritte zur Verbesserung meiner finanziellen Lage unternehmen werde. Die Zahlung des gestundeten Betrags werde ich unverzüglich nach Ablauf der Stundungsfrist aufnehmen.
+Durch ${d.reason||"unvorhergesehene Umstände"} bin ich vorübergehend nicht in der Lage, die Forderung von ${fmt(amt)} aus ${debtName} zu bedienen. Diese Situation ist zeitlich begrenzt, und ich möchte transparent mit Ihnen darüber kommunizieren.
 
-Ich bin bereit, Ihnen auf Wunsch Nachweise über meine derzeitige wirtschaftliche Situation vorzulegen, um die Berechtigung dieses Antrags zu belegen.`;
-    closing=`Ich bitte Sie, meinem Stundungsantrag stattzugeben und mir Ihre Entscheidung schriftlich mitzuteilen. Ich danke Ihnen für Ihr Verständnis und Ihre Kooperationsbereitschaft in dieser für mich schwierigen Zeit.`;
+Ich bitte daher um eine kurze Stundung nach folgendem Rahmen:
+
+${stundungsblock}
+
+Ich werde die Stundungszeit nutzen, um meine Situation zu stabilisieren, und danach zuverlässig zahlen.`;
+      closing=`Ich wäre Ihnen sehr dankbar, wenn Sie meiner Bitte entsprechen. Gerne bestätige ich Ihnen auf Anfrage meine Situation durch entsprechende Unterlagen.`;
+    } else if(s==="bestimmt"){
+      body=`hiermit beantrage ich formell die Stundung der Forderung von ${fmt(amt)} aus ${debtName}.
+
+Grund: ${d.reason||"temporäre finanzielle Einschränkung"}. Die Stundung ist sachlich begründet und zeitlich klar befristet:
+
+${stundungsblock}
+
+Ich weise darauf hin, dass ich nach Ablauf der Stundungsfrist vollständig zahlungsfähig sein werde. Eine Ablehnung ohne Alternative würde die Situation für beide Seiten verschlechtern.`;
+      closing=`Bitte bestätigen Sie die Stundung schriftlich innerhalb von 5 Werktagen. Ich stehe für Rückfragen zur Verfügung.`;
+    } else {
+      body=`mit diesem Schreiben bitte ich Sie formell um eine vorübergehende Stundung der bestehenden Forderung in Höhe von ${fmt(amt)} aus ${debtName}.
+
+${d.reason?`Durch ${d.reason} befinde ich mich derzeit in einer unverschuldeten finanziellen Ausnahmesituation.`:"Aufgrund unvorhergesehener Umstände befinde ich mich derzeit in einer temporären finanziellen Notlage."} Ich beantrage daher folgende Stundungsregelung:
+
+${stundungsblock}
+
+Ich versichere Ihnen, dass ich während der Stundungszeit alle notwendigen Schritte zur Verbesserung meiner finanziellen Lage unternehmen werde.`;
+      closing=`Ich bitte Sie, meinem Stundungsantrag stattzugeben und mir Ihre Entscheidung schriftlich mitzuteilen. Ich danke Ihnen für Ihr Verständnis.`;
+    }
   }
+
+  // ─── TEILZAHLUNG ─────────────────────────────────────────────
   else if(t==="teilzahlung"){
     betreff=`Angebot einer einmaligen Abschlagszahlung – Forderung: ${fmt(amt)}`;
-    body=`mit diesem Schreiben wende ich mich an Sie bezüglich der offenen Forderung in Höhe von ${fmt(amt)} aus ${debtName}.
-
-Nach eingehender Prüfung meiner finanziellen Verhältnisse bin ich in der Lage, Ihnen eine einmalige Teilzahlung als abschließende Regelung dieser Angelegenheit anzubieten:
-
-    Ursprüngliche Forderung:     ${fmt(amt)}
+    const teilblock=`    Ursprüngliche Forderung:     ${fmt(amt)}
     Angebotene Einmalzahlung:    ${fmt(offer)}
-    Zahlungsfrist:               7 Werktage nach schriftlicher Annahme Ihres Einverständnisses
-    Zahlungsweg:                 Überweisung${iban?`\n    Empfänger-IBAN:              ${iban}`:""}${bankRef?`\n    Verwendungszweck:            ${bankRef}`:""}
+    Zahlungsfrist:               7 Werktage nach schriftlicher Annahme
+    Zahlungsweg:                 Überweisung${iban?`\n    Empfänger-IBAN:              ${iban}`:""}${bankRef?`\n    Verwendungszweck:            ${bankRef}`:""}`;
+    if(s==="kooperativ"){
+      body=`ich möchte Ihnen heute eine praktische Lösung für die offene Forderung von ${fmt(amt)} aus ${debtName} anbieten.
 
-${d.reason?`Der Grund für die Beschränkung meiner Zahlungsfähigkeit liegt in: ${d.reason}.`:""} Ich bitte Sie, diese Zahlung als vollständige und endgültige Erfüllung der Forderung zu akzeptieren und anschließend auf weitere Geltendmachung zu verzichten.
+Nach ehrlicher Prüfung meiner Möglichkeiten kann ich Ihnen folgende Einmalzahlung anbieten, die die Angelegenheit für uns beide abschließend löst:
 
-Mir ist bewusst, dass das Angebot den Gesamtbetrag nicht vollständig abdeckt. Ich versichere Ihnen jedoch, dass es die Grenze meiner aktuell möglichen Leistung darstellt, und hoffe auf Ihr Verständnis.`;
-    closing=`Für eine zügige schriftliche Rückmeldung zu meinem Angebot wäre ich sehr dankbar. Bei Annahme stelle ich die Zahlung unverzüglich sicher. Ich stehe Ihnen für weitere Fragen oder ein klärendes Gespräch jederzeit zur Verfügung.`;
+${teilblock}
+
+Ich bitte Sie, diese Zahlung als vollständige Erfüllung zu akzeptieren. ${d.reason?`Hintergrund: ${d.reason}.`:""}Ich weiß, dass das den Gesamtbetrag unterschreitet – aber es ist das Beste, was ich tun kann.`;
+      closing=`Ich freue mich auf Ihre Zustimmung. Bei Annahme überweise ich sofort. Vielen Dank für Ihre Bereitschaft, gemeinsam eine Lösung zu finden.`;
+    } else if(s==="bestimmt"){
+      body=`hiermit unterbreite ich Ihnen mein abschließendes Angebot zur Forderung von ${fmt(amt)} aus ${debtName}:
+
+${teilblock}
+
+${d.reason?`Aufgrund von ${d.reason} ist`:"Es ist"} dies das Maximum meiner finanziellen Leistungsfähigkeit. Ich erwarte eine sachliche Prüfung dieses Angebots. Bei Annahme ist die Forderung vollständig und endgültig erledigt – weitere Geltendmachung wäre ausgeschlossen.`;
+      closing=`Bitte teilen Sie mir Ihre Entscheidung innerhalb von 7 Werktagen mit. Ohne Rückmeldung behalte ich mir vor, rechtliche Beratung einzuholen.`;
+    } else {
+      body=`mit diesem Schreiben wende ich mich an Sie bezüglich der offenen Forderung in Höhe von ${fmt(amt)} aus ${debtName}.
+
+Nach eingehender Prüfung meiner finanziellen Verhältnisse bin ich in der Lage, folgende einmalige Teilzahlung als abschließende Regelung anzubieten:
+
+${teilblock}
+
+${d.reason?`Der Grund für die Beschränkung meiner Zahlungsfähigkeit liegt in: ${d.reason}.`:""} Ich bitte Sie, diese Zahlung als vollständige und endgültige Erfüllung der Forderung zu akzeptieren.`;
+      closing=`Für eine zügige schriftliche Rückmeldung wäre ich sehr dankbar. Bei Annahme stelle ich die Zahlung unverzüglich sicher.`;
+    }
   }
+
+  // ─── MAHNUNG ANTWORT ─────────────────────────────────────────
   else if(t==="mahnung_antwort"){
     betreff=`Stellungnahme zu Ihrem Mahnschreiben – Forderung: ${fmt(amt)}`;
-    body=`Ihr Mahnschreiben habe ich erhalten und zur Kenntnis genommen. Ich möchte mich zunächst ausdrücklich für die entstandene Verzögerung entschuldigen und Ihnen versichern, dass ich gewillt bin, meinen vertraglichen Verpflichtungen in vollem Umfang nachzukommen.
-
-${d.reason?`Leider befinde ich mich derzeit aufgrund von ${d.reason} in einer finanziellen Engpasssituation, die eine sofortige Begleichung des Gesamtbetrags vorübergehend unmöglich macht.`:"Eine sofortige vollständige Begleichung des Betrags ist mir derzeit aus finanziellen Gründen nicht möglich."}
-
-Um die Angelegenheit dennoch schnellstmöglich zu klären, unterbreite ich Ihnen folgenden Lösungsvorschlag:
-
-    Offene Forderung:            ${fmt(amt)}
+    const mahnblock=`    Offene Forderung:            ${fmt(amt)}
     Vorgeschlagene Monatsrate:   ${fmt(rate)}
     Voraussichtliche Laufzeit:   ${months} Monate
     Zahlungsbeginn:              ${d.startDate?fDL(d.startDate):"ab sofort"}
-    Zahlungsweg:                 monatliche Überweisung${iban?`\n    Empfänger-IBAN:              ${iban}`:""}${bankRef?`\n    Verwendungszweck:            ${bankRef}`:""}
+    Zahlungsweg:                 monatliche Überweisung${iban?`\n    Empfänger-IBAN:              ${iban}`:""}${bankRef?`\n    Verwendungszweck:            ${bankRef}`:""}`;
+    if(s==="kooperativ"){
+      body=`ich habe Ihr Mahnschreiben erhalten und möchte mich zunächst aufrichtig für die entstandene Verzögerung entschuldigen – das war nicht meine Absicht.
 
-Ich bitte Sie ausdrücklich, von der Einleitung weiterer Maßnahmen abzusehen und mir die Möglichkeit zu geben, die offene Forderung in den genannten Raten abzutragen. Die Zahlungen werden pünktlich und zuverlässig erfolgen.`;
-    closing=`Ich danke Ihnen für Ihr Verständnis und erwarte Ihre baldige Rückmeldung. Selbstverständlich bin ich für ein klärendes Gespräch jederzeit erreichbar.`;
+Ich stehe voll zu meiner Verpflichtung und möchte die Angelegenheit schnellstmöglich klären. ${d.reason?`Aufgrund von ${d.reason} ist`:"Eine"} eine Sofortzahlung aktuell leider nicht möglich. Dafür kann ich Ihnen folgenden zuverlässigen Ratenplan anbieten:
+
+${mahnblock}
+
+Ich bin zuversichtlich, dass wir so zu einer guten Lösung kommen, und danke Ihnen für Ihre Geduld.`;
+      closing=`Bitte geben Sie mir kurz Bescheid, ob Sie mit dem Plan einverstanden sind. Ich bin jederzeit ansprechbar und freue mich auf eine konstruktive Rückmeldung.`;
+    } else if(s==="bestimmt"){
+      body=`Ihr Mahnschreiben habe ich zur Kenntnis genommen. Ich bin zahlungswillig und lege Ihnen hiermit einen verbindlichen Ratenplan vor:
+
+${mahnblock}
+
+Ich fordere Sie auf, von weiteren Maßnahmen abzusehen, solange dieser Plan eingehalten wird. ${d.reason?`Die Verzögerung ist auf ${d.reason} zurückzuführen`:"Die Verzögerung hat nachvollziehbare Gründe"} und stellt keine Zahlungsverweigerung dar.`;
+      closing=`Bestätigen Sie bitte schriftlich den Ratenplan. Ich werde die erste Rate fristgerecht leisten.`;
+    } else {
+      body=`Ihr Mahnschreiben habe ich erhalten und zur Kenntnis genommen. Ich möchte mich für die entstandene Verzögerung entschuldigen und Ihnen versichern, dass ich gewillt bin, meinen Verpflichtungen nachzukommen.
+
+${d.reason?`Leider befinde ich mich derzeit aufgrund von ${d.reason} in einer finanziellen Engpasssituation.`:"Eine sofortige vollständige Begleichung ist mir derzeit nicht möglich."} Ich unterbreite Ihnen folgenden Lösungsvorschlag:
+
+${mahnblock}
+
+Ich bitte Sie, von der Einleitung weiterer Maßnahmen abzusehen und mir die Möglichkeit zu geben, die Forderung in Raten abzutragen.`;
+      closing=`Ich danke Ihnen für Ihr Verständnis und erwarte Ihre baldige Rückmeldung.`;
+    }
   }
+
+  // ─── HÄRTEFALL ───────────────────────────────────────────────
   else if(t==="haertefall"){
     betreff=`Härtefallantrag – Bitte um außerordentliche Kulanzregelung – Forderung: ${fmt(amt)}`;
-    body=`mit diesem Schreiben wende ich mich in einer dringenden persönlichen Angelegenheit an Sie und bitte um Prüfung eines besonderen Härtefalls bezüglich der offenen Forderung in Höhe von ${fmt(amt)} aus ${debtName}.
-
-${d.reason?`Aufgrund von ${d.reason} befinde ich mich gegenwärtig in einer außergewöhnlichen und unverschuldeten Notlage, die meine finanzielle Handlungsfähigkeit erheblich einschränkt.`:"Ich befinde ich mich gegenwärtig in einer außergewöhnlichen und unverschuldeten Notlage, die meine finanzielle Handlungsfähigkeit erheblich einschränkt."}
-
-Zusammenfassung meiner Situation:
-${d.reason?`    Ursache der Notlage:         ${d.reason}`:"    Ursache der Notlage:         [bitte ergänzen]"}
+    const haerteblock=`${d.reason?`    Ursache der Notlage:         ${d.reason}`:"    Ursache der Notlage:         [bitte ergänzen]"}
     Betroffene Forderung:        ${fmt(amt)}
     Mögliche monatliche Leistung:${rate>0?` ${fmt(rate)}`:" derzeit nicht möglich"}
-    Nachweis:                    liegt auf Anfrage vor
+    Nachweis:                    liegt auf Anfrage vor`;
+    if(s==="kooperativ"){
+      body=`ich wende mich heute mit einem sehr persönlichen Anliegen an Sie und bitte Sie von Herzen um Ihr Verständnis.
 
-Ich bin vollständig bereit, alle erforderlichen Belege vorzulegen (z.B. Einkommensnachweise, Sozialleistungsbescheide, ärztliche Atteste), um den Härtefall zu dokumentieren.
+${d.reason?`Durch ${d.reason} befinde ich`:"Ich befinde"} mich in einer ernsthaften finanziellen Notlage, die ich so nicht vorhergesehen habe. Ich möchte transparent mit Ihnen sein:
 
-Ich ersuche Sie daher, die besondere Schwere meiner Situation zu berücksichtigen und mir entgegenzukommen – sei es durch einen vollständigen oder teilweisen Erlass, eine Stundung oder eine individuelle Zahlungsvereinbarung.`;
-    closing=`Ich hoffe sehr auf Ihr Einfühlungsvermögen und Ihre Bereitschaft, eine menschlich vertretbare Lösung zu finden. Ich stehe für ein persönliches Gespräch jederzeit zur Verfügung und danke Ihnen im Voraus für Ihre Rücksichtnahme.`;
+${haerteblock}
+
+Ich bin nicht in der Lage, die Forderung von ${fmt(amt)} derzeit zu begleichen – aber ich gebe nicht auf und suche aktiv nach Wegen. Ich würde mich sehr freuen, wenn Sie mir entgegenkommen könnten.`;
+      closing=`Jede Form der Kulanz – ob Erlass, Stundung oder individuelle Rate – würde mir in dieser schwierigen Zeit enorm helfen. Ich danke Ihnen von Herzen für Ihre Menschlichkeit.`;
+    } else if(s==="bestimmt"){
+      body=`hiermit beantrage ich formell eine Härtefallregelung für die Forderung von ${fmt(amt)} aus ${debtName}.
+
+Sachverhalt:
+${haerteblock}
+
+Ich bin vollständig bereit, alle erforderlichen Nachweise einzureichen. Ich erwarte, dass mein Antrag ernsthaft geprüft wird. Eine schematische Ablehnung ohne individuelle Prüfung würde ich nicht akzeptieren.`;
+      closing=`Bitte teilen Sie mir innerhalb von 10 Werktagen mit, welche Regelung Sie anbieten können. Ich bin für ein klärendes Gespräch jederzeit verfügbar.`;
+    } else {
+      body=`mit diesem Schreiben wende ich mich in einer dringenden persönlichen Angelegenheit an Sie und bitte um Prüfung eines besonderen Härtefalls bezüglich der offenen Forderung in Höhe von ${fmt(amt)} aus ${debtName}.
+
+${d.reason?`Aufgrund von ${d.reason} befinde ich mich`:"Ich befinde mich"} gegenwärtig in einer außergewöhnlichen und unverschuldeten Notlage.
+
+Zusammenfassung meiner Situation:
+${haerteblock}
+
+Ich bin vollständig bereit, alle erforderlichen Belege vorzulegen, um den Härtefall zu dokumentieren. Ich ersuche Sie, mir entgegenzukommen – sei es durch Erlass, Stundung oder individuelle Vereinbarung.`;
+      closing=`Ich hoffe auf Ihr Einfühlungsvermögen und Ihre Bereitschaft, eine menschlich vertretbare Lösung zu finden. Ich danke Ihnen im Voraus für Ihre Rücksichtnahme.`;
+    }
   }
+
   return{betreff,body,closing,today};
 }
 
@@ -1673,7 +1984,7 @@ const cancelTemplates=[
   {id:"preissteigerung",name:"Kündigung wegen Preiserhöhung",icon:"📈",desc:"Beendigung wegen nicht akzeptierter Preisänderung",tags:["Kosten","Sonderrecht"]},
   {id:"widerruf",name:"Widerruf (14 Tage)",icon:"↩️",desc:"Widerruf bei Neuabschluss innerhalb der Frist",tags:["Widerruf","Neuvertrag"]},
 ];
-let cancelForm={contractId:null,template:null,step:1,data:{senderName:"",senderStreet:"",senderZip:"",senderCity:"",senderEmail:"",reason:"",effectiveDate:"",customNote:""}};
+let cancelForm={contractId:null,template:null,style:"formell",step:1,editSubject:"",editBody:"",editClosing:"",data:{senderName:"",senderStreet:"",senderZip:"",senderCity:"",senderEmail:"",reason:"",effectiveDate:"",customNote:""}};
 function contractAnnualCost(c){const m=+c.monthlyCost||0,y=+c.yearlyCost||0;return y>0?y:m*12}
 function contractIncreasePct(c){const prev=+c.previousAnnualCost||0,cur=contractAnnualCost(c);if(prev<=0)return 0;return Math.round(((cur-prev)/prev)*100)}
 function contractDelta(c){const prev=+c.previousAnnualCost||0;return prev>0?contractAnnualCost(c)-prev:0}
@@ -1727,12 +2038,36 @@ function rCancelAssistant(){
   if(cancelForm.step===2)return rCancelForm();
   const c=selectedCancelContract();
   if(c&&!cancelForm.contractId)cancelForm.contractId=c.id;
+  const cancelStyles=[
+    {id:"formell",icon:"⚖️",label:"Formell",desc:"Sachlich und juristisch präzise"},
+    {id:"energisch",icon:"🔥",label:"Energisch",desc:"Mit Nachdruck, klare Fristen und Konsequenzen"},
+    {id:"knapp",icon:"🕊️",label:"Sachlich-knapp",desc:"Kurz und direkt – nur das Wesentliche"},
+  ];
   return `<h1 style="font-size:24px;font-weight:800;margin:0 0 6px">Kündigungsassistent</h1>
-  <p style="font-size:14px;color:var(--tm);margin:0 0 26px">Wähle eine Vorlage und generiere ein sauberes Kündigungsschreiben mit Fristen, Vorschau, Copy und Druck.</p>
-  ${contracts.length?`<div style="margin-bottom:24px"><label style="display:block;font-size:12px;font-weight:600;color:var(--ts);margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">1. Vertrag wählen</label><div style="display:flex;gap:8px;flex-wrap:wrap">${contracts.map(x=>`<button class="card clickable" onclick="selectCancelContract(${x.id});renderPage()" style="padding:12px 16px;${c&&c.id===x.id?'border-color:var(--ba);background:var(--emG2)':''}"><div style="display:flex;align-items:center;gap:10px"><span style="font-size:18px">📄</span><div><p style="font-size:14px;font-weight:600;margin:0;text-align:left">${x.name}</p><p style="font-size:12px;color:var(--tm);margin:2px 0 0">${x.provider||"Anbieter"} · ${fmt(contractAnnualCost(x))}/Jahr</p></div></div></button>`).join("")}</div></div>`:`<div class="card" style="text-align:center;padding:34px;margin-bottom:24px"><p style="font-size:32px;margin:0 0 8px">📄</p><p style="font-size:16px;font-weight:700;margin:0 0 6px">Keine Verträge vorhanden</p><p style="font-size:13px;color:var(--tm);margin:0 0 12px">Lege zuerst einen Vertrag an, dann kann der Assistent schreiben erzeugen.</p><button class="btn btn-primary btn-sm" onclick="goTo('contracts')">Vertrag anlegen</button></div>`}
-  <label style="display:block;font-size:12px;font-weight:600;color:var(--ts);margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">2. Vorlage wählen</label>
-  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px">${cancelTemplates.map(t=>`<div class="card clickable" onclick="selectCancelTemplate('${t.id}')" style="padding:18px;${cancelForm.template===t.id?'border-color:var(--ba);background:var(--emG2)':''}"><div style="display:flex;align-items:flex-start;gap:12px"><span style="font-size:28px">${t.icon}</span><div><p style="font-size:14px;font-weight:700;margin:0 0 4px">${t.name}</p><p style="font-size:12px;color:var(--tm);margin:0 0 8px;line-height:1.5">${t.desc}</p><div style="display:flex;gap:4px">${t.tags.map(tag=>`<span style="font-size:10px;padding:3px 8px;border-radius:6px;background:var(--bgE);color:var(--ts);font-weight:600">${tag}</span>`).join("")}</div></div></div></div>`).join("")}</div>
-  ${(c&&cancelForm.template)?`<div style="margin-top:24px;text-align:right"><button class="btn btn-primary btn-lg" onclick="cancelForm.step=2;renderPage()">Weiter → Daten eingeben</button></div>`:""}`;
+  <p style="font-size:14px;color:var(--tm);margin:0 0 26px">Wähle Stil, Vorlage und Vertrag – generiere ein sauberes Kündigungsschreiben in Sekunden.</p>
+
+  ${contracts.length?`<div style="margin-bottom:24px"><label style="display:block;font-size:12px;font-weight:600;color:var(--ts);margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">1. Vertrag wählen</label><div style="display:flex;gap:8px;flex-wrap:wrap">${contracts.map(x=>`<button class="card clickable" onclick="selectCancelContract(${x.id});renderPage()" style="padding:12px 16px;${c&&c.id===x.id?'border-color:var(--ba);background:var(--emG2)':''}"><div style="display:flex;align-items:center;gap:10px"><span style="font-size:18px">📄</span><div><p style="font-size:14px;font-weight:600;margin:0;text-align:left">${x.name}</p><p style="font-size:12px;color:var(--tm);margin:2px 0 0">${x.provider||"Anbieter"} · ${fmt(contractAnnualCost(x))}/Jahr</p></div></div></button>`).join("")}</div></div>`:`<div class="card" style="text-align:center;padding:34px;margin-bottom:24px"><p style="font-size:32px;margin:0 0 8px">📄</p><p style="font-size:16px;font-weight:700;margin:0 0 6px">Keine Verträge vorhanden</p><p style="font-size:13px;color:var(--tm);margin:0 0 12px">Lege zuerst einen Vertrag an, dann kann der Assistent Schreiben erzeugen.</p><button class="btn btn-primary btn-sm" onclick="goTo('contracts')">Vertrag anlegen</button></div>`}
+
+  <label style="display:block;font-size:12px;font-weight:600;color:var(--ts);margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">2. Briefstil wählen</label>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:28px">
+    ${cancelStyles.map(st=>`<div class="card clickable" onclick="cancelForm.style='${st.id}';renderPage()" style="padding:16px;${cancelForm.style===st.id?'border-color:var(--ba);background:var(--emG2)':''}">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <span style="font-size:24px">${st.icon}</span>
+        <p style="font-size:14px;font-weight:700;margin:0;color:${cancelForm.style===st.id?'var(--em)':'var(--t)'}">${st.label}</p>
+        ${cancelForm.style===st.id?'<span style="margin-left:auto;color:var(--em);font-size:16px">✓</span>':''}
+      </div>
+      <p style="font-size:12px;color:var(--tm);margin:0;line-height:1.5">${st.desc}</p>
+    </div>`).join("")}
+  </div>
+
+  <label style="display:block;font-size:12px;font-weight:600;color:var(--ts);margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">3. Vorlage wählen</label>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px">${cancelTemplates.map(t=>`<div class="card clickable" onclick="selectCancelTemplate('${t.id}')" style="padding:18px;${cancelForm.template===t.id?'border-color:var(--ba);background:var(--emG2)':''}"><div style="display:flex;align-items:flex-start;gap:12px"><span style="font-size:28px">${t.icon}</span><div style="flex:1"><p style="font-size:14px;font-weight:700;margin:0 0 4px;color:${cancelForm.template===t.id?'var(--em)':'var(--t)'}">${t.name}</p><p style="font-size:12px;color:var(--tm);margin:0 0 8px;line-height:1.5">${t.desc}</p><div style="display:flex;gap:4px">${t.tags.map(tag=>`<span style="font-size:10px;padding:3px 8px;border-radius:6px;background:var(--bgE);color:var(--ts);font-weight:600">${tag}</span>`).join("")}</div></div>${cancelForm.template===t.id?'<span style="color:var(--em);font-size:18px;flex-shrink:0">✓</span>':''}</div></div>`).join("")}</div>
+
+  ${(c&&cancelForm.template)?`<div style="margin-top:20px;padding:14px 18px;border-radius:12px;background:var(--emG2);border:1px solid var(--ba);display:flex;align-items:center;gap:12px">
+    <span style="font-size:20px">${cancelStyles.find(st=>st.id===cancelForm.style)?.icon||'⚖️'}</span>
+    <div style="flex:1"><p style="font-size:13px;font-weight:700;color:var(--em);margin:0">Stil: ${cancelStyles.find(st=>st.id===cancelForm.style)?.label||'Formell'} · Vorlage: ${cancelTemplates.find(t=>t.id===cancelForm.template)?.name||''}</p><p style="font-size:12px;color:var(--tm);margin:2px 0 0">Klicke auf Weiter um die Absenderdaten einzugeben</p></div>
+    <button class="btn btn-primary" onclick="cancelForm.step=2;renderPage()">Weiter →</button>
+  </div>`:`<div style="margin-top:20px;padding:14px 18px;border-radius:12px;background:var(--bgE);border:1px solid var(--b)"><p style="font-size:13px;color:var(--tm);margin:0">← Wähle einen Vertrag und eine Vorlage um fortzufahren</p></div>`}`;
 }
 function rCancelForm(){
   const c=selectedCancelContract(),t=cancelTemplates.find(x=>x.id===cancelForm.template);
@@ -1744,81 +2079,249 @@ function rCancelForm(){
   <div class="card"><h3 style="font-size:15px;font-weight:700;margin:0 0 16px">📄 Vertrags- & Kündigungsdaten</h3><div style="padding:10px 12px;border:1px solid var(--b);border-radius:10px;background:var(--bgE);margin-bottom:14px"><p style="font-size:13px;font-weight:700;margin:0">${c.name}</p><p style="font-size:12px;color:var(--tm);margin:4px 0 0">${c.provider||"Anbieter"}${c.contractNo?` · Nr. ${c.contractNo}`:""}${contractEffectiveDeadline(c)?` · Deadline ${fDL(contractEffectiveDeadline(c))}`:""}</p></div><div class="field"><label>Kündigung wirksam zum (optional)</label><div class="input-wrap"><input type="date" value="${cancelForm.data.effectiveDate||""}" oninput="cancelForm.data.effectiveDate=this.value"></div></div><div class="field"><label>Begründung / Grund</label><div class="input-wrap"><input value="${(cancelForm.data.reason||"").replace(/"/g,'&quot;')}" oninput="cancelForm.data.reason=this.value" placeholder="z.B. Umzug, Leistung unzureichend, Preissteigerung"></div></div><div class="field"><label>Zusatzhinweis</label><div class="input-wrap"><input value="${(cancelForm.data.customNote||"").replace(/"/g,'&quot;')}" oninput="cancelForm.data.customNote=this.value" placeholder="z.B. Bitte um Bestätigung per E-Mail"></div></div></div></div>
   <div style="display:flex;gap:12px;margin-top:20px;justify-content:flex-end"><button class="btn btn-outline" onclick="cancelForm.step=1;renderPage()">Zurück</button><button class="btn btn-primary btn-lg" onclick="generateCancel()">✨ Kündigung generieren</button></div>`;
 }
-function generateCancel(){if(!cancelForm.data.senderName||!cancelForm.contractId||!cancelForm.template){flash("Bitte Vertrag, Vorlage und Name ausfüllen");return;}cancelForm.step=3;renderPage()}
+function generateCancel(){
+  if(!cancelForm.data.senderName||!cancelForm.contractId||!cancelForm.template){flash("Bitte Vertrag, Vorlage und Name ausfüllen");return;}
+  const doc=getCancelDocContent();
+  cancelForm.editSubject=doc.subject;
+  cancelForm.editBody=doc.body;
+  cancelForm.editClosing=doc.closing;
+  cancelForm.step=3;renderPage();
+}
 function getCancelDocContent(){
   const c=selectedCancelContract(),d=cancelForm.data,t=cancelForm.template;
+  const s=cancelForm.style||"formell";
   const today=new Date().toLocaleDateString("de-DE",{day:"numeric",month:"long",year:"numeric"});
   if(!c)return{subject:"",body:"",closing:"",today};
   const dl=contractEffectiveDeadline(c);
   const contractName=c.name||"den Vertrag";
   const contractNo=c.contractNo?`\n    Vertragsnummer:               ${c.contractNo}`:"";
   const provider=c.provider||"Ihrem Unternehmen";
-  let subject="",body="",closing="Ich bitte um eine schriftliche Eingangs- und Kündigungsbestätigung sowie um Mitteilung des verbindlichen Vertragsenddatums.";
+  let subject="",body="",closing="";
 
-  if(t==="ordentlich"){
-    subject=`Ordentliche Kündigung – ${contractName}`;
-    body=`hiermit kündige ich den mit ${provider} bestehenden Vertrag über ${contractName} ordentlich und fristgerecht zum nächstmöglichen Termin.${contractNo}
-    Vertragspartner:             ${provider}${d.effectiveDate?`\n    Gewünschtes Vertragsende:    ${fDL(d.effectiveDate)}`:""}${dl?`\n    Kündigungsfrist läuft ab:    ${fDL(dl)}`:""}
-
-${d.reason?`Ich möchte auf eine Begründung nicht näher eingehen und bitte um Akzeptanz meiner Kündigung ohne weitere Rückfragen.`:""}
-
-Ich bitte Sie, mir das Vertragsende sowie eventuelle Restansprüche schriftlich zu bestätigen und sämtliche zu meiner Person gespeicherten Daten nach Vertragsende gemäß DSGVO zu löschen.${d.customNote?`\n\nZusätzlicher Hinweis: ${d.customNote}`:""}`
+  // Closing variiert je nach Stil
+  if(s==="energisch"){
+    closing=`Ich erwarte die schriftliche Kündigungsbestätigung sowie das verbindliche Vertragsenddatum innerhalb von 5 Werktagen. Sollte ich keine Rückmeldung erhalten, behalte ich mir rechtliche Schritte vor.`;
+  } else if(s==="knapp"){
+    closing=`Bitte bestätigen Sie Kündigung und Vertragsende kurz schriftlich.`;
+  } else {
+    closing=`Ich bitte um eine schriftliche Eingangs- und Kündigungsbestätigung sowie um Mitteilung des verbindlichen Vertragsenddatums.`;
   }
+
+  const baseBlock=(extra="")=>`    Vertragsname:                ${contractName}${contractNo}
+    Vertragspartner:             ${provider}${extra}`;
+
+  // ─── ORDENTLICHE KÜNDIGUNG ───────────────────────────────────
+  if(t==="ordentlich"){
+    subject=`Kündigung – ${contractName}`;
+    if(s==="energisch"){
+      body=`hiermit kündige ich den Vertrag über „${contractName}" bei ${provider} fristgerecht und mit sofortiger Wirkung zum nächstmöglichen Termin.
+
+${baseBlock(`${d.effectiveDate?`\n    Gewünschtes Vertragsende:    ${fDL(d.effectiveDate)}`:""}${dl?`\n    Fristablauf:                 ${fDL(dl)}`:""}`)}
+
+${d.reason?`Grund: ${d.reason}\n\n`:""}Ich erwarte keine Rückfragen zu meiner Entscheidung. Die Kündigung ist endgültig. Alle Leistungen sind zum Vertragsende einzustellen und Guthaben unverzüglich zu erstatten.${d.customNote?`\n\n${d.customNote}`:""}`;
+    } else if(s==="knapp"){
+      body=`ich kündige hiermit den Vertrag „${contractName}" bei ${provider} zum nächstmöglichen Termin.
+
+${baseBlock(`${d.effectiveDate?`\n    Zum:                         ${fDL(d.effectiveDate)}`:""}`)}
+${d.reason?`\nGrund: ${d.reason}`:""}${d.customNote?`\n${d.customNote}`:""}`;
+    } else {
+      body=`hiermit kündige ich den mit ${provider} bestehenden Vertrag über ${contractName} ordentlich und fristgerecht zum nächstmöglichen Termin.
+
+${baseBlock(`${d.effectiveDate?`\n    Gewünschtes Vertragsende:    ${fDL(d.effectiveDate)}`:""}${dl?`\n    Kündigungsfrist läuft ab:    ${fDL(dl)}`:""}`)}
+
+${d.reason?`Ich möchte auf eine Begründung nicht näher eingehen und bitte um Akzeptanz meiner Kündigung ohne weitere Rückfragen.\n\n`:""}Ich bitte Sie, mir das Vertragsende schriftlich zu bestätigen und meine Daten nach Vertragsende gemäß DSGVO zu löschen.${d.customNote?`\n\nZusätzlicher Hinweis: ${d.customNote}`:""}`;
+    }
+  }
+
+  // ─── AUSSERORDENTLICHE KÜNDIGUNG ─────────────────────────────
   else if(t==="ausserordentlich"){
-    subject=`Außerordentliche fristlose Kündigung – ${contractName}`;
-    body=`hiermit kündige ich den mit ${provider} bestehenden Vertrag über ${contractName} außerordentlich und fristlos aus wichtigem Grund gemäß § 314 BGB.${contractNo}
-    Vertragspartner:             ${provider}
-    Datum der Kündigung:         ${today}
-    Wirksamkeit:                 sofort (fristlos)
+    subject=`${s==="energisch"?"Fristlose Kündigung":"Außerordentliche fristlose Kündigung"} – ${contractName}`;
+    if(s==="energisch"){
+      body=`hiermit kündige ich den Vertrag „${contractName}" mit ${provider} fristlos und mit sofortiger Wirkung. Rechtsgrundlage: § 314 BGB.
+
+${baseBlock(`\n    Wirksamkeit:                 sofort`)}
+
+Kündigungsgrund: ${d.reason||"[Grund liegt vor und wird auf Anfrage mitgeteilt]"}
+
+Dieser Kündigungsgrund ist nach § 314 Abs. 1 BGB eindeutig. Ich fordere Sie auf, alle Leistungen mit sofortiger Wirkung einzustellen und zu Unrecht erhobene Beträge innerhalb von 7 Tagen zu erstatten. Eine Fortsetzung des Vertragsverhältnisses ist für mich unzumutbar.${d.customNote?`\n\n${d.customNote}`:""}`;
+    } else if(s==="knapp"){
+      body=`hiermit kündige ich den Vertrag „${contractName}" bei ${provider} fristlos aus wichtigem Grund (§ 314 BGB) mit Wirkung ab sofort.
+
+${baseBlock()}
+
+Grund: ${d.reason||"[Wichtiger Grund liegt vor]"}${d.customNote?`\n${d.customNote}`:""}`;
+    } else {
+      body=`hiermit kündige ich den mit ${provider} bestehenden Vertrag über ${contractName} außerordentlich und fristlos aus wichtigem Grund gemäß § 314 BGB.
+
+${baseBlock(`\n    Datum der Kündigung:         ${today}\n    Wirksamkeit:                 sofort (fristlos)`)}
 
 Wichtiger Kündigungsgrund: ${d.reason||"[bitte Grund ergänzen]"}
 
-Aufgrund des vorstehend genannten wichtigen Grundes ist mir eine Fortsetzung des Vertragsverhältnisses bis zum regulären Vertragsende nicht zumutbar. Die Voraussetzungen des § 314 Abs. 1 BGB liegen meines Erachtens vor.
-
-Ich fordere Sie auf, die außerordentliche Kündigung schriftlich zu bestätigen und sämtliche Leistungen mit sofortiger Wirkung einzustellen. Etwaige zu viel geleistete Zahlungen sind mir unverzüglich zu erstatten.${d.customNote?`\n\nZusätzlicher Hinweis: ${d.customNote}`:""}`
+Aufgrund des vorstehend genannten wichtigen Grundes ist mir eine Fortsetzung des Vertragsverhältnisses nicht zumutbar. Ich fordere Sie auf, alle Leistungen einzustellen und Überzahlungen unverzüglich zu erstatten.${d.customNote?`\n\nZusätzlicher Hinweis: ${d.customNote}`:""}`;
+    }
   }
+
+  // ─── PREISERHÖHUNG ───────────────────────────────────────────
   else if(t==="preissteigerung"){
-    subject=`Kündigung aufgrund nicht akzeptierter Preiserhöhung – ${contractName} – Sonderkündigungsrecht`;
-    body=`hiermit mache ich von meinem gesetzlichen Sonderkündigungsrecht Gebrauch und kündige den mit ${provider} bestehenden Vertrag über ${contractName} infolge der von Ihnen angekündigten Preiserhöhung.${contractNo}
-    Vertragspartner:             ${provider}
-    Grundlage:                   Sonderkündigungsrecht gemäß § 315 BGB bzw. den einschlägigen Vertragsbestimmungen
-    Kündigung zum:               ${d.effectiveDate?fDL(d.effectiveDate):"nächstmöglichen Zeitpunkt nach der Preiserhöhung"}
+    subject=`Kündigung – Sonderkündigungsrecht – Preiserhöhung – ${contractName}`;
+    if(s==="energisch"){
+      body=`ich mache hiermit ausdrücklich von meinem Sonderkündigungsrecht gem. § 315 BGB Gebrauch und kündige den Vertrag „${contractName}" bei ${provider} fristlos infolge der nicht akzeptierten Preiserhöhung.
 
-Die angekündigte Preiserhöhung ist für mich nicht akzeptabel und ich erkläre daher fristgerecht die Kündigung zum nächstmöglichen Zeitpunkt.
+${baseBlock(`\n    Kündigung zum:               ${d.effectiveDate?fDL(d.effectiveDate):"sofort / nächstmöglicher Termin"}`)}
 
-Ich bitte Sie zu bestätigen, dass meine Kündigung innerhalb der Sonderkündigungsfrist eingegangen ist und zum genannten Termin wirksam wird. Bereits zu viel entrichtete Beiträge sind mir anteilig zu erstatten.${d.customNote?`\n\nZusätzlicher Hinweis: ${d.customNote}`:""}`
+Die Preiserhöhung ist für mich unakzeptabel. Ich dulde keine einseitige Vertragsänderung zu meinen Lasten. Bereits überzahlte Beträge sind mir innerhalb von 7 Werktagen zurückzuerstatten.${d.customNote?`\n\n${d.customNote}`:""}`;
+    } else if(s==="knapp"){
+      body=`ich kündige den Vertrag „${contractName}" bei ${provider} zum ${d.effectiveDate?fDL(d.effectiveDate):"nächstmöglichen Termin"} via Sonderkündigungsrecht (§ 315 BGB) wegen Preiserhöhung.
+
+${baseBlock()}
+${d.customNote?`\n${d.customNote}`:""}`;
+    } else {
+      body=`hiermit mache ich von meinem gesetzlichen Sonderkündigungsrecht Gebrauch und kündige den mit ${provider} bestehenden Vertrag über ${contractName} infolge der angekündigten Preiserhöhung.
+
+${baseBlock(`\n    Grundlage:                   Sonderkündigungsrecht gem. § 315 BGB\n    Kündigung zum:               ${d.effectiveDate?fDL(d.effectiveDate):"nächstmöglichen Zeitpunkt nach der Preiserhöhung"}`)}
+
+Die angekündigte Preiserhöhung ist für mich nicht akzeptabel. Ich bitte Sie zu bestätigen, dass meine Kündigung fristgerecht eingegangen ist und zu viel entrichtete Beiträge anteilig erstattet werden.${d.customNote?`\n\nZusätzlicher Hinweis: ${d.customNote}`:""}`;
+    }
   }
+
+  // ─── WIDERRUF ────────────────────────────────────────────────
   else if(t==="widerruf"){
-    subject=`Widerruf des Vertrags innerhalb der gesetzlichen Widerrufsfrist – ${contractName}`;
-    body=`hiermit widerrufe ich den mit ${provider} abgeschlossenen Vertrag über ${contractName} fristgerecht innerhalb der gesetzlichen 14-tägigen Widerrufsfrist gemäß § 355 BGB.${contractNo}
-    Vertragspartner:             ${provider}
-    Widerrufsfrist:              14 Tage ab Vertragsschluss (§ 355 BGB)
-    Datum des Widerrufs:         ${today}
+    subject=`Widerruf – ${contractName} – innerhalb der gesetzlichen Frist`;
+    if(s==="energisch"){
+      body=`hiermit widerrufe ich den Vertrag „${contractName}" mit ${provider} fristgerecht innerhalb der 14-tägigen Widerrufsfrist (§ 355 BGB). Widerrufsdatum: ${today}.
 
-Der Vertragsschluss erfolgte unter den Voraussetzungen des Fernabsatzrechts (§ 312c BGB) bzw. des Rechts über außerhalb von Geschäftsräumen geschlossene Verträge (§ 312b BGB). Das Widerrufsrecht steht mir als Verbraucher gemäß § 355 BGB ausdrücklich zu.
+${baseBlock()}
 
-Ich verlange die Rückabwicklung des Vertrags und bitte um unverzügliche Erstattung bereits geleisteter Zahlungen (spätestens binnen 14 Tagen nach Eingang dieses Widerrufs gemäß § 357 BGB).${d.customNote?`\n\nZusätzlicher Hinweis: ${d.customNote}`:""}`
+Der Widerruf ist rechtswirksam. Ich fordere die vollständige Rückerstattung bereits geleisteter Zahlungen innerhalb von 14 Tagen nach Eingang dieses Widerrufs (§ 357 BGB). Bitte stellen Sie alle Leistungen sofort ein.${d.customNote?`\n\n${d.customNote}`:""}`;
+    } else if(s==="knapp"){
+      body=`ich widerrufe hiermit den Vertrag „${contractName}" bei ${provider} gem. § 355 BGB innerhalb der Widerrufsfrist. Datum: ${today}.
+
+${baseBlock()}
+
+Bitte erstatten Sie geleistete Zahlungen innerhalb von 14 Tagen.${d.customNote?`\n${d.customNote}`:""}`;
+    } else {
+      body=`hiermit widerrufe ich den mit ${provider} abgeschlossenen Vertrag über ${contractName} fristgerecht innerhalb der gesetzlichen 14-tägigen Widerrufsfrist gemäß § 355 BGB.
+
+${baseBlock(`\n    Widerrufsfrist:              14 Tage ab Vertragsschluss (§ 355 BGB)\n    Datum des Widerrufs:         ${today}`)}
+
+Das Widerrufsrecht steht mir als Verbraucher gemäß § 355 BGB ausdrücklich zu. Ich verlange die Rückabwicklung des Vertrags und bitte um unverzügliche Erstattung bereits geleisteter Zahlungen.${d.customNote?`\n\nZusätzlicher Hinweis: ${d.customNote}`:""}`;
+    }
   }
+
   else{
     subject=`Kündigung – ${contractName}`;
-    body=`hiermit kündige ich den mit ${provider} bestehenden Vertrag über ${contractName} fristgerecht zum nächstmöglichen Termin.${contractNo}${dl?`\n\nNach meiner Berechnung muss die Kündigung spätestens bis zum ${fDL(dl)} bei Ihnen eingehen, um fristgerecht zu sein.`:""}${d.effectiveDate?`\n\nGewünschtes Vertragsende: ${fDL(d.effectiveDate)}`:""}${d.reason?`\nBegründung: ${d.reason}`:""}${d.customNote?`\n\nZusätzlicher Hinweis: ${d.customNote}`:""}`
+    body=`hiermit kündige ich den mit ${provider} bestehenden Vertrag über ${contractName} fristgerecht zum nächstmöglichen Termin.${contractNo}${dl?`\n\nDie Kündigung muss spätestens bis zum ${fDL(dl)} eingehen.`:""}${d.effectiveDate?`\n\nGewünschtes Vertragsende: ${fDL(d.effectiveDate)}`:""}${d.reason?`\nBegründung: ${d.reason}`:""}${d.customNote?`\n\n${d.customNote}`:""}`;
   }
+
   return{subject,body,closing,today};
 }
 
 function rCancelPreview(){
-  const c=selectedCancelContract();if(!c){cancelForm.step=1;return rCancelAssistant();}
-  const doc=getCancelDocContent(),d=cancelForm.data;
-  const letter=`${d.senderName}\n${d.senderStreet}\n${d.senderZip} ${d.senderCity}\n${d.senderEmail?`\n${d.senderEmail}\n`:""}\n${doc.today}\n\n${c.provider||"Vertragspartner"}\n\nBetreff: ${doc.subject}\n\nSehr geehrte Damen und Herren,\n\n${doc.body}\n\n${doc.closing}\n\nMit freundlichen Grüßen\n${d.senderName}`;
-  return `<button onclick="cancelForm.step=2;renderPage()" style="background:none;border:none;color:var(--tm);font-size:13px;display:flex;align-items:center;gap:6px;margin-bottom:24px;padding:0">← Zurück zur Bearbeitung</button>
-  <div class="card" style="padding:20px"><h3 style="font-size:18px;font-weight:700;margin:0 0 10px">Vorschau Kündigung</h3><p style="font-size:12px;color:var(--tm);margin:0 0 12px">${doc.subject}</p><div class="input-wrap" style="padding:10px"><textarea id="caPreviewText" style="width:100%;min-height:360px;background:transparent;border:none;outline:none;color:var(--t);font-family:inherit;font-size:14px;line-height:1.5">${letter}</textarea></div><div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px"><button class="btn btn-ghost btn-sm" onclick="navigator.clipboard.writeText(document.getElementById('caPreviewText').value).then(()=>flash('Kündigungstext kopiert ✓'))">📋 Text kopieren</button><button class="btn btn-primary btn-sm" onclick="openCancelPdfPreview()" style="background:linear-gradient(135deg,#7C3AED,#6D28D9)">📄 PDF Vorschau</button><button class="btn btn-primary btn-sm" onclick="sendCancelMail()" style="background:linear-gradient(135deg,#3B82F6,#2563EB)">✉️ Per E-Mail senden</button><button class="btn btn-primary btn-sm" onclick="cancelForm={contractId:${c.id},template:null,step:1,data:{senderName:'${(d.senderName||"").replace(/'/g,"\\'")}',senderStreet:'${(d.senderStreet||"").replace(/'/g,"\\'")}',senderZip:'${(d.senderZip||"").replace(/'/g,"\\'")}',senderCity:'${(d.senderCity||"").replace(/'/g,"\\'")}',senderEmail:'${(d.senderEmail||"").replace(/'/g,"\\'")}',reason:'',effectiveDate:'',customNote:''}};renderPage()">Neue Vorlage</button></div></div>`;
+  const c=selectedCancelContract();
+  if(!c){cancelForm.step=1;return rCancelAssistant();}
+  const d=cancelForm.data;
+  const t=cancelTemplates.find(x=>x.id===cancelForm.template)||{icon:"📄",name:"Kündigung"};
+  const today=new Date().toLocaleDateString("de-DE",{day:"numeric",month:"long",year:"numeric"});
+  const styleLabels={formell:"⚖️ Formell",energisch:"🔥 Energisch",knapp:"🕊️ Sachlich-knapp"};
+
+  return`
+    <button onclick="cancelForm.step=2;renderPage()" style="background:none;border:none;color:var(--tm);font-size:13px;display:flex;align-items:center;gap:6px;margin-bottom:20px;padding:0;cursor:pointer">← Zurück zur Bearbeitung</button>
+
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:20px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="width:46px;height:46px;border-radius:14px;background:var(--emG);border:1px solid var(--ba);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">${t.icon}</div>
+        <div>
+          <h2 style="font-size:20px;font-weight:800;margin:0">${t.name}</h2>
+          <p style="font-size:12px;color:var(--tm);margin:3px 0 0">Stil: <span style="color:var(--em);font-weight:600">${styleLabels[cancelForm.style]||"⚖️ Formell"}</span> · Prüfe und passe den Text an</p>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-ghost btn-sm" onclick="navigator.clipboard.writeText((document.getElementById('caEditSubject')?.value||cancelForm.editSubject)+'\n\nSehr geehrte Damen und Herren,\n\n'+(document.getElementById('caEditBody')?.value||cancelForm.editBody)+'\n\n'+(document.getElementById('caEditClosing')?.value||cancelForm.editClosing)+'\n\nMit freundlichen Grüßen\n${d.senderName}').then(()=>flash('Text kopiert 📋'))">📋 Kopieren</button>
+        <button class="btn btn-outline btn-sm" onclick="sendCancelMail()">✉️ E-Mail</button>
+        <button class="btn btn-primary btn-sm" onclick="cancelForm.editSubject=document.getElementById('caEditSubject')?.value||cancelForm.editSubject;cancelForm.editBody=document.getElementById('caEditBody')?.value||cancelForm.editBody;cancelForm.editClosing=document.getElementById('caEditClosing')?.value||cancelForm.editClosing;openCancelPdfPreview()" style="background:linear-gradient(135deg,#7C3AED,#6D28D9)">📄 PDF</button>
+      </div>
+    </div>
+
+    <div class="card" style="padding:0;overflow:hidden;margin-bottom:12px">
+      <div style="padding:12px 18px;background:var(--bgE);border-bottom:1px solid var(--b)">
+        <span style="font-size:11px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:0.8px">Absender</span>
+      </div>
+      <div style="padding:14px 18px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px">
+        <div style="font-size:13px;line-height:1.7;color:var(--t)">
+          <strong>${d.senderName||""}</strong><br>
+          ${d.senderStreet||""}<br>
+          ${d.senderZip||""} ${d.senderCity||""}
+          ${d.senderEmail?`<br><span style="color:var(--tm)">${d.senderEmail}</span>`:""}
+        </div>
+        <div style="font-size:13px;color:var(--tm)">${d.senderCity||""}, ${today}</div>
+      </div>
+    </div>
+
+    <div class="card" style="padding:0;overflow:hidden;margin-bottom:12px">
+      <div style="padding:12px 18px;background:var(--bgE);border-bottom:1px solid var(--b)">
+        <span style="font-size:11px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:0.8px">Empfänger</span>
+      </div>
+      <div style="padding:14px 18px;font-size:13px;line-height:1.7;color:var(--t)">
+        <strong>${c.provider||""}</strong>
+        ${c.contractNo?`<br><span style="font-size:12px;color:var(--tm)">Vertragsnummer: ${c.contractNo}</span>`:""}
+      </div>
+    </div>
+
+    <div class="card" style="padding:0;overflow:hidden;margin-bottom:12px">
+      <div style="padding:12px 18px;background:var(--bgE);border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between">
+        <span style="font-size:11px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:0.8px">Betreff</span>
+        <span style="font-size:11px;color:var(--tm)">Bearbeitbar</span>
+      </div>
+      <div style="padding:4px 14px">
+        <div class="input-wrap" style="border:none;background:transparent;padding:10px 4px">
+          <input id="caEditSubject" value="${(cancelForm.editSubject||"").replace(/"/g,'&quot;')}" oninput="cancelForm.editSubject=this.value" style="flex:1;border:none;outline:none;background:transparent;color:var(--t);font-size:14px;font-weight:700;width:100%">
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="padding:0;overflow:hidden;margin-bottom:12px">
+      <div style="padding:12px 18px;background:var(--bgE);border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between">
+        <span style="font-size:11px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:0.8px">Brieftext</span>
+        <span style="font-size:11px;color:var(--tm)">Bearbeitbar</span>
+      </div>
+      <div style="padding:14px 18px">
+        <p style="font-size:13px;color:var(--tm);margin:0 0 10px">Sehr geehrte Damen und Herren,</p>
+        <textarea id="caEditBody" oninput="cancelForm.editBody=this.value" style="width:100%;min-height:220px;background:var(--bgE);border:1px solid var(--b);border-radius:10px;padding:12px 14px;color:var(--t);font-size:13px;line-height:1.6;font-family:inherit;resize:vertical;outline:none;transition:border-color 0.2s" onfocus="this.style.borderColor='var(--ba)'" onblur="this.style.borderColor='var(--b)'">${cancelForm.editBody||""}</textarea>
+      </div>
+    </div>
+
+    <div class="card" style="padding:0;overflow:hidden;margin-bottom:20px">
+      <div style="padding:12px 18px;background:var(--bgE);border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between">
+        <span style="font-size:11px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:0.8px">Abschlusssatz</span>
+        <span style="font-size:11px;color:var(--tm)">Bearbeitbar</span>
+      </div>
+      <div style="padding:4px 14px">
+        <div class="input-wrap" style="border:none;background:transparent;padding:10px 4px">
+          <input id="caEditClosing" value="${(cancelForm.editClosing||"").replace(/"/g,'&quot;')}" oninput="cancelForm.editClosing=this.value" style="flex:1;border:none;outline:none;background:transparent;color:var(--t);font-size:13px;width:100%">
+        </div>
+      </div>
+      <div style="padding:10px 18px 14px;font-size:13px;color:var(--tm)">
+        Mit freundlichen Grüßen<br>
+        <span style="color:var(--t);font-weight:600">${d.senderName||""}</span>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:8px;flex-wrap:wrap;padding-top:4px">
+      <button class="btn btn-outline" onclick="cancelForm.step=2;renderPage()">✏️ Daten bearbeiten</button>
+      <button class="btn btn-outline" onclick="cancelForm={contractId:null,template:null,style:'formell',step:1,editSubject:'',editBody:'',editClosing:'',data:{senderName:'',senderStreet:'',senderZip:'',senderCity:'',senderEmail:'',reason:'',effectiveDate:'',customNote:''}};renderPage()">🔄 Neue Kündigung</button>
+      <button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="navigator.clipboard.writeText((document.getElementById('caEditSubject')?.value||cancelForm.editSubject)+'\n\nSehr geehrte Damen und Herren,\n\n'+(document.getElementById('caEditBody')?.value||cancelForm.editBody)+'\n\n'+(document.getElementById('caEditClosing')?.value||cancelForm.editClosing)+'\n\nMit freundlichen Grüßen\n${d.senderName}').then(()=>flash('Text kopiert 📋'))">📋 Kopieren</button>
+      <button class="btn btn-outline" onclick="sendCancelMail()">✉️ E-Mail</button>
+      <button class="btn btn-primary" onclick="cancelForm.editSubject=document.getElementById('caEditSubject')?.value||cancelForm.editSubject;cancelForm.editBody=document.getElementById('caEditBody')?.value||cancelForm.editBody;cancelForm.editClosing=document.getElementById('caEditClosing')?.value||cancelForm.editClosing;openCancelPdfPreview()" style="background:linear-gradient(135deg,#7C3AED,#6D28D9)">📄 PDF generieren</button>
+    </div>`;
 }
 function sendCancelMail(){
   const c=selectedCancelContract();
   const d=cancelForm.data;
-  const doc=getCancelDocContent();
-  const body="Sehr geehrte Damen und Herren,\n\n"+doc.body+"\n\n"+doc.closing+"\n\nMit freundlichen Grüßen\n"+d.senderName;
-  const mailto="mailto:"+(c?.creditorEmail||"")+"?subject="+encodeURIComponent(doc.subject)+"&body="+encodeURIComponent(body);
+  const subject=document.getElementById("caEditSubject")?.value||cancelForm.editSubject||getCancelDocContent().subject;
+  const bodyText=document.getElementById("caEditBody")?.value||cancelForm.editBody||getCancelDocContent().body;
+  const closing=document.getElementById("caEditClosing")?.value||cancelForm.editClosing||getCancelDocContent().closing;
+  const fullBody="Sehr geehrte Damen und Herren,\n\n"+bodyText+"\n\n"+closing+"\n\nMit freundlichen Grüßen\n"+d.senderName;
+  const mailto="mailto:"+(c?.creditorEmail||"")+"?subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(fullBody);
   window.location.href=mailto;
 }
 function printContractLetter(){
@@ -1868,8 +2371,11 @@ function printContractLetter(){
 }
 // ─── PDF Vorschau: Vereinbarungsbrief ───────────────────────────────────────
 async function openAgreementPdfPreview(){
-  const doc = getDocContent();
   const d   = agreeForm.data;
+  const today = new Date().toLocaleDateString("de-DE",{day:"numeric",month:"long",year:"numeric"});
+  const subject = agreeForm.editBetreff || getDocContent().betreff;
+  const body    = agreeForm.editBody    || getDocContent().body;
+  const closing = agreeForm.editClosing || getDocContent().closing;
   const payload = {
     senderName:    d.name    || "",
     senderStreet:  d.street  || "",
@@ -1880,21 +2386,24 @@ async function openAgreementPdfPreview(){
     recipientStreet: d.creditorStreet || "",
     recipientZip:    d.creditorZip    || "",
     recipientCity:   d.creditorCity   || "",
-    date:    doc.today,
-    subject: doc.betreff,
+    date:    today,
+    subject,
     salutation: "Sehr geehrte Damen und Herren,",
-    body:    doc.body,
-    closing: doc.closing,
+    body,
+    closing,
     signatureName: d.name || "",
   };
-  await generateLetterPdf(payload, doc.betreff);
+  await generateLetterPdf(payload, subject);
 }
 
 // ─── PDF Vorschau: Kündigungsbrief ──────────────────────────────────────────
 async function openCancelPdfPreview(){
-  const doc = getCancelDocContent();
   const d   = cancelForm.data;
   const c   = selectedCancelContract();
+  const today = new Date().toLocaleDateString("de-DE",{day:"numeric",month:"long",year:"numeric"});
+  const subject = cancelForm.editSubject || getCancelDocContent().subject;
+  const body    = cancelForm.editBody    || getCancelDocContent().body;
+  const closing = cancelForm.editClosing || getCancelDocContent().closing;
   const payload = {
     senderName:   d.senderName   || "",
     senderStreet: d.senderStreet || "",
@@ -1905,14 +2414,14 @@ async function openCancelPdfPreview(){
     recipientStreet: "",
     recipientZip:    "",
     recipientCity:   "",
-    date:    doc.today,
-    subject: doc.subject,
+    date:    today,
+    subject,
     salutation: "Sehr geehrte Damen und Herren,",
-    body:    doc.body,
-    closing: doc.closing,
+    body,
+    closing,
     signatureName: d.senderName || "",
   };
-  await generateLetterPdf(payload, doc.subject);
+  await generateLetterPdf(payload, subject);
 }
 
 // ─── Gemeinsame Funktion: POST → Netlify Function → PDF in neuem Tab ────────
