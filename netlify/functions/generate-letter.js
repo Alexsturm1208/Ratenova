@@ -1,8 +1,9 @@
-const chromium = require("@sparticuz/chromium");
+const chromium = require("@sparticuz/chromium-min");
 const puppeteer = require("puppeteer-core");
 
-// Netlify setzt LAMBDA_TASK_ROOT – Chromium liegt dort
-chromium.setGraphicsMode = false;
+// Öffentlich gehostetes Chromium-Binary (stabil auf Netlify)
+const CHROMIUM_REMOTE_URL =
+  "https://github.com/Sparticuz/chromium/releases/download/v119.0.2/chromium-v119.0.2-pack.tar";
 
 exports.handler = async (event) => {
   if (event.httpMethod !== "POST") {
@@ -228,20 +229,10 @@ ${closing ? `<div class="closing-text">${closing}</div>` : ""}
 
   let browser;
   try {
-    // Auf Netlify liegt Chromium im Lambda-Verzeichnis
-    const executablePath = await chromium.executablePath(
-      process.env.CHROMIUM_PATH || "/var/task/node_modules/@sparticuz/chromium/bin/chromium"
-    );
+    const executablePath = await chromium.executablePath(CHROMIUM_REMOTE_URL);
 
     browser = await puppeteer.launch({
-      args: [
-        ...chromium.args,
-        "--disable-gpu",
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
-        "--disable-dev-shm-usage",
-        "--single-process",
-      ],
+      args: chromium.args,
       defaultViewport: { width: 794, height: 1123 },
       executablePath,
       headless: "new",
