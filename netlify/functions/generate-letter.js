@@ -1,7 +1,6 @@
 const chromium = require("@sparticuz/chromium-min");
 const puppeteer = require("puppeteer-core");
 
-// Öffentlich gehostetes Chromium-Binary (stabil auf Netlify)
 const CHROMIUM_REMOTE_URL =
   "https://github.com/Sparticuz/chromium/releases/download/v119.0.2/chromium-v119.0.2-pack.tar";
 
@@ -18,18 +17,15 @@ exports.handler = async (event) => {
   }
 
   const {
-    // Absender
     senderName    = "",
     senderStreet  = "",
     senderZip     = "",
     senderCity    = "",
     senderEmail   = "",
-    // Empfänger
     recipientName   = "",
     recipientStreet = "",
     recipientZip    = "",
     recipientCity   = "",
-    // Brief
     date    = new Date().toLocaleDateString("de-DE", { day: "numeric", month: "long", year: "numeric" }),
     subject = "",
     salutation = "Sehr geehrte Damen und Herren,",
@@ -38,9 +34,52 @@ exports.handler = async (event) => {
     signatureName = senderName,
   } = payload;
 
-  // Absender-Zeile (kleine Schrift über Empfänger – DIN 5008)
   const senderLine = [senderName, senderStreet, `${senderZip} ${senderCity}`]
     .filter(Boolean).join(" · ");
+
+  // Zahlungsblock: Leerzeichen-Tabs durch HTML-Tabelle ersetzen
+  // Zeilen die mit 4+ Leerzeichen beginnen werden als Tabellen-Zeilen erkannt
+  function formatBody(raw) {
+    if (!raw) return "";
+    const lines = raw.split("\n");
+    let result = [];
+    let tableLines = [];
+    let inTable = false;
+
+    const flushTable = () => {
+      if (tableLines.length === 0) return;
+      result.push('<table class="data-table">');
+      for (const line of tableLines) {
+        // Trenne bei 2+ Leerzeichen
+        const match = line.trim().match(/^(.+?)\s{2,}(.+)$/);
+        if (match) {
+          result.push(`<tr><td class="dt-label">${match[1]}</td><td class="dt-value">${match[2]}</td></tr>`);
+        } else {
+          result.push(`<tr><td class="dt-label" colspan="2">${line.trim()}</td></tr>`);
+        }
+      }
+      result.push("</table>");
+      tableLines = [];
+      inTable = false;
+    };
+
+    for (const line of lines) {
+      const isTableLine = /^ {4}/.test(line) && line.trim().length > 0;
+      if (isTableLine) {
+        inTable = true;
+        tableLines.push(line);
+      } else {
+        if (inTable) flushTable();
+        result.push(line);
+      }
+    }
+    if (inTable) flushTable();
+
+    // Verbleibenden Text als pre-wrap rendern (ohne Tabellen-Zeilen)
+    return result.join("\n");
+  }
+
+  const formattedBody = formatBody(body);
 
   const html = `<!DOCTYPE html>
 <html lang="de">
@@ -60,65 +99,69 @@ exports.handler = async (event) => {
     background: #fff;
   }
 
-  /* ── Absenderzeile (Rücksendeadresse) ── */
+  /* ── Gesamtlayout: Anschriftzone oben ── */
+  .letter-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0;
+  }
+
+  /* ── Linke Seite: Rücksendeadresse + Absender ── */
+  .sender-zone {
+    width: 85mm; /* DIN 5008: Anschriftzone 85mm breit */
+  }
+
+  /* Rücksendeadresse: 1 Zeile, 5mm hoch, 7pt, unterstrichen */
   .return-address {
-    font-size: 7.5pt;
+    font-size: 7pt;
     color: #888;
-    border-bottom: 1px solid #ccc;
-    padding-bottom: 3px;
-    margin-bottom: 6px;
+    border-bottom: 1px solid #bbb;
+    padding-bottom: 2px;
+    margin-bottom: 5mm;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    height: 5mm;
+    line-height: 5mm;
   }
 
-  /* ── Absenderblock (oben links) ── */
-  .sender-block {
-    margin-bottom: 0;
-  }
+  /* Absenderblock darunter */
   .sender-block .sender-name {
-    font-size: 11.5pt;
+    font-size: 11pt;
     font-weight: 700;
     margin-bottom: 2px;
   }
   .sender-block .sender-addr {
     font-size: 10pt;
-    line-height: 1.5;
+    line-height: 1.6;
     color: #222;
   }
   .sender-block .sender-email {
     font-size: 9.5pt;
-    color: #444;
+    color: #555;
     margin-top: 3px;
   }
 
-  /* ── Datum ── */
+  /* ── Datum rechts ── */
   .date-block {
     text-align: right;
     font-size: 10pt;
     color: #333;
-    /* DIN 5008: Datum auf Höhe von ca. 72mm von Oberkante Papier */
-    position: absolute;
-    top: 0;
-    right: 0;
+    padding-top: 10mm; /* DIN 5008: Datum auf ~72mm vom Oberkante */
   }
 
-  /* ── Wrapper für Absender + Datum nebeneinander ── */
-  .header-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    border-bottom: 1.5px solid #1a1a1a;
-    padding-bottom: 12px;
-    margin-bottom: 0;
-    position: relative;
+  /* ── Trennlinie unter Absender/Datum ── */
+  .header-rule {
+    border: none;
+    border-top: 1.5px solid #1a1a1a;
+    margin: 5mm 0 0 0;
   }
 
-  /* ── Empfängerfeld – DIN 5008: Anschriftfeld beginnt bei ~45mm vom Papierrand ── */
+  /* ── Empfängerfeld ── */
   .recipient-block {
     margin-top: 8mm;
-    margin-bottom: 0;
-    min-height: 40mm;
+    min-height: 27mm;
     font-size: 10.5pt;
     line-height: 1.65;
   }
@@ -129,7 +172,7 @@ exports.handler = async (event) => {
 
   /* ── Betreff ── */
   .subject-block {
-    margin-top: 14mm; /* DIN 5008: mind. 10–12mm Abstand nach Empfänger */
+    margin-top: 14mm;
     margin-bottom: 6mm;
     font-size: 11pt;
     font-weight: 700;
@@ -138,10 +181,7 @@ exports.handler = async (event) => {
   }
 
   /* ── Brieftext ── */
-  .salutation {
-    margin-bottom: 12px;
-    font-size: 10.5pt;
-  }
+  .salutation { margin-bottom: 12px; font-size: 10.5pt; }
   .body-text {
     white-space: pre-wrap;
     text-align: justify;
@@ -156,41 +196,49 @@ exports.handler = async (event) => {
     line-height: 1.55;
   }
 
-  /* ── Grußformel + Unterschrift ── */
-  .sign-off {
-    margin-bottom: 14mm; /* Platz für handschriftliche Unterschrift */
+  /* ── Datentabelle (Zahlungsblock etc.) ── */
+  .data-table {
+    border-collapse: collapse;
+    margin: 10px 0 10px 8mm;
     font-size: 10.5pt;
+    line-height: 1.7;
   }
-  .sig-line {
-    border-top: 1px solid #1a1a1a;
-    width: 52mm;
-    margin-bottom: 3px;
+  .data-table .dt-label {
+    color: #333;
+    padding-right: 12mm;
+    vertical-align: top;
+    white-space: nowrap;
   }
-  .sig-name {
-    font-weight: 700;
-    font-size: 10.5pt;
+  .data-table .dt-value {
+    font-weight: 500;
+    vertical-align: top;
   }
-  .sig-addr {
-    font-size: 9pt;
-    color: #555;
-    margin-top: 2px;
-  }
+
+  /* ── Unterschrift ── */
+  .sign-off { margin-bottom: 14mm; font-size: 10.5pt; }
+  .sig-line { border-top: 1px solid #1a1a1a; width: 52mm; margin-bottom: 3px; }
+  .sig-name { font-weight: 700; font-size: 10.5pt; }
+  .sig-addr { font-size: 9pt; color: #555; margin-top: 2px; }
 </style>
 </head>
 <body>
 
-<div class="header-row">
-  <div class="sender-block">
+<div class="letter-top">
+  <div class="sender-zone">
     <div class="return-address">${senderLine}</div>
-    <div class="sender-name">${senderName}</div>
-    <div class="sender-addr">
-      ${senderStreet}<br>
-      ${senderZip} ${senderCity}
+    <div class="sender-block">
+      <div class="sender-name">${senderName}</div>
+      <div class="sender-addr">
+        ${senderStreet}<br>
+        ${senderZip} ${senderCity}
+      </div>
+      ${senderEmail ? `<div class="sender-email">${senderEmail}</div>` : ""}
     </div>
-    ${senderEmail ? `<div class="sender-email">${senderEmail}</div>` : ""}
   </div>
   <div class="date-block">${senderCity ? senderCity + ", " : ""}${date}</div>
 </div>
+
+<hr class="header-rule">
 
 <div class="recipient-block">
   <strong>${recipientName}</strong><br>
@@ -202,7 +250,7 @@ exports.handler = async (event) => {
 
 <p class="salutation">${salutation}</p>
 
-<div class="body-text">${body}</div>
+<div class="body-text">${formattedBody}</div>
 
 ${closing ? `<div class="closing-text">${closing}</div>` : ""}
 
