@@ -1738,7 +1738,7 @@ function getDocContent(){
 
   // ─── RATENZAHLUNG ───────────────────────────────────────────
   if(t==="ratenzahlung"){
-    betreff=`Antrag auf Einräumung einer Ratenzahlungsvereinbarung – Forderung: ${fmt(amt)}`;
+    betreff=`Ratenzahlungsvereinbarung – ${debtName}${bankRef?" · Ref.: "+bankRef:""}`;
     if(s==="kooperativ"){
       body=`ich hoffe, dieses Schreiben erreicht Sie gut. Ich möchte mich wegen der offenen Forderung über ${fmt(amt)} aus ${debtName} bei Ihnen melden – und zwar mit einem konkreten Lösungsvorschlag.
 
@@ -1772,7 +1772,7 @@ Die Raten werden jeweils spätestens zum 1. Werktag des Monats auf Ihr Konto üb
   // ─── VERGLEICH ──────────────────────────────────────────────
   else if(t==="vergleich"){
     const pct=amt>0?Math.round(offer/amt*100):0;
-    betreff=`${s==="bestimmt"?"Letztes Vergleichsangebot":"Außergerichtliches Vergleichsangebot"} – Offene Forderung: ${fmt(amt)}`;
+    betreff=`${s==="bestimmt"?"Letztes Vergleichsangebot":"Außergerichtlicher Vergleich"} – ${debtName}${bankRef?" · Ref.: "+bankRef:""}`;
     const vergleichsblock=`    Ursprüngliche Forderung:     ${fmt(amt)}
     Mein Vergleichsangebot:      ${fmt(offer)} (${pct}% der Gesamtforderung)
     Restforderungserlass:        ${fmt(amt-offer)}
@@ -1808,7 +1808,7 @@ Im Gegenzug bitte ich Sie, die Restforderung dauerhaft zu erlassen und die Angel
 
   // ─── STUNDUNG ────────────────────────────────────────────────
   else if(t==="stundung"){
-    betreff=`Antrag auf vorübergehende Stundung der Forderung – ${fmt(amt)}`;
+    betreff=`Stundungsantrag – ${debtName}${bankRef?" · Ref.: "+bankRef:""}`;
     const stundungsblock=`    Offene Forderung:            ${fmt(amt)}
     Beantragte Stundung bis:     ${d.pauseUntil?fDL(d.pauseUntil):"[Datum bitte ergänzen]"}
     Wiederaufnahme der Zahlung:  ${d.pauseUntil?`ab ${fDL(d.pauseUntil)}`:"nach Ablauf der Stundungsfrist"}${rate>0?`\n    Monatliche Rate danach:      ${fmt(rate)}`:""}`;
@@ -1846,7 +1846,7 @@ Ich versichere Ihnen, dass ich während der Stundungszeit alle notwendigen Schri
 
   // ─── TEILZAHLUNG ─────────────────────────────────────────────
   else if(t==="teilzahlung"){
-    betreff=`Angebot einer einmaligen Abschlagszahlung – Forderung: ${fmt(amt)}`;
+    betreff=`Teilzahlungsangebot – ${debtName}${bankRef?" · Ref.: "+bankRef:""}`;
     const teilblock=`    Ursprüngliche Forderung:     ${fmt(amt)}
     Angebotene Einmalzahlung:    ${fmt(offer)}
     Zahlungsfrist:               7 Werktage nach schriftlicher Annahme
@@ -1881,7 +1881,7 @@ ${d.reason?`Der Grund für die Beschränkung meiner Zahlungsfähigkeit liegt in:
 
   // ─── MAHNUNG ANTWORT ─────────────────────────────────────────
   else if(t==="mahnung_antwort"){
-    betreff=`Stellungnahme zu Ihrem Mahnschreiben – Forderung: ${fmt(amt)}`;
+    betreff=`Stellungnahme zu Ihrer Mahnung – ${debtName}${bankRef?" · Ref.: "+bankRef:""}`;
     const mahnblock=`    Offene Forderung:            ${fmt(amt)}
     Vorgeschlagene Monatsrate:   ${fmt(rate)}
     Voraussichtliche Laufzeit:   ${months} Monate
@@ -1917,7 +1917,7 @@ Ich bitte Sie, von der Einleitung weiterer Maßnahmen abzusehen und mir die Mög
 
   // ─── HÄRTEFALL ───────────────────────────────────────────────
   else if(t==="haertefall"){
-    betreff=`Härtefallantrag – Bitte um außerordentliche Kulanzregelung – Forderung: ${fmt(amt)}`;
+    betreff=`Härtefallantrag – ${debtName}${bankRef?" · Ref.: "+bankRef:""}`;
     const haerteblock=`${d.reason?`    Ursache der Notlage:         ${d.reason}`:"    Ursache der Notlage:         [bitte ergänzen]"}
     Betroffene Forderung:        ${fmt(amt)}
     Mögliche monatliche Leistung:${rate>0?` ${fmt(rate)}`:" derzeit nicht möglich"}
@@ -2112,7 +2112,7 @@ function getCancelDocContent(){
 
   // ─── ORDENTLICHE KÜNDIGUNG ───────────────────────────────────
   if(t==="ordentlich"){
-    subject=`Kündigung – ${contractName}`;
+    subject=`Kündigung – ${contractName}${contractNo?", Vtr.-Nr. "+c.contractNo:""}`;
     if(s==="energisch"){
       body=`hiermit kündige ich den Vertrag über „${contractName}" bei ${provider} fristgerecht und mit sofortiger Wirkung zum nächstmöglichen Termin.
 
@@ -2135,7 +2135,7 @@ ${d.reason?`Ich möchte auf eine Begründung nicht näher eingehen und bitte um 
 
   // ─── AUSSERORDENTLICHE KÜNDIGUNG ─────────────────────────────
   else if(t==="ausserordentlich"){
-    subject=`${s==="energisch"?"Fristlose Kündigung":"Außerordentliche fristlose Kündigung"} – ${contractName}`;
+    subject=`${s==="energisch"?"Fristlose Kündigung":"Außerordentliche Kündigung"} – ${contractName}${contractNo?", Vtr.-Nr. "+c.contractNo:""}`;
     if(s==="energisch"){
       body=`hiermit kündige ich den Vertrag „${contractName}" mit ${provider} fristlos und mit sofortiger Wirkung. Rechtsgrundlage: § 314 BGB.
 
@@ -2163,7 +2163,7 @@ Aufgrund des vorstehend genannten wichtigen Grundes ist mir eine Fortsetzung des
 
   // ─── PREISERHÖHUNG ───────────────────────────────────────────
   else if(t==="preissteigerung"){
-    subject=`Kündigung – Sonderkündigungsrecht – Preiserhöhung – ${contractName}`;
+    subject=`Kündigung – Sonderkündigungsrecht – ${contractName}${contractNo?", Vtr.-Nr. "+c.contractNo:""}`;
     if(s==="energisch"){
       body=`ich mache hiermit ausdrücklich von meinem Sonderkündigungsrecht gem. § 315 BGB Gebrauch und kündige den Vertrag „${contractName}" bei ${provider} fristlos infolge der nicht akzeptierten Preiserhöhung.
 
@@ -2186,7 +2186,7 @@ Die angekündigte Preiserhöhung ist für mich nicht akzeptabel. Ich bitte Sie z
 
   // ─── WIDERRUF ────────────────────────────────────────────────
   else if(t==="widerruf"){
-    subject=`Widerruf – ${contractName} – innerhalb der gesetzlichen Frist`;
+    subject=`Widerruf – ${contractName}${contractNo?", Vtr.-Nr. "+c.contractNo:""}`;
     if(s==="energisch"){
       body=`hiermit widerrufe ich den Vertrag „${contractName}" mit ${provider} fristgerecht innerhalb der 14-tägigen Widerrufsfrist (§ 355 BGB). Widerrufsdatum: ${today}.
 
@@ -2209,7 +2209,7 @@ Das Widerrufsrecht steht mir als Verbraucher gemäß § 355 BGB ausdrücklich zu
   }
 
   else{
-    subject=`Kündigung – ${contractName}`;
+    subject=`Kündigung – ${contractName}${contractNo?", Vtr.-Nr. "+c.contractNo:""}`;
     body=`hiermit kündige ich den mit ${provider} bestehenden Vertrag über ${contractName} fristgerecht zum nächstmöglichen Termin.${contractNo}${dl?`\n\nDie Kündigung muss spätestens bis zum ${fDL(dl)} eingehen.`:""}${d.effectiveDate?`\n\nGewünschtes Vertragsende: ${fDL(d.effectiveDate)}`:""}${d.reason?`\nBegründung: ${d.reason}`:""}${d.customNote?`\n\n${d.customNote}`:""}`;
   }
 
