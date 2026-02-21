@@ -1892,6 +1892,19 @@ function purgeCurrentUserSeedBudget(){
 }
 function saveBudget(){scheduleCloudSave();try{localStorage.setItem("budgetItems",JSON.stringify(budgetItems))}catch(e){}}
 function rBudget(){
+  // Inject recurring items for current month if not already present
+  const recurringBase=budgetItems.filter(i=>i.recurring&&i.date);
+  recurringBase.forEach(r=>{
+    const monthKey=currentBudgetMonth;
+    const day=(r.date.split("-")[2]||"01");
+    const projDate=`${monthKey}-${day}`;
+    const alreadyExists=budgetItems.some(i=>i.recurringFrom===r.id&&i.date&&i.date.startsWith(monthKey));
+    const isOriginalMonth=r.date.startsWith(monthKey);
+    if(!alreadyExists&&!isOriginalMonth){
+      budgetItems.push({id:Date.now()+Math.random(),type:r.type,category:r.category,note:r.note,date:projDate,amount:r.amount,recurringFrom:r.id,auto:false});
+      saveBudget();
+    }
+  });
   const manualItems=budgetItems.filter(i=>i.date&&i.date.startsWith(currentBudgetMonth)).sort((a,b)=>new Date(a.date)-new Date(b.date));
   const monthEnd=`${currentBudgetMonth}-31`;
   const plannedDebtExpenses=debts.filter(d=>d.paid<d.original).flatMap(d=>{
@@ -1917,7 +1930,7 @@ function rBudget(){
       <div style="font-size:14px;font-weight:600">${i.category||"-"}</div>
       <div style="font-size:13px;color:var(--tm)">${i.note||"-"}</div>
       <div style="font-size:17px;font-weight:800;color:${type==="income"?"var(--em)":"var(--co)"};text-align:right;min-width:96px">${fmt(i.amount||0)}</div>
-      ${i.auto?`<span class="badge" style="justify-self:end"><span class="badge-dot" style="background:var(--sk)"></span>Auto</span>`:`<button class="btn btn-outline btn-sm" onclick="deleteBudgetItem(${i.id})">Löschen</button>`}
+      ${i.auto?`<span class="badge" style="justify-self:end"><span class="badge-dot" style="background:var(--sk)"></span>Auto</span>`:i.recurring?`<div style="display:flex;gap:6px;justify-self:end"><span class="badge" style="color:var(--em);background:var(--emG);border:1px solid var(--ba)">🔁 Dauerhaft</span><button class="btn btn-outline btn-sm" onclick="deleteBudgetItem(${i.id})">Löschen</button></div>`:`<button class="btn btn-outline btn-sm" onclick="deleteBudgetItem(${i.id})">Löschen</button>`}
     </div>
   `;
 
@@ -2011,11 +2024,37 @@ function openBudgetAdd(defaultType='income'){
     <div class="field"><label>Kategorie</label><div class="input-wrap"><input id="bCat" placeholder="z.B. Gehalt / Miete"></div></div>
     <div class="field"><label>Beschreibung</label><div class="input-wrap"><input id="bDesc" placeholder="Optional..."></div></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-      <div class="field"><label>Datum</label><div class="input-wrap"><input id="bDate" type="date" value="${tdy()}"></div></div>
+      <div class="field"><label>Datum (Startmonat)</label><div class="input-wrap"><input id="bDate" type="date" value="${tdy()}"></div></div>
       <div class="field"><label>Betrag</label><div class="input-wrap"><input id="bAmt" type="number" placeholder="0"><span class="suffix">€</span></div></div>
+    </div>
+    <div id="bRecurringWrap" style="margin-bottom:16px">
+      <button type="button" id="bRecurringBtn" onclick="toggleRecurring()" style="width:100%;padding:12px 16px;border-radius:10px;border:1px solid var(--b);background:var(--bgE);color:var(--tm);font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:between;gap:10px;transition:all 0.15s;text-align:left">
+        <span style="font-size:18px">🔁</span>
+        <span style="flex:1">Dauerhaft (monatlich wiederkehrend)</span>
+        <span id="bRecurringDot" style="width:20px;height:20px;border-radius:6px;background:var(--b);border:2px solid var(--bl);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all 0.2s"></span>
+      </button>
+      <input type="hidden" id="bRecurring" value="0">
+      <p id="bRecurringHint" style="display:none;font-size:12px;color:var(--em);margin:8px 0 0;padding:8px 12px;background:var(--emG);border-radius:8px;border:1px solid var(--ba)">✓ Wird jeden Monat automatisch eingetragen – bis du es manuell löschst.</p>
     </div>
     <div style="display:flex;gap:12px;margin-top:8px"><button class="btn btn-outline" style="flex:1" onclick="closeModal()">Abbrechen</button><button class="btn btn-primary" style="flex:1" onclick="sBudgetAdd()">✓ Speichern</button></div>
   </div></div>`;
+}
+function toggleRecurring(){
+  const inp=document.getElementById("bRecurring");
+  const btn=document.getElementById("bRecurringBtn");
+  const dot=document.getElementById("bRecurringDot");
+  const hint=document.getElementById("bRecurringHint");
+  const active=inp.value==="1";
+  inp.value=active?"0":"1";
+  if(!active){
+    btn.style.borderColor="var(--ba)";btn.style.background="var(--emG)";btn.style.color="var(--em)";
+    dot.style.background="var(--em)";dot.style.borderColor="var(--em)";dot.textContent="✓";
+    hint.style.display="block";
+  }else{
+    btn.style.borderColor="var(--b)";btn.style.background="var(--bgE)";btn.style.color="var(--tm)";
+    dot.style.background="var(--b)";dot.style.borderColor="var(--bl)";dot.textContent="";
+    hint.style.display="none";
+  }
 }
 function setBudgetType(type){
   const hidden=document.getElementById("bType");
@@ -2033,11 +2072,13 @@ function sBudgetAdd(){
   const note=document.getElementById("bDesc").value.trim();
   const date=document.getElementById("bDate").value||tdy();
   const amount=parseFloat(document.getElementById("bAmt").value);
+  const recurring=document.getElementById("bRecurring")?.value==="1";
   if(!amount||amount<=0){flash("Bitte Betrag angeben");return;}
-  budgetItems.unshift({id:Date.now(),type,category,note,date,amount});
+  const item={id:Date.now(),type,category,note,date,amount,recurring:recurring||false};
+  budgetItems.unshift(item);
   saveBudget();
   closeModal();
-  flash("Beitrag gespeichert ✓");
+  flash(recurring?"Dauerhafter Beitrag gespeichert 🔁":"Beitrag gespeichert ✓");
   renderPage();
 }
 function deleteBudgetItem(id){
@@ -2482,4 +2523,4 @@ if(document.readyState==="loading"){
 })();
 </script>
 </body>
-</html>a
+</html>
