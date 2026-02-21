@@ -1,6 +1,9 @@
 const chromium = require("@sparticuz/chromium");
 const puppeteer = require("puppeteer-core");
 
+// Netlify setzt LAMBDA_TASK_ROOT – Chromium liegt dort
+chromium.setGraphicsMode = false;
+
 exports.handler = async (event) => {
   if (event.httpMethod !== "POST") {
     return { statusCode: 405, body: "Method Not Allowed" };
@@ -225,11 +228,23 @@ ${closing ? `<div class="closing-text">${closing}</div>` : ""}
 
   let browser;
   try {
+    // Auf Netlify liegt Chromium im Lambda-Verzeichnis
+    const executablePath = await chromium.executablePath(
+      process.env.CHROMIUM_PATH || "/var/task/node_modules/@sparticuz/chromium/bin/chromium"
+    );
+
     browser = await puppeteer.launch({
-      args: chromium.args,
-      defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath(),
-      headless: chromium.headless,
+      args: [
+        ...chromium.args,
+        "--disable-gpu",
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage",
+        "--single-process",
+      ],
+      defaultViewport: { width: 794, height: 1123 },
+      executablePath,
+      headless: "new",
     });
 
     const page = await browser.newPage();
