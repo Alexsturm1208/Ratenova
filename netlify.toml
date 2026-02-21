@@ -3,6 +3,7 @@
 
 [functions]
   node_bundler = "esbuild"
-  # Chromium braucht mehr Zeit und Speicher
+  external_node_modules = ["@sparticuz/chromium"]
+
   [functions."generate-letter"]
     timeout = 30
