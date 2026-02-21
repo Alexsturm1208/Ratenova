@@ -55,6 +55,69 @@ const SUPABASE_ANON_KEY="sb_publishable_ZZpjQ4Lqcqd2uVpGrSthcQ_nnCYSGPv";
 const MASTER_USERNAME="master";
 const MASTER_AUTH_EMAIL="master@ratenova.local";
 
+// ── Auto-Logout nach 5 Minuten Inaktivität ──
+const INACTIVITY_TIMEOUT_MS = 5 * 60 * 1000; // 5 Minuten
+const WARN_BEFORE_MS = 30 * 1000; // 30 Sekunden Vorwarnung
+let inactivityTimer = null;
+let warnTimer = null;
+let countdownInterval = null;
+
+function resetInactivityTimer(){
+  if(!masterState.loggedIn) return;
+  clearTimeout(inactivityTimer);
+  clearTimeout(warnTimer);
+  clearInterval(countdownInterval);
+  // Warnung entfernen falls sichtbar
+  const w = document.getElementById("inactivityWarning");
+  if(w) w.remove();
+
+  // Vorwarnung nach 4:30 Min
+  warnTimer = setTimeout(()=>{
+    if(!masterState.loggedIn) return;
+    showInactivityWarning();
+  }, INACTIVITY_TIMEOUT_MS - WARN_BEFORE_MS);
+
+  // Logout nach 5 Min
+  inactivityTimer = setTimeout(async()=>{
+    if(!masterState.loggedIn) return;
+    clearInterval(countdownInterval);
+    flash("⏱ Automatisch ausgeloggt (Inaktivität)");
+    await masterLogout();
+  }, INACTIVITY_TIMEOUT_MS);
+}
+
+function showInactivityWarning(){
+  // Altes Warning entfernen
+  const old = document.getElementById("inactivityWarning");
+  if(old) old.remove();
+
+  const el = document.createElement("div");
+  el.id = "inactivityWarning";
+  el.style.cssText = "position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:9999;background:#1C1E27;border:1px solid rgba(251,191,36,0.4);border-radius:14px;padding:14px 20px;display:flex;align-items:center;gap:14px;box-shadow:0 16px 48px rgba(0,0,0,0.5);min-width:340px;animation:slideUp 0.3s ease";
+  el.innerHTML = `
+    <span style="font-size:22px">⏱</span>
+    <div style="flex:1">
+      <p style="font-size:13px;font-weight:700;color:#FBBF24;margin:0">Sitzung läuft ab</p>
+      <p style="font-size:12px;color:#6B6F80;margin:2px 0 0">Automatischer Logout in <span id="countdown" style="color:#FBBF24;font-weight:700">30</span> Sekunden</p>
+    </div>
+    <button onclick="resetInactivityTimer()" style="padding:8px 14px;border-radius:8px;border:1px solid rgba(251,191,36,0.4);background:rgba(251,191,36,0.12);color:#FBBF24;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">Aktiv bleiben</button>
+  `;
+  document.body.appendChild(el);
+
+  let secs = 30;
+  countdownInterval = setInterval(()=>{
+    secs--;
+    const cd = document.getElementById("countdown");
+    if(cd) cd.textContent = secs;
+    if(secs <= 0) clearInterval(countdownInterval);
+  }, 1000);
+}
+
+// Aktivitäts-Events überwachen
+["mousemove","mousedown","keydown","touchstart","scroll","click"].forEach(ev=>{
+  document.addEventListener(ev, ()=>{ if(masterState.loggedIn) resetInactivityTimer(); }, {passive:true});
+});
+
 let supabaseClient=null;
 let masterState={loggedIn:false,tab:"stats",users:[],states:[],selectedUserId:null,error:"",query:"",deleteConfirm:null};
 
@@ -77,6 +140,7 @@ window.addEventListener("load",async()=>{
       if((profile?.role||"")==="master"||data.session.user.email===MASTER_AUTH_EMAIL){
         masterState.loggedIn=true;
         await loadMasterData();
+        resetInactivityTimer();
       }
     }
   }
@@ -101,9 +165,15 @@ async function masterLogin(){
   masterState.loggedIn=true;masterState.error="";masterState.tab="stats";
   await loadMasterData();
   render();
+  resetInactivityTimer();
 }
 
 async function masterLogout(){
+  clearTimeout(inactivityTimer);
+  clearTimeout(warnTimer);
+  clearInterval(countdownInterval);
+  const w = document.getElementById("inactivityWarning");
+  if(w) w.remove();
   try{if(supabaseClient)await supabaseClient.auth.signOut()}catch(e){}
   masterState={loggedIn:false,tab:"stats",users:[],states:[],selectedUserId:null,error:"",query:"",deleteConfirm:null};
   render();
