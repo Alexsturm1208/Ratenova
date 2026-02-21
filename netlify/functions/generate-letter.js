@@ -114,11 +114,11 @@ exports.handler = async (event) => {
     position: relative;
   }
 
-  /* ── Empfängerfeld (DIN 5008: ~45mm vom Papier-Oberkante = ~25mm nach Header) ── */
+  /* ── Empfängerfeld – DIN 5008: Anschriftfeld beginnt bei ~45mm vom Papierrand ── */
   .recipient-block {
-    margin-top: 22px;
+    margin-top: 8mm;
     margin-bottom: 0;
-    min-height: 45mm; /* Normfenster */
+    min-height: 40mm;
     font-size: 10.5pt;
     line-height: 1.65;
   }
@@ -175,16 +175,6 @@ exports.handler = async (event) => {
     color: #555;
     margin-top: 2px;
   }
-
-  /* ── Footer ── */
-  .letter-footer {
-    margin-top: 16mm;
-    padding-top: 6px;
-    border-top: 1px solid #ddd;
-    font-size: 8pt;
-    color: #aaa;
-    text-align: center;
-  }
 </style>
 </head>
 <body>
@@ -221,8 +211,6 @@ ${closing ? `<div class="closing-text">${closing}</div>` : ""}
 <div class="sig-line"></div>
 <div class="sig-name">${signatureName}</div>
 <div class="sig-addr">${senderStreet}, ${senderZip} ${senderCity}</div>
-
-<div class="letter-footer">Erstellt mit Ratenova &middot; ratenova.de</div>
 
 </body>
 </html>`;
