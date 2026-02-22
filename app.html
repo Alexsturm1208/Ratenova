@@ -1633,6 +1633,35 @@ function rAgreePreview(){
       </div>
     </div>
 
+
+    <div class="card" style="padding:0;overflow:hidden;margin-bottom:20px">
+      <div style="padding:12px 18px;background:var(--bgE);border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+        <span style="font-size:11px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:0.8px">✍️ Unterschrift</span>
+        <div style="display:flex;gap:6px">
+          <button onclick="sigSetMode('agree','draw')" id="agSigTabDraw" style="font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid var(--ba);background:var(--emG);color:var(--em);font-weight:600;cursor:pointer">✏️ Zeichnen</button>
+          <button onclick="sigSetMode('agree','upload')" id="agSigTabUpload" style="font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid var(--b);background:transparent;color:var(--tm);cursor:pointer">📁 Hochladen</button>
+          <button onclick="sigClear('agree')" style="font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid var(--b);background:transparent;color:var(--co);cursor:pointer">✕ Löschen</button>
+        </div>
+      </div>
+      <div style="padding:16px 18px">
+        <div id="agSigDraw">
+          <p style="font-size:12px;color:var(--tm);margin:0 0 8px">Mit Maus oder Finger unterschreiben:</p>
+          <canvas id="agSigCanvas" width="560" height="120" style="width:100%;height:120px;border:2px dashed var(--b);border-radius:10px;background:#fff;cursor:crosshair;touch-action:none"></canvas>
+        </div>
+        <div id="agSigUpload" style="display:none">
+          <p style="font-size:12px;color:var(--tm);margin:0 0 8px">Unterschriftsdatei hochladen (PNG, JPG):</p>
+          <label style="display:flex;align-items:center;gap:10px;padding:12px 16px;border:2px dashed var(--b);border-radius:10px;cursor:pointer;background:var(--bgE)">
+            <span style="font-size:22px">📁</span>
+            <span style="font-size:13px;color:var(--tm)">Datei auswählen oder hierher ziehen</span>
+            <input type="file" accept="image/*" onchange="sigLoadFile('agree',this)" style="display:none">
+          </label>
+        </div>
+        <div id="agSigPreview" style="display:none;margin-top:10px">
+          <p style="font-size:11px;color:var(--em);margin:0 0 6px">✓ Unterschrift gespeichert</p>
+          <img id="agSigImg" style="max-height:80px;border-radius:8px;border:1px solid var(--b)">
+        </div>
+      </div>
+    </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;padding-top:4px">
       <button class="btn btn-outline" onclick="agreeForm.step=2;renderPage()">✏️ Daten bearbeiten</button>
       <button class="btn btn-outline" onclick="agreeForm={debt:null,template:null,style:'formell',step:1,editBetreff:'',editBody:'',editClosing:'',data:{name:'',street:'',zip:'',city:'',creditor:'',creditorStreet:'',creditorZip:'',creditorCity:'',amount:'',rate:'',startDate:'',reason:'',offerAmount:'',pauseUntil:'',bankRef:''}};renderPage()">🔄 Neue Vereinbarung</button>
@@ -2291,6 +2320,35 @@ function rCancelPreview(){
       </div>
     </div>
 
+
+    <div class="card" style="padding:0;overflow:hidden;margin-bottom:20px">
+      <div style="padding:12px 18px;background:var(--bgE);border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+        <span style="font-size:11px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:0.8px">✍️ Unterschrift</span>
+        <div style="display:flex;gap:6px">
+          <button onclick="sigSetMode('cancel','draw')" id="caSigTabDraw" style="font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid var(--ba);background:var(--emG);color:var(--em);font-weight:600;cursor:pointer">✏️ Zeichnen</button>
+          <button onclick="sigSetMode('cancel','upload')" id="caSigTabUpload" style="font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid var(--b);background:transparent;color:var(--tm);cursor:pointer">📁 Hochladen</button>
+          <button onclick="sigClear('cancel')" style="font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid var(--b);background:transparent;color:var(--co);cursor:pointer">✕ Löschen</button>
+        </div>
+      </div>
+      <div style="padding:16px 18px">
+        <div id="caSigDraw">
+          <p style="font-size:12px;color:var(--tm);margin:0 0 8px">Mit Maus oder Finger unterschreiben:</p>
+          <canvas id="caSigCanvas" width="560" height="120" style="width:100%;height:120px;border:2px dashed var(--b);border-radius:10px;background:#fff;cursor:crosshair;touch-action:none"></canvas>
+        </div>
+        <div id="caSigUpload" style="display:none">
+          <p style="font-size:12px;color:var(--tm);margin:0 0 8px">Unterschriftsdatei hochladen (PNG, JPG):</p>
+          <label style="display:flex;align-items:center;gap:10px;padding:12px 16px;border:2px dashed var(--b);border-radius:10px;cursor:pointer;background:var(--bgE)">
+            <span style="font-size:22px">📁</span>
+            <span style="font-size:13px;color:var(--tm)">Datei auswählen oder hierher ziehen</span>
+            <input type="file" accept="image/*" onchange="sigLoadFile('cancel',this)" style="display:none">
+          </label>
+        </div>
+        <div id="caSigPreview" style="display:none;margin-top:10px">
+          <p style="font-size:11px;color:var(--em);margin:0 0 6px">✓ Unterschrift gespeichert</p>
+          <img id="caSigImg" style="max-height:80px;border-radius:8px;border:1px solid var(--b)">
+        </div>
+      </div>
+    </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;padding-top:4px">
       <button class="btn btn-outline" onclick="cancelForm.step=2;renderPage()">✏️ Daten bearbeiten</button>
       <button class="btn btn-outline" onclick="cancelForm={contractId:null,template:null,style:'formell',step:1,editSubject:'',editBody:'',editClosing:'',data:{senderName:'',senderStreet:'',senderZip:'',senderCity:'',senderEmail:'',reason:'',effectiveDate:'',customNote:''}};renderPage()">🔄 Neue Kündigung</button>
@@ -2298,6 +2356,120 @@ function rCancelPreview(){
       <button class="btn btn-outline" onclick="sendCancelMail()">✉️ E-Mail</button>
       <button class="btn btn-primary" onclick="cancelForm.editSubject=document.getElementById('caEditSubject')?.value||cancelForm.editSubject;cancelForm.editBody=document.getElementById('caEditBody')?.value||cancelForm.editBody;cancelForm.editClosing=document.getElementById('caEditClosing')?.value||cancelForm.editClosing;openCancelPdfPreview()" style="background:linear-gradient(135deg,#7C3AED,#6D28D9)">📄 PDF generieren</button>
     </div>`;
+  setTimeout(()=>{sigMaybeInit('cancel');if(sigState.cancel)sigShowPreview('cancel',sigState.cancel);},100);
+}
+
+// ═══════════════════════════════════════════════════════
+// UNTERSCHRIFTS-SYSTEM
+// ═══════════════════════════════════════════════════════
+const sigState = { agree: null, cancel: null }; // base64 data URLs
+
+function sigSetMode(form, mode){
+  const prefix = form==="agree" ? "ag" : "ca";
+  document.getElementById(prefix+"SigDraw").style.display   = mode==="draw"   ? "" : "none";
+  document.getElementById(prefix+"SigUpload").style.display = mode==="upload" ? "" : "none";
+  // Tab-Styling
+  const drawBtn   = document.getElementById(prefix+"SigTabDraw");
+  const uploadBtn = document.getElementById(prefix+"SigTabUpload");
+  if(drawBtn){
+    drawBtn.style.background   = mode==="draw"   ? "var(--emG)"      : "transparent";
+    drawBtn.style.color        = mode==="draw"   ? "var(--em)"       : "var(--tm)";
+    drawBtn.style.borderColor  = mode==="draw"   ? "var(--ba)"       : "var(--b)";
+    drawBtn.style.fontWeight   = mode==="draw"   ? "600"             : "400";
+  }
+  if(uploadBtn){
+    uploadBtn.style.background  = mode==="upload" ? "var(--emG)"     : "transparent";
+    uploadBtn.style.color       = mode==="upload" ? "var(--em)"      : "var(--tm)";
+    uploadBtn.style.borderColor = mode==="upload" ? "var(--ba)"      : "var(--b)";
+    uploadBtn.style.fontWeight  = mode==="upload" ? "600"            : "400";
+  }
+  if(mode==="draw") setTimeout(()=>sigInitCanvas(form), 50);
+}
+
+function sigInitCanvas(form){
+  const id = (form==="agree" ? "ag" : "ca") + "SigCanvas";
+  const canvas = document.getElementById(id);
+  if(!canvas || canvas._sigInited) return;
+  canvas._sigInited = true;
+  const ctx = canvas.getContext("2d");
+  ctx.strokeStyle = "#1a1a1a";
+  ctx.lineWidth = 2.2;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  let drawing = false, lx = 0, ly = 0;
+
+  function getPos(e){
+    const r = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / r.width;
+    const scaleY = canvas.height / r.height;
+    const src = e.touches ? e.touches[0] : e;
+    return { x: (src.clientX - r.left) * scaleX, y: (src.clientY - r.top) * scaleY };
+  }
+
+  function start(e){ e.preventDefault(); drawing=true; const p=getPos(e); lx=p.x; ly=p.y; }
+  function move(e){
+    e.preventDefault();
+    if(!drawing) return;
+    const p=getPos(e);
+    ctx.beginPath(); ctx.moveTo(lx,ly); ctx.lineTo(p.x,p.y); ctx.stroke();
+    lx=p.x; ly=p.y;
+  }
+  function end(e){
+    e.preventDefault();
+    drawing=false;
+    // Save to state after each stroke
+    sigState[form] = canvas.toDataURL("image/png");
+    sigShowPreview(form, sigState[form]);
+  }
+
+  canvas.addEventListener("mousedown",  start);
+  canvas.addEventListener("mousemove",  move);
+  canvas.addEventListener("mouseup",    end);
+  canvas.addEventListener("mouseleave", end);
+  canvas.addEventListener("touchstart", start, {passive:false});
+  canvas.addEventListener("touchmove",  move,  {passive:false});
+  canvas.addEventListener("touchend",   end,   {passive:false});
+}
+
+function sigLoadFile(form, input){
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    sigState[form] = e.target.result;
+    sigShowPreview(form, e.target.result);
+    flash("Unterschrift geladen ✓");
+  };
+  reader.readAsDataURL(file);
+}
+
+function sigShowPreview(form, dataUrl){
+  const prefix = form==="agree" ? "ag" : "ca";
+  const preview = document.getElementById(prefix+"SigPreview");
+  const img     = document.getElementById(prefix+"SigImg");
+  if(preview && img && dataUrl){
+    img.src = dataUrl;
+    preview.style.display = "";
+  }
+}
+
+function sigClear(form){
+  sigState[form] = null;
+  const prefix = form==="agree" ? "ag" : "ca";
+  const canvas  = document.getElementById(prefix+"SigCanvas");
+  if(canvas){
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    canvas._sigInited = false;
+  }
+  const preview = document.getElementById(prefix+"SigPreview");
+  if(preview) preview.style.display="none";
+  flash("Unterschrift gelöscht");
+}
+
+// Init canvas on first render (draw mode is default)
+function sigMaybeInit(form){
+  setTimeout(()=>sigInitCanvas(form), 80);
 }
 function sendAgreeMail(){
   const d=agreeForm.data;
@@ -2393,6 +2565,7 @@ async function openAgreementPdfPreview(){
     body,
     closing,
     signatureName: d.name || "",
+    signatureImage: sigState.agree || "",
   };
   await generateLetterPdf(payload, subject);
 }
@@ -2421,6 +2594,7 @@ async function openCancelPdfPreview(){
     body,
     closing,
     signatureName: d.senderName || "",
+    signatureImage: sigState.cancel || "",
   };
   await generateLetterPdf(payload, subject);
 }
