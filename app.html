@@ -1669,7 +1669,7 @@ function rAgreePreview(){
       <button class="btn btn-outline" onclick="sendAgreeMail()">✉️ E-Mail</button>
       <button class="btn btn-primary" onclick="agreeForm.editBetreff=document.getElementById('agEditBetreff')?.value||agreeForm.editBetreff;agreeForm.editBody=document.getElementById('agEditBody')?.value||agreeForm.editBody;agreeForm.editClosing=document.getElementById('agEditClosing')?.value||agreeForm.editClosing;openAgreementPdfPreview()" style="background:linear-gradient(135deg,#7C3AED,#6D28D9)">📄 PDF generieren</button>
     </div>`;
-  setTimeout(()=>sigInitCanvas('agree'), 200);
+  setTimeout(()=>sigSetMode('agree','draw'), 200);
 }
 
 function copyAgreement(){
@@ -2357,7 +2357,7 @@ function rCancelPreview(){
       <button class="btn btn-outline" onclick="sendCancelMail()">✉️ E-Mail</button>
       <button class="btn btn-primary" onclick="cancelForm.editSubject=document.getElementById('caEditSubject')?.value||cancelForm.editSubject;cancelForm.editBody=document.getElementById('caEditBody')?.value||cancelForm.editBody;cancelForm.editClosing=document.getElementById('caEditClosing')?.value||cancelForm.editClosing;openCancelPdfPreview()" style="background:linear-gradient(135deg,#7C3AED,#6D28D9)">📄 PDF generieren</button>
     </div>`;
-  setTimeout(()=>{sigInitCanvas('cancel');if(sigState.cancel)sigShowPreview('cancel',sigState.cancel);},200);
+  setTimeout(()=>{sigSetMode('cancel','draw');if(sigState.cancel)sigShowPreview('cancel',sigState.cancel);},200);
 }
 
 // ═══════════════════════════════════════════════════════
@@ -2377,7 +2377,17 @@ function sigSetMode(form, mode){
   const inactive = "border:1px solid var(--b);background:transparent;color:var(--tm);cursor:pointer;font-size:11px;padding:4px 10px;border-radius:6px";
   if(drawBtn)   drawBtn.style.cssText   = mode==="draw"   ? active : inactive;
   if(uploadBtn) uploadBtn.style.cssText = mode==="upload" ? active : inactive;
-  if(mode==="draw") requestAnimationFrame(()=>requestAnimationFrame(()=>sigInitCanvas(form)));
+  if(mode==="draw"){
+    // Retry bis Canvas gerendert ist
+    function tryInit(attempts){
+      const c = document.getElementById((form==="agree"?"ag":"ca")+"SigCanvas");
+      if(!c) return;
+      const r = c.getBoundingClientRect();
+      if(r.width > 0){ sigInitCanvas(form); }
+      else if(attempts > 0){ setTimeout(()=>tryInit(attempts-1), 50); }
+    }
+    tryInit(10);
+  }
 }
 
 function sigInitCanvas(form){
