@@ -1646,7 +1646,7 @@ function rAgreePreview(){
       <div style="padding:16px 18px">
         <div id="agSigDraw">
           <p style="font-size:12px;color:var(--tm);margin:0 0 8px">Mit Maus oder Finger unterschreiben:</p>
-          <canvas id="agSigCanvas" width="560" height="120" style="width:100%;height:120px;border:2px dashed var(--b);border-radius:10px;background:#fff;cursor:crosshair;touch-action:none"></canvas>
+          <canvas id="agSigCanvas" style="width:100%;height:120px;border:2px dashed var(--b);border-radius:10px;background:#fff;cursor:crosshair;touch-action:none;display:block"></canvas>
         </div>
         <div id="agSigUpload" style="display:none">
           <p style="font-size:12px;color:var(--tm);margin:0 0 8px">Unterschriftsdatei hochladen (PNG, JPG):</p>
@@ -2333,7 +2333,7 @@ function rCancelPreview(){
       <div style="padding:16px 18px">
         <div id="caSigDraw">
           <p style="font-size:12px;color:var(--tm);margin:0 0 8px">Mit Maus oder Finger unterschreiben:</p>
-          <canvas id="caSigCanvas" width="560" height="120" style="width:100%;height:120px;border:2px dashed var(--b);border-radius:10px;background:#fff;cursor:crosshair;touch-action:none"></canvas>
+          <canvas id="caSigCanvas" style="width:100%;height:120px;border:2px dashed var(--b);border-radius:10px;background:#fff;cursor:crosshair;touch-action:none;display:block"></canvas>
         </div>
         <div id="caSigUpload" style="display:none">
           <p style="font-size:12px;color:var(--tm);margin:0 0 8px">Unterschriftsdatei hochladen (PNG, JPG):</p>
@@ -2391,75 +2391,94 @@ function sigInitCanvas(form){
   const canvas = document.getElementById(id);
   if(!canvas) return;
 
-  // Immer canvas-Pixel-Größe auf tatsächliche CSS-Größe setzen (verhindert Koordinaten-Offset)
-  const r = canvas.getBoundingClientRect();
-  if(r.width > 0){
-    canvas.width  = r.width;
-    canvas.height = r.height || 120;
+  // Setze canvas-Pixel exakt auf die gerenderte CSS-Größe
+  const rect = canvas.getBoundingClientRect();
+  const W = Math.round(rect.width)  || 500;
+  const H = Math.round(rect.height) || 120;
+  canvas.width  = W;
+  canvas.height = H;
+
+  // Vorhandene Listener entfernen (bei Re-Init nach renderPage)
+  const newCanvas = canvas.cloneNode(true);
+  canvas.parentNode.replaceChild(newCanvas, canvas);
+  const c = newCanvas;
+
+  const ctx = c.getContext("2d");
+  // Weißer Hintergrund explizit zeichnen
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, W, H);
+
+  let drawing = false;
+  let lx = 0, ly = 0;
+
+  function coords(e){
+    const r = c.getBoundingClientRect();
+    const src = e.touches ? e.touches[0] : e;
+    return { x: src.clientX - r.left, y: src.clientY - r.top };
   }
 
-  if(canvas._sigInited) return;
-  canvas._sigInited = true;
+  c.addEventListener("mousedown", e => {
+    drawing = true;
+    const p = coords(e);
+    lx = p.x; ly = p.y;
+    ctx.fillStyle = "#000000";
+    ctx.beginPath();
+    ctx.arc(lx, ly, 1.2, 0, Math.PI * 2);
+    ctx.fill();
+  });
 
-  const ctx = canvas.getContext("2d");
-
-  function applyStyle(){
-    ctx.strokeStyle = "#1a1a1a";
+  c.addEventListener("mousemove", e => {
+    if(!drawing) return;
+    const p = coords(e);
+    ctx.strokeStyle = "#000000";
     ctx.lineWidth = 2.5;
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
-  }
-  applyStyle();
-
-  let drawing = false, lx = 0, ly = 0;
-
-  function getPos(e){
-    const rect = canvas.getBoundingClientRect();
-    const src = e.touches ? e.touches[0] : e;
-    return {
-      x: src.clientX - rect.left,
-      y: src.clientY - rect.top
-    };
-  }
-
-  function start(e){
-    e.preventDefault();
-    drawing = true;
-    const p = getPos(e);
-    lx = p.x; ly = p.y;
-    // Dot für einzelnen Klick
-    applyStyle();
-    ctx.beginPath();
-    ctx.arc(lx, ly, 1, 0, Math.PI*2);
-    ctx.fillStyle = "#1a1a1a";
-    ctx.fill();
-  }
-  function move(e){
-    e.preventDefault();
-    if(!drawing) return;
-    const p = getPos(e);
-    applyStyle();
     ctx.beginPath();
     ctx.moveTo(lx, ly);
     ctx.lineTo(p.x, p.y);
     ctx.stroke();
     lx = p.x; ly = p.y;
-  }
-  function end(e){
-    e.preventDefault();
+  });
+
+  const stopDrawing = () => {
     if(!drawing) return;
     drawing = false;
-    sigState[form] = canvas.toDataURL("image/png");
+    sigState[form] = c.toDataURL("image/png");
     sigShowPreview(form, sigState[form]);
-  }
+  };
 
-  canvas.addEventListener("mousedown",  start);
-  canvas.addEventListener("mousemove",  move);
-  canvas.addEventListener("mouseup",    end);
-  canvas.addEventListener("mouseleave", end);
-  canvas.addEventListener("touchstart", start, {passive:false});
-  canvas.addEventListener("touchmove",  move,  {passive:false});
-  canvas.addEventListener("touchend",   end,   {passive:false});
+  c.addEventListener("mouseup",    stopDrawing);
+  c.addEventListener("mouseleave", stopDrawing);
+
+  c.addEventListener("touchstart", e => {
+    e.preventDefault();
+    drawing = true;
+    const p = coords(e);
+    lx = p.x; ly = p.y;
+  }, {passive:false});
+
+  c.addEventListener("touchmove", e => {
+    e.preventDefault();
+    if(!drawing) return;
+    const p = coords(e);
+    ctx.strokeStyle = "#000000";
+    ctx.lineWidth = 2.5;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.beginPath();
+    ctx.moveTo(lx, ly);
+    ctx.lineTo(p.x, p.y);
+    ctx.stroke();
+    lx = p.x; ly = p.y;
+  }, {passive:false});
+
+  c.addEventListener("touchend", e => {
+    e.preventDefault();
+    drawing = false;
+    sigState[form] = c.toDataURL("image/png");
+    sigShowPreview(form, sigState[form]);
+  }, {passive:false});
 }
 
 function sigLoadFile(form, input){
@@ -2487,12 +2506,11 @@ function sigShowPreview(form, dataUrl){
 function sigClear(form){
   sigState[form] = null;
   const prefix = form==="agree" ? "ag" : "ca";
-  const canvas  = document.getElementById(prefix+"SigCanvas");
+  const canvas = document.getElementById(prefix+"SigCanvas");
   if(canvas){
     const ctx = canvas.getContext("2d");
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    canvas._sigInited = false;
-    // Re-init so drawing works immediately after clear
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     setTimeout(()=>sigInitCanvas(form), 30);
   }
   const preview = document.getElementById(prefix+"SigPreview");
