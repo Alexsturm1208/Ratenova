@@ -458,7 +458,43 @@ function buildVerificationEmailHTML(confirmationURL){
       </table>
     </td></tr>
   </table>
-  </body></html>`;
+  
+      <h3 id="confirmTitle" style="font-size:16px;font-weight:700;margin:0">Bestätigung</h3>
+    </div>
+    <p id="confirmMessage" style="font-size:14px;color:var(--tm);margin:0 0 24px;line-height:1.6"></p>
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button onclick="confirmModal.reject()" style="padding:10px 20px;border-radius:10px;border:1px solid var(--b);background:transparent;color:var(--t);font-size:14px;font-weight:600;cursor:pointer">Abbrechen</button>
+      <button id="confirmOkBtn" onclick="confirmModal.resolve()" style="padding:10px 20px;border-radius:10px;border:none;font-size:14px;font-weight:700;cursor:pointer;background:#ef4444;color:#fff">Löschen</button>
+    </div>
+  </div>
+</div>
+
+  },
+  resolve(){ this._close(true); },
+  reject(){  this._close(false); },
+  _close(val){
+    document.getElementById("confirmModal").style.display = "none";
+    if(this._resolve) this._resolve(val);
+    this._resolve = null;
+  }
+};
+// Click backdrop to cancel
+
+<!-- Custom Confirm Modal -->
+<div id="confirmModal" onclick="if(event.target===this)confirmModal.reject()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);z-index:9999;align-items:center;justify-content:center;padding:20px">
+  <div style="background:var(--bgD);border:1px solid var(--b);border-radius:18px;padding:28px;max-width:400px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.5)">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+      <div id="confirmIcon" style="width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;background:rgba(239,68,68,0.15)">⚠️</div>
+      <h3 id="confirmTitle" style="font-size:16px;font-weight:700;margin:0">Bestätigung</h3>
+    </div>
+    <p id="confirmMessage" style="font-size:14px;color:var(--tm);margin:0 0 24px;line-height:1.6"></p>
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button onclick="confirmModal.reject()" style="padding:10px 20px;border-radius:10px;border:1px solid var(--b);background:transparent;color:var(--t);font-size:14px;font-weight:600;cursor:pointer">Abbrechen</button>
+      <button id="confirmOkBtn" onclick="confirmModal.resolve()" style="padding:10px 20px;border-radius:10px;border:none;font-size:14px;font-weight:700;cursor:pointer;background:#ef4444;color:#fff">Löschen</button>
+    </div>
+  </div>
+</div>
+</body></html>`;
 }
 function openVerificationEmailPreview(){
   const html=buildVerificationEmailHTML(window.location.origin+"/?confirm=example");
@@ -594,9 +630,35 @@ function masterStats(){
   const monthlyObligation=metrics.reduce((a,m)=>a+m.debtMonthly+m.contractMonthly,0);
   return{total,withState,totalDebts,totalContracts,totalIncome,totalExpense,totalSales,debtExposure,monthlyObligation,metrics};
 }
+
+// ─── Custom Confirm Modal ──────────────────────────────────────────────────
+const confirmModal = {
+  _resolve: null,
+  show(msg, { title="Bestätigung", okText="Bestätigen", okColor="#ef4444", icon="⚠️" }={}){
+    document.getElementById("confirmMessage").textContent = msg;
+    document.getElementById("confirmTitle").textContent   = title;
+    document.getElementById("confirmOkBtn").textContent   = okText;
+    document.getElementById("confirmOkBtn").style.background = okColor;
+    document.getElementById("confirmIcon").textContent    = icon;
+    document.getElementById("confirmIcon").style.background  = okColor + "26";
+    const el = document.getElementById("confirmModal");
+    el.style.display = "flex";
+    return new Promise(res => { this._resolve = res; });
+  },
+  resolve(){ this._close(true); },
+  reject(){  this._close(false); },
+  _close(val){
+    document.getElementById("confirmModal").style.display = "none";
+    if(this._resolve) this._resolve(val);
+    this._resolve = null;
+  }
+};
+document.addEventListener("DOMContentLoaded", () => {
+  });
+
 async function masterResetUserState(id){
   if(!supabaseClient)return;
-  if(!confirm("Alle Nutzerdaten (Verbindlichkeiten, Ein-/Ausgaben, Verträge) für diesen Kunden zurücksetzen?"))return;
+  if(!await confirmModal.show("Alle Nutzerdaten (Verbindlichkeiten, Ein-/Ausgaben, Verträge) für diesen Kunden zurücksetzen?",{title:"Nutzerdaten zurücksetzen",okText:"Zurücksetzen",okColor:"#f59e0b",icon:"⚠️"}))return;
   const {error}=await supabaseClient.from("app_state").upsert({user_id:id,debts:[],budget_items:[],contracts:[],updated_at:new Date().toISOString()});
   if(error){flash("Reset fehlgeschlagen");return;}
   flash("Nutzerdaten zurückgesetzt ✓");
@@ -767,7 +829,7 @@ async function masterBlockUser(id){
   const u=masterState.users.find(x=>x.id===id);
   const isBlocked=!!(u?.is_blocked);
   const action=isBlocked?"entsperren":"sperren";
-  if(!confirm(`Nutzer wirklich ${action}?`))return;
+  if(!await confirmModal.show(`Nutzer wirklich ${action}?`,{title:"Aktion bestätigen",okText:"Bestätigen",okColor:"#f59e0b",icon:"⚠️"}))return;
   const {error}=await supabaseClient.from("user_profiles").update({is_blocked:!isBlocked,updated_at:new Date().toISOString()}).eq("id",id);
   if(error){flash("Aktion fehlgeschlagen: "+error.message);return;}
   flash(isBlocked?"Nutzer entsperrt ✓":"Nutzer gesperrt 🔒");
@@ -1760,7 +1822,28 @@ function printAgreement(){
     <div style="font-size:9.5pt;color:#555;margin-top:3px">${d.street||""}, ${d.zip||""} ${d.city||""}</div>
   </div>
   <div class="footer">Erstellt mit Ratenova · ratenova.de</div>
-</div></body></html>`);
+</div>
+      <h3 id="confirmTitle" style="font-size:16px;font-weight:700;margin:0">Bestätigung</h3>
+    </div>
+    <p id="confirmMessage" style="font-size:14px;color:var(--tm);margin:0 0 24px;line-height:1.6"></p>
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button onclick="confirmModal.reject()" style="padding:10px 20px;border-radius:10px;border:1px solid var(--b);background:transparent;color:var(--t);font-size:14px;font-weight:600;cursor:pointer">Abbrechen</button>
+      <button id="confirmOkBtn" onclick="confirmModal.resolve()" style="padding:10px 20px;border-radius:10px;border:none;font-size:14px;font-weight:700;cursor:pointer;background:#ef4444;color:#fff">Löschen</button>
+    </div>
+  </div>
+</div>
+
+  },
+  resolve(){ this._close(true); },
+  reject(){  this._close(false); },
+  _close(val){
+    document.getElementById("confirmModal").style.display = "none";
+    if(this._resolve) this._resolve(val);
+    this._resolve = null;
+  }
+};
+// Click backdrop to cancel
+</body></html>`);
   w.document.close();
   setTimeout(()=>w.print(),350);
 }
@@ -2679,7 +2762,28 @@ function printContractLetter(){
   <div class="sig-line"></div>
   <strong>${d.senderName||""}</strong>
   <div class="footer">Erstellt mit Ratenova · ratenova.de</div>
-</div></body></html>`);
+</div>
+      <h3 id="confirmTitle" style="font-size:16px;font-weight:700;margin:0">Bestätigung</h3>
+    </div>
+    <p id="confirmMessage" style="font-size:14px;color:var(--tm);margin:0 0 24px;line-height:1.6"></p>
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button onclick="confirmModal.reject()" style="padding:10px 20px;border-radius:10px;border:1px solid var(--b);background:transparent;color:var(--t);font-size:14px;font-weight:600;cursor:pointer">Abbrechen</button>
+      <button id="confirmOkBtn" onclick="confirmModal.resolve()" style="padding:10px 20px;border-radius:10px;border:none;font-size:14px;font-weight:700;cursor:pointer;background:#ef4444;color:#fff">Löschen</button>
+    </div>
+  </div>
+</div>
+
+  },
+  resolve(){ this._close(true); },
+  reject(){  this._close(false); },
+  _close(val){
+    document.getElementById("confirmModal").style.display = "none";
+    if(this._resolve) this._resolve(val);
+    this._resolve = null;
+  }
+};
+// Click backdrop to cancel
+</body></html>`);
   w.document.close();
   setTimeout(()=>w.print(),350);
 }
@@ -2770,7 +2874,7 @@ async function generateLetterPdf(payload, title){
   }
 }
 
-function deleteContract(id){if(!confirm("Vertrag wirklich löschen?"))return;contracts=contracts.filter(c=>c.id!==id);scheduleCloudSave();renderPage();flash("Vertrag gelöscht")}
+async function deleteContract(id){if(!await confirmModal.show("Vertrag wirklich löschen? Dieser Schritt kann nicht rückgängig gemacht werden.",{title:"Vertrag löschen",okText:"Löschen",icon:"🗑️"}))return;contracts=contracts.filter(c=>c.id!==id);scheduleCloudSave();renderPage();flash("Vertrag gelöscht")}
 function attachContractDocs(id,e){const c=contracts.find(x=>x.id===id);if(!c)return;const files=[...(e?.target?.files||[])];if(!files.length)return;c.documents=[...(c.documents||[]),...files.map(f=>({name:f.name,size:f.size,uploadedAt:new Date().toISOString()}))];scheduleCloudSave();renderPage();flash("Dokument(e) hinzugefügt")}
 function loadBudget(){try{const raw=localStorage.getItem("budgetItems");if(raw){const arr=JSON.parse(raw);if(Array.isArray(arr))budgetItems=arr}else{budgetItems=[];saveBudget()}}catch(e){}}
 function isSeedBudgetItem(i){
@@ -2985,8 +3089,8 @@ function sBudgetAdd(){
   flash(recurring?"Dauerhafter Beitrag gespeichert 🔁":"Beitrag gespeichert ✓");
   renderPage();
 }
-function deleteBudgetItem(id){
-  if(!confirm("Beitrag wirklich löschen?"))return;
+async function deleteBudgetItem(id){
+  if(!await confirmModal.show("Beitrag wirklich löschen?",{title:"Eintrag löschen",okText:"Löschen",icon:"🗑️"}))return;
   budgetItems=budgetItems.filter(i=>i.id!==id);
   saveBudget();
   renderPage();
@@ -3065,7 +3169,28 @@ function printBudget(){
         <tbody><tr><td>Monat ${label}</td><td class="right mono" style="font-weight:800;${bal>=0?'color:#059669':'color:#DC2626'}">${fmt(bal)}</td></tr></tbody>
       </table>
     </div>
-  </div></body></html>`);
+  </div>
+      <h3 id="confirmTitle" style="font-size:16px;font-weight:700;margin:0">Bestätigung</h3>
+    </div>
+    <p id="confirmMessage" style="font-size:14px;color:var(--tm);margin:0 0 24px;line-height:1.6"></p>
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button onclick="confirmModal.reject()" style="padding:10px 20px;border-radius:10px;border:1px solid var(--b);background:transparent;color:var(--t);font-size:14px;font-weight:600;cursor:pointer">Abbrechen</button>
+      <button id="confirmOkBtn" onclick="confirmModal.resolve()" style="padding:10px 20px;border-radius:10px;border:none;font-size:14px;font-weight:700;cursor:pointer;background:#ef4444;color:#fff">Löschen</button>
+    </div>
+  </div>
+</div>
+
+  },
+  resolve(){ this._close(true); },
+  reject(){  this._close(false); },
+  _close(val){
+    document.getElementById("confirmModal").style.display = "none";
+    if(this._resolve) this._resolve(val);
+    this._resolve = null;
+  }
+};
+// Click backdrop to cancel
+</body></html>`);
   w.document.close();
   setTimeout(()=>w.print(),400);
 }
@@ -3333,7 +3458,28 @@ ${activeDebts.some(d=>d.bankIban)?`<div class="section">
   <span>Vertraulich – Nur für den persönlichen Gebrauch</span>
 </div>
 
-</div></body></html>`);
+</div>
+      <h3 id="confirmTitle" style="font-size:16px;font-weight:700;margin:0">Bestätigung</h3>
+    </div>
+    <p id="confirmMessage" style="font-size:14px;color:var(--tm);margin:0 0 24px;line-height:1.6"></p>
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button onclick="confirmModal.reject()" style="padding:10px 20px;border-radius:10px;border:1px solid var(--b);background:transparent;color:var(--t);font-size:14px;font-weight:600;cursor:pointer">Abbrechen</button>
+      <button id="confirmOkBtn" onclick="confirmModal.resolve()" style="padding:10px 20px;border-radius:10px;border:none;font-size:14px;font-weight:700;cursor:pointer;background:#ef4444;color:#fff">Löschen</button>
+    </div>
+  </div>
+</div>
+
+  },
+  resolve(){ this._close(true); },
+  reject(){  this._close(false); },
+  _close(val){
+    document.getElementById("confirmModal").style.display = "none";
+    if(this._resolve) this._resolve(val);
+    this._resolve = null;
+  }
+};
+// Click backdrop to cancel
+</body></html>`);
   w.document.close();
   setTimeout(()=>w.print(),400);
 }
@@ -3368,7 +3514,7 @@ document.getElementById("modalContainer").innerHTML=`<div class="overlay" onclic
 <div style="display:flex;gap:12px;margin-top:16px"><button class="btn btn-outline" style="flex:1" onclick="closeModal()">Abbrechen</button><button class="btn btn-primary" style="flex:1" onclick="saveEdit(${d.id})">💾 Speichern</button></div>
 </div></div>`}
 function saveEdit(id){const d=debts.find(x=>x.id===id);if(!d)return;d.name=document.getElementById("eN").value||d.name;d.original=toNum(document.getElementById("eA").value)||d.original;d.rate=toNum(document.getElementById("eR").value);d.due=document.getElementById("eD").value||d.due;d.notes=document.getElementById("eNt").value;d.clarificationStatus=document.getElementById("eCS").value||d.clarificationStatus;d.paymentStatus=document.getElementById("ePS").value||d.paymentStatus;d.creditorName=document.getElementById("eCN").value;d.creditorAddress=document.getElementById("eCA").value;d.creditorZip=document.getElementById("eCZip").value;d.creditorCity=document.getElementById("eCCity").value;d.creditorPhone=document.getElementById("eCT").value;d.creditorEmail=document.getElementById("eCE").value;d.bankName=document.getElementById("eBN").value;d.bankIban=document.getElementById("eBI").value;d.bankBic=document.getElementById("eBB").value;d.bankRef=document.getElementById("eBR").value;autoUpdateDebtStatuses(d,{respectManual:true});scheduleCloudSave();closeModal();flash("Gespeichert ✓");renderPage()}
-function deleteDebt(id){if(!confirm("Verbindlichkeit wirklich löschen?"))return;debts=debts.filter(d=>d.id!==id);scheduleCloudSave();selectedDebtId=null;currentPage="debts";renderNav();renderPage();flash("Gelöscht")}
+async function deleteDebt(id){if(!await confirmModal.show("Verbindlichkeit wirklich löschen? Dieser Schritt kann nicht rückgängig gemacht werden.",{title:"Verbindlichkeit löschen",okText:"Löschen",icon:"🗑️"}))return;debts=debts.filter(d=>d.id!==id);scheduleCloudSave();selectedDebtId=null;currentPage="debts";renderNav();renderPage();flash("Gelöscht")}
 normalizeDebtStatuses();
 loadLocalState();
 loadBudget();
@@ -3426,5 +3572,26 @@ if(document.readyState==="loading"){
   else{hideAuthPage();renderNav();renderUser();renderPage();}
 })();
 </script>
+
+      <h3 id="confirmTitle" style="font-size:16px;font-weight:700;margin:0">Bestätigung</h3>
+    </div>
+    <p id="confirmMessage" style="font-size:14px;color:var(--tm);margin:0 0 24px;line-height:1.6"></p>
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button onclick="confirmModal.reject()" style="padding:10px 20px;border-radius:10px;border:1px solid var(--b);background:transparent;color:var(--t);font-size:14px;font-weight:600;cursor:pointer">Abbrechen</button>
+      <button id="confirmOkBtn" onclick="confirmModal.resolve()" style="padding:10px 20px;border-radius:10px;border:none;font-size:14px;font-weight:700;cursor:pointer;background:#ef4444;color:#fff">Löschen</button>
+    </div>
+  </div>
+</div>
+
+  },
+  resolve(){ this._close(true); },
+  reject(){  this._close(false); },
+  _close(val){
+    document.getElementById("confirmModal").style.display = "none";
+    if(this._resolve) this._resolve(val);
+    this._resolve = null;
+  }
+};
+// Click backdrop to cancel
 </body>
 </html>
