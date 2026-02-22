@@ -1716,11 +1716,12 @@ function getDocContent(){
   const iban=agreeForm.debt?.bankIban||"";
   const bic=agreeForm.debt?.bankBic||"";
   const bankRef=agreeForm.data?.bankRef||agreeForm.debt?.bankRef||"";
+  const nextFirst=(()=>{const n=new Date();n.setMonth(n.getMonth()+1);n.setDate(1);return n.toLocaleDateString("de-DE",{day:"numeric",month:"long",year:"numeric"})})();
   const zahlungsblock=(extra="")=>`    Offene Gesamtforderung:      ${fmt(amt)}
     Vorgeschlagene Monatsrate:   ${fmt(rate)}
     Voraussichtliche Laufzeit:   ${months} Monate
-    Zahlungsbeginn:              ${d.startDate?fDL(d.startDate):"ab dem nächsten Monatsersten"}
-    Zahlungsweg:                 monatliche Überweisung${iban?`\n    Empfänger-IBAN:              ${iban}`:""}${bic?`\n    BIC:                         ${bic}`:""}${bankRef?`\n    Verwendungszweck:            ${bankRef}`:""}${extra}`;
+    Zahlungsbeginn:              ${d.startDate?fDL(d.startDate):nextFirst}
+    Zahlungsweg:                 monatliche Überweisung${bankRef?`\n    Verwendungszweck:            ${bankRef}`:""}${extra}`;
 
   let betreff="",body="",closing="";
 
@@ -1765,7 +1766,7 @@ Die Raten werden jeweils spätestens zum 1. Werktag des Monats auf Ihr Konto üb
     Mein Vergleichsangebot:      ${fmt(offer)} (${pct}% der Gesamtforderung)
     Restforderungserlass:        ${fmt(amt-offer)}
     Zahlungsfrist:               ${s==="bestimmt"?"7":"14"} Tage nach schriftlicher Annahme
-    Zahlungsweg:                 Überweisung${iban?`\n    Empfänger-IBAN:              ${iban}`:""}${bankRef?`\n    Verwendungszweck:            ${bankRef}`:""}`;
+    Zahlungsweg:                 Überweisung${bankRef?`\n    Verwendungszweck:            ${bankRef}`:""}`;
     if(s==="kooperativ"){
       body=`ich möchte Ihnen heute ein konkretes Vergleichsangebot unterbreiten, mit dem wir die offene Forderung von ${fmt(amt)} aus ${debtName} gemeinsam und für beide Seiten abschließend lösen können.
 
@@ -1838,7 +1839,7 @@ Ich versichere Ihnen, dass ich während der Stundungszeit alle notwendigen Schri
     const teilblock=`    Ursprüngliche Forderung:     ${fmt(amt)}
     Angebotene Einmalzahlung:    ${fmt(offer)}
     Zahlungsfrist:               7 Werktage nach schriftlicher Annahme
-    Zahlungsweg:                 Überweisung${iban?`\n    Empfänger-IBAN:              ${iban}`:""}${bankRef?`\n    Verwendungszweck:            ${bankRef}`:""}`;
+    Zahlungsweg:                 Überweisung${bankRef?`\n    Verwendungszweck:            ${bankRef}`:""}`;
     if(s==="kooperativ"){
       body=`ich möchte Ihnen heute eine praktische Lösung für die offene Forderung von ${fmt(amt)} aus ${debtName} anbieten.
 
@@ -1874,7 +1875,7 @@ ${d.reason?`Der Grund für die Beschränkung meiner Zahlungsfähigkeit liegt in:
     Vorgeschlagene Monatsrate:   ${fmt(rate)}
     Voraussichtliche Laufzeit:   ${months} Monate
     Zahlungsbeginn:              ${d.startDate?fDL(d.startDate):"ab sofort"}
-    Zahlungsweg:                 monatliche Überweisung${iban?`\n    Empfänger-IBAN:              ${iban}`:""}${bankRef?`\n    Verwendungszweck:            ${bankRef}`:""}`;
+    Zahlungsweg:                 monatliche Überweisung${bankRef?`\n    Verwendungszweck:            ${bankRef}`:""}`;
     if(s==="kooperativ"){
       body=`ich habe Ihr Mahnschreiben erhalten und möchte mich zunächst aufrichtig für die entstandene Verzögerung entschuldigen – das war nicht meine Absicht.
 
