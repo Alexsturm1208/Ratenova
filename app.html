@@ -2903,7 +2903,7 @@ function rBudget(){
       <div style="font-size:14px;font-weight:600">${i.category||"-"}</div>
       <div style="font-size:13px;color:var(--tm)">${i.note||"-"}</div>
       <div style="font-size:17px;font-weight:800;color:${type==="income"?"var(--em)":"var(--co)"};text-align:right;min-width:96px">${fmt(i.amount||0)}</div>
-      ${i.auto?`<span class="badge" style="justify-self:end"><span class="badge-dot" style="background:var(--sk)"></span>Auto</span>`:i.recurring?`<div style="display:flex;gap:6px;justify-self:end"><span class="badge" style="color:var(--em);background:var(--emG);border:1px solid var(--ba)">🔁 Dauerhaft</span><button class="btn btn-outline btn-sm" onclick="deleteBudgetItem(${i.id})">Löschen</button></div>`:`<button class="btn btn-outline btn-sm" onclick="deleteBudgetItem(${i.id})">Löschen</button>`}
+      ${i.auto?`<span class="badge" style="justify-self:end"><span class="badge-dot" style="background:var(--sk)"></span>Auto</span>`:`<div style="display:flex;gap:6px;justify-self:end;align-items:center">${i.recurring?`<span class="badge" style="color:var(--em);background:var(--emG);border:1px solid var(--ba)">🔁</span>`:""}<button class="btn btn-ghost btn-sm" onclick="openBudgetEdit(${i.id})">✏️</button><button class="btn btn-outline btn-sm" onclick="deleteBudgetItem(${i.id})">Löschen</button></div>`}
     </div>
   `;
 
@@ -2983,6 +2983,58 @@ function rBudget(){
     </div>
   `;
 }
+
+function openBudgetEdit(id){
+  const item = budgetItems.find(i=>i.id===id);
+  if(!item) return;
+  document.getElementById("modalContainer").innerHTML=`<div class="overlay" onclick="closeModal()"><div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-head"><h3>Eintrag bearbeiten</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="field">
+      <label>Typ</label>
+      <div class="input-wrap">
+        <select id="beType">
+          <option value="income" ${item.type==="income"?"selected":""}>Einnahme</option>
+          <option value="expense" ${item.type==="expense"?"selected":""}>Ausgabe</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label>Kategorie</label>
+      <div class="input-wrap"><input id="beCat" value="${(item.category||"").replace(/"/g,"&quot;")}"></div>
+    </div>
+    <div class="field">
+      <label>Beschreibung</label>
+      <div class="input-wrap"><input id="beNote" value="${(item.note||"").replace(/"/g,"&quot;")}"></div>
+    </div>
+    <div class="field">
+      <label>Betrag</label>
+      <div class="input-wrap"><input id="beAmt" type="number" step="0.01" value="${item.amount||""}"><span class="suffix">€</span></div>
+    </div>
+    <div class="field">
+      <label>Datum</label>
+      <div class="input-wrap"><input id="beDate" type="date" value="${item.date||""}"></div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:20px">
+      <button class="btn btn-outline btn-full" onclick="closeModal()">Abbrechen</button>
+      <button class="btn btn-primary btn-full" onclick="saveBudgetEdit(${id})">Speichern</button>
+    </div>
+  </div></div>`;
+}
+
+function saveBudgetEdit(id){
+  const item = budgetItems.find(i=>i.id===id);
+  if(!item) return;
+  item.type     = document.getElementById("beType").value;
+  item.category = document.getElementById("beCat").value.trim();
+  item.note     = document.getElementById("beNote").value.trim();
+  item.amount   = parseFloat(document.getElementById("beAmt").value)||0;
+  item.date     = document.getElementById("beDate").value;
+  saveBudget();
+  closeModal();
+  renderPage();
+  flash("Eintrag aktualisiert ✓");
+}
+
 function openBudgetAdd(defaultType='income'){
   document.getElementById("modalContainer").innerHTML=`<div class="overlay" onclick="closeModal()"><div class="modal" onclick="event.stopPropagation()">
     <div class="modal-head"><h3>Beitrag erfassen</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
