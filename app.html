@@ -122,7 +122,7 @@ let debts=[
   {id:3,name:"Autokredit VW Bank",emoji:"🚗",original:6880,paid:3820,rate:215,due:"2026-03-01",notes:"VW Bank Finanzierung",creditorName:"Volkswagen Bank GmbH",creditorAddress:"Gifhorner Str. 57, 38112 Braunschweig",creditorPhone:"0531 212-0",creditorEmail:"",bankName:"VW Bank",bankIban:"DE12 2707 0024 0000 9876 54",bankBic:"DEUTDEDBXXX",bankRef:"Kreditvertrag VW-2024-39182",history:[{date:"2026-01-01",amount:215,note:"Lastschrift"},{date:"2025-12-01",amount:215,note:""},{date:"2025-11-01",amount:215,note:""},{date:"2025-10-01",amount:215,note:""},{date:"2025-09-01",amount:215,note:""}]},
   {id:4,name:"Zahnbehandlung",emoji:"🦷",original:1800,paid:1200,rate:100,due:"2026-02-14",notes:"Dr. Meier – Zahnersatz",creditorName:"Dr. med. dent. Hans Meier",creditorAddress:"Prinzregentenstr. 22, 81675 München",creditorPhone:"089 4400-2200",creditorEmail:"praxis@dr-meier.de",bankName:"Dr. Meier Praxis",bankIban:"DE34 7005 0000 0000 5566 77",bankBic:"BYLADEMMXXX",bankRef:"Re-Nr. 2025-0341 / Patient Müller",history:[{date:"2026-01-14",amount:100,note:"Überweisung"},{date:"2025-12-14",amount:100,note:""},{date:"2025-11-14",amount:100,note:""}]}
 ];
-let currentPage="dashboard",selectedDebtId=null,currentFilter="all",selectedEmoji="📄";
+let currentPage="dashboard",selectedDebtId=null,currentFilter="all",selectedEmoji="📄";window._contractDetail=null;window._contractFilter="all";
 const isMasterMode=new URLSearchParams(window.location.search).get("master")==="1";
 const fmt=n=>new Intl.NumberFormat("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2}).format(n)+" €";
 const fmt2=n=>new Intl.NumberFormat("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2}).format(n)+" €";
@@ -2089,16 +2089,370 @@ function contractCategorySummary(){
   return Object.entries(map).sort((a,b)=>b[1]-a[1]);
 }
 function rContracts(){
+  if(window._contractDetail){return rContractDetail(window._contractDetail);}
+  const filter=window._contractFilter||'all';
   const totalAnnual=contracts.reduce((s,c)=>s+contractAnnualCost(c),0);
   const raised=contracts.filter(c=>contractIncreasePct(c)>=10);
-  const urgent=contracts.filter(c=>{const d=contractDaysLeft(c);return d!==null&&d<=30&&d>=-30});
+  const urgent=contracts.filter(c=>{const d=contractDaysLeft(c);return d!==null&&d<=30&&c.status!=='cancelled';});
   const totalDelta=contracts.reduce((s,c)=>s+contractDelta(c),0);
+  const monthlyCost=totalAnnual/12;
   const byCat=contractCategorySummary();
-  const row=(c)=>{const ann=contractAnnualCost(c),pct=contractIncreasePct(c),delta=contractDelta(c),days=contractDaysLeft(c),docs=(c.documents||[]).length,dl=contractEffectiveDeadline(c);return`<div class="card" style="padding:16px"><div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><div><p style="font-size:16px;font-weight:700;margin:0 0 4px">${c.name||"Unbenannter Vertrag"}</p><p style="font-size:12px;color:var(--tm);margin:0">${c.provider||"Anbieter"}${c.category?` · ${c.category}`:""}${c.contractNo?` · Nr. ${c.contractNo}`:""}</p></div><div style="display:flex;gap:8px;align-items:center">${contractStatusBadge(c)}<button class="btn btn-outline btn-sm" onclick="openContractAdd(${c.id})">Bearbeiten</button><button class="btn btn-danger btn-sm" onclick="deleteContract(${c.id})">Löschen</button></div></div><div style="display:grid;grid-template-columns:repeat(5,minmax(120px,1fr));gap:10px;margin-top:12px"><div><p style="font-size:11px;color:var(--tm);margin:0">Jahreskosten</p><p style="font-size:16px;font-weight:700;margin:2px 0 0">${fmt(ann)}</p></div><div><p style="font-size:11px;color:var(--tm);margin:0">Veränderung</p><p style="font-size:16px;font-weight:700;margin:2px 0 0;color:${pct>=10?"var(--co)":delta>0?"var(--am)":"var(--em)"}">${pct>0?`+${pct}%`:"0%"} ${delta?`(${delta>0?"+":""}${fmt(delta)})`:""}</p></div><div><p style="font-size:11px;color:var(--tm);margin:0">Frist</p><p style="font-size:16px;font-weight:700;margin:2px 0 0;color:${days!==null&&days<=30?"var(--co)":"var(--t)"}">${days===null?"—":`${days} Tage`}</p></div><div><p style="font-size:11px;color:var(--tm);margin:0">Vertragslaufzeit</p><p style="font-size:16px;font-weight:700;margin:2px 0 0">${c.minTermMonths?`${c.minTermMonths} Mon.`:"—"}</p></div><div><p style="font-size:11px;color:var(--tm);margin:0">Dokumente</p><p style="font-size:16px;font-weight:700;margin:2px 0 0">${docs}</p></div></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn btn-ghost btn-sm" onclick="goToCancelAssist(${c.id})">Kündigungs-Assistent</button><label class="btn btn-outline btn-sm" style="cursor:pointer">Dokumente hinzufügen<input type="file" multiple style="display:none" onchange="attachContractDocs(${c.id},event)"></label>${dl?`<span class="badge" style="background:var(--amG);color:var(--am)"><span class="badge-dot" style="background:var(--am)"></span>Deadline ${fDL(dl)}</span>`:""}</div>${c.notes?`<p style="font-size:12px;color:var(--tm);margin:10px 0 0">${c.notes}</p>`:""}${(c.documents||[]).length?`<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--b)">${c.documents.map(d=>`<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--tm);padding:4px 0"><span>${d.name}</span><span>${new Date(d.uploadedAt).toLocaleDateString("de-DE")}</span></div>`).join("")}</div>`:""}</div>`}
-  return`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:12px"><h1 style="font-size:24px;font-weight:800;margin:0">Vertragsverwaltung</h1><button class="btn btn-primary btn-sm" onclick="openContractAdd()">＋ Vertrag</button></div><div style="display:grid;grid-template-columns:repeat(5,minmax(140px,1fr));gap:12px;margin-bottom:16px"><div class="card"><p style="font-size:11px;color:var(--tm);margin:0">Jahreskosten gesamt</p><p style="font-size:24px;font-weight:800;margin:6px 0 0">${fmt(totalAnnual)}</p></div><div class="card"><p style="font-size:11px;color:var(--tm);margin:0">Kostenänderung/Jahr</p><p style="font-size:24px;font-weight:800;margin:6px 0 0;color:${totalDelta>0?"var(--co)":"var(--em)"}">${totalDelta>0?"+":""}${fmt(totalDelta)}</p></div><div class="card"><p style="font-size:11px;color:var(--tm);margin:0">Preiserhöhungen</p><p style="font-size:24px;font-weight:800;margin:6px 0 0;color:var(--co)">${raised.length}</p><p style="font-size:12px;color:var(--tm);margin:2px 0 0">≥ 10%</p></div><div class="card"><p style="font-size:11px;color:var(--tm);margin:0">Kündigungsfristen</p><p style="font-size:24px;font-weight:800;margin:6px 0 0;color:var(--am)">${urgent.length}</p><p style="font-size:12px;color:var(--tm);margin:2px 0 0">30 Tage Fenster</p></div><div class="card"><p style="font-size:11px;color:var(--tm);margin:0">Uploads</p><p style="font-size:24px;font-weight:800;margin:6px 0 0">${contracts.reduce((s,c)=>s+(c.documents||[]).length,0)}</p><p style="font-size:12px;color:var(--tm);margin:2px 0 0">Storage-ready</p></div></div><div class="card" style="margin-bottom:14px;padding:14px 16px;background:var(--bgE)"><p style="font-size:12px;font-weight:700;color:var(--ts);margin:0 0 8px;text-transform:uppercase;letter-spacing:0.8px">Jahreskosten-Übersicht</p>${byCat.length?`<div style="display:grid;grid-template-columns:1fr auto;gap:8px">${byCat.map(([k,v])=>`<span style="font-size:13px;color:var(--tm)">${k}</span><strong style="font-size:13px">${fmt(v)}</strong>`).join("")}</div>`:`<p style="font-size:13px;color:var(--tm);margin:0">Noch keine Kategorien verfügbar.</p>`}</div>${contracts.length?`<div class="flex-col">${contracts.map(row).join("")}</div>`:`<div class="card" style="text-align:center;padding:34px"><p style="font-size:34px;margin:0 0 10px">📄</p><p style="font-size:16px;font-weight:700;margin:0 0 6px">Noch keine Verträge</p><p style="font-size:13px;color:var(--tm);margin:0 0 12px">Lege deinen ersten Vertrag an, um Fristen, Preissteigerungen und Jahreskosten sauber zu steuern.</p><button class="btn btn-primary btn-sm" onclick="openContractAdd()">Vertrag anlegen</button></div>`}`;
+
+  // Filter logic
+  let filtered=contracts;
+  if(filter==='active') filtered=contracts.filter(c=>c.status!=='cancelled'&&(contractDaysLeft(c)===null||contractDaysLeft(c)>30));
+  else if(filter==='urgent') filtered=contracts.filter(c=>{const d=contractDaysLeft(c);return d!==null&&d<=30&&c.status!=='cancelled';});
+  else if(filter==='cancelled') filtered=contracts.filter(c=>c.status==='cancelled');
+
+  // Category icons
+  const catIcon=(cat)=>{const m={'Versicherung':'🛡️','Streaming':'🎬','Internet':'🌐','Strom':'⚡','Gas':'🔥','Handy':'📱','Fitness':'💪','Software':'💻','Bank':'🏦','Miete':'🏠','Auto':'🚗','Sonstiges':'📄'};return m[cat]||m[Object.keys(m).find(k=>cat&&cat.toLowerCase().includes(k.toLowerCase()))||'']||'📄';};
+
+  // Savings potential
+  const cancelledSavings=contracts.filter(c=>c.status!=='cancelled').reduce((s,c)=>s+contractAnnualCost(c),0);
+
+  const card=(c)=>{
+    const ann=contractAnnualCost(c);
+    const days=contractDaysLeft(c);
+    const pct=contractIncreasePct(c);
+    const dl=contractEffectiveDeadline(c);
+    const icon=catIcon(c.category);
+    const isUrgent=days!==null&&days<=30&&c.status!=='cancelled';
+    const isAcute=days!==null&&days<=14&&c.status!=='cancelled';
+    const isCancelled=c.status==='cancelled';
+
+    let borderColor='var(--b)';
+    if(isAcute) borderColor='var(--co)';
+    else if(isUrgent) borderColor='var(--am)';
+
+    return `<div onclick="window._contractDetail=${c.id};renderPage()" style="background:var(--bgD);border:1px solid ${borderColor};border-radius:16px;padding:18px;cursor:pointer;transition:all 0.15s;position:relative;overflow:hidden" onmouseover="this.style.borderColor='var(--ba)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='${borderColor}';this.style.transform='none'">
+      ${isUrgent?`<div style="position:absolute;top:0;left:0;right:0;height:3px;background:${isAcute?'var(--co)':'var(--am)'}"></div>`:''}
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:40px;height:40px;border-radius:12px;background:var(--bgE);border:1px solid var(--b);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">${icon}</div>
+          <div>
+            <p style="font-size:14px;font-weight:700;margin:0;line-height:1.2">${c.name||'Unbenannter Vertrag'}</p>
+            <p style="font-size:12px;color:var(--tm);margin:2px 0 0">${c.provider||''}${c.category?' · '+c.category:''}</p>
+          </div>
+        </div>
+        ${contractStatusBadge(c)}
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+        <div style="background:var(--bgE);border-radius:10px;padding:10px">
+          <p style="font-size:10px;color:var(--ts);margin:0;text-transform:uppercase;letter-spacing:0.6px">Pro Monat</p>
+          <p style="font-size:17px;font-weight:800;margin:3px 0 0;color:${isCancelled?'var(--ts)':'var(--t)'}">${fmt(ann/12)}</p>
+        </div>
+        <div style="background:var(--bgE);border-radius:10px;padding:10px">
+          <p style="font-size:10px;color:var(--ts);margin:0;text-transform:uppercase;letter-spacing:0.6px">Pro Jahr</p>
+          <p style="font-size:17px;font-weight:800;margin:3px 0 0">${fmt(ann)}</p>
+        </div>
+      </div>
+      ${isUrgent?`<div style="background:${isAcute?'var(--coG)':'var(--amG)'};border:1px solid ${isAcute?'var(--co)':'var(--am)'};border-radius:10px;padding:8px 12px;margin-bottom:12px;display:flex;align-items:center;gap:8px">
+        <span style="font-size:16px">${isAcute?'🚨':'⚠️'}</span>
+        <div>
+          <p style="font-size:12px;font-weight:700;color:${isAcute?'var(--co)':'var(--am)'};margin:0">Kündigungsfrist ${days<=0?'abgelaufen':days+' Tage'}</p>
+          ${dl?`<p style="font-size:11px;color:var(--tm);margin:2px 0 0">Deadline: ${fDL(dl)}</p>`:''}
+        </div>
+      </div>`:''}
+      ${pct>=10?`<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px"><span style="font-size:11px;background:var(--coG);color:var(--co);padding:2px 8px;border-radius:6px;font-weight:700">+${pct}% Preiserhöhung</span></div>`:''}
+      <div style="display:flex;gap:6px;justify-content:flex-end;padding-top:10px;border-top:1px solid var(--b)">
+        <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();goToCancelAssist(${c.id})">✉️ Kündigen</button>
+        <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();openContractAdd(${c.id})">✏️ Bearbeiten</button>
+      </div>
+    </div>`;
+  };
+
+  const filterBtn=(id,label,count)=>`<button onclick="window._contractFilter='${id}';renderPage()" style="padding:7px 14px;border-radius:10px;border:1px solid ${filter===id?'var(--ba)':'var(--b)'};background:${filter===id?'var(--emG)':'transparent'};color:${filter===id?'var(--em)':'var(--tm)'};font-size:13px;font-weight:${filter===id?'700':'400'};cursor:pointer;transition:all 0.15s">${label}${count!=null?` <span style="font-size:11px;opacity:0.7">(${count})</span>`:''}</button>`;
+
+  return `
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;flex-wrap:wrap;gap:12px">
+    <div>
+      <h1 style="font-size:28px;font-weight:800;margin:0 0 4px">Vertragsverwaltung</h1>
+      <p style="font-size:13px;color:var(--tm);margin:0">${contracts.length} Verträge · ${fmt(monthlyCost)}/Monat · ${fmt(totalAnnual)}/Jahr</p>
+    </div>
+    <button class="btn btn-primary" onclick="openContractAdd()">＋ Vertrag</button>
+  </div>
+
+  <!-- KPI Zeile -->
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px">
+    <div class="card" style="padding:16px">
+      <p style="font-size:10px;color:var(--ts);margin:0;text-transform:uppercase;letter-spacing:0.8px">Jahreskosten</p>
+      <p style="font-size:22px;font-weight:800;margin:6px 0 2px">${fmt(totalAnnual)}</p>
+      <p style="font-size:12px;color:var(--tm);margin:0">${fmt(monthlyCost)}/Monat</p>
+    </div>
+    <div class="card" style="padding:16px">
+      <p style="font-size:10px;color:var(--ts);margin:0;text-transform:uppercase;letter-spacing:0.8px">Veränderung</p>
+      <p style="font-size:22px;font-weight:800;margin:6px 0 2px;color:${totalDelta>0?'var(--co)':totalDelta<0?'var(--em)':'var(--t)'}">${totalDelta>0?'+':''}${fmt(totalDelta)}</p>
+      <p style="font-size:12px;color:var(--tm);margin:0">zum Vorjahr</p>
+    </div>
+    <div class="card" style="padding:16px;${urgent.length?'border-color:var(--am)':''}">
+      <p style="font-size:10px;color:var(--ts);margin:0;text-transform:uppercase;letter-spacing:0.8px">Fristen aktiv</p>
+      <p style="font-size:22px;font-weight:800;margin:6px 0 2px;color:${urgent.length?'var(--am)':'var(--t)'}">${urgent.length}</p>
+      <p style="font-size:12px;color:var(--tm);margin:0">in 30 Tagen</p>
+    </div>
+    <div class="card" style="padding:16px;${raised.length?'border-color:rgba(239,68,68,0.3)':''}">
+      <p style="font-size:10px;color:var(--ts);margin:0;text-transform:uppercase;letter-spacing:0.8px">Preiserhöhungen</p>
+      <p style="font-size:22px;font-weight:800;margin:6px 0 2px;color:${raised.length?'var(--co)':'var(--t)'}">${raised.length}</p>
+      <p style="font-size:12px;color:var(--tm);margin:0">≥ 10% Anstieg</p>
+    </div>
+  </div>
+
+  <!-- Kategorie Übersicht -->
+  ${byCat.length>1?`<div class="card" style="padding:14px 18px;margin-bottom:16px">
+    <p style="font-size:11px;font-weight:700;color:var(--ts);margin:0 0 10px;text-transform:uppercase;letter-spacing:0.8px">Kosten nach Kategorie</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      ${byCat.map(([k,v])=>`<div style="background:var(--bgE);border:1px solid var(--b);border-radius:10px;padding:8px 12px;display:flex;align-items:center;gap:8px">
+        <span style="font-size:16px">${catIcon(k)}</span>
+        <div><p style="font-size:12px;font-weight:600;margin:0">${k}</p><p style="font-size:13px;font-weight:800;color:var(--em);margin:1px 0 0">${fmt(v)}</p></div>
+      </div>`).join('')}
+    </div>
+  </div>`:''}
+
+  <!-- Sparrechner Banner -->
+  ${contracts.filter(c=>c.status!=='cancelled').length>2?`<div class="card" style="padding:14px 18px;margin-bottom:16px;background:linear-gradient(135deg,rgba(52,211,153,0.08),rgba(52,211,153,0.03));border-color:var(--ba)">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:12px">
+        <span style="font-size:24px">💡</span>
+        <div>
+          <p style="font-size:13px;font-weight:700;margin:0">Sparpotenzial</p>
+          <p style="font-size:12px;color:var(--tm);margin:2px 0 0">Wenn du alle aktiven Verträge kündigen würdest, sparst du <strong style="color:var(--em)">${fmt(cancelledSavings)}/Jahr</strong></p>
+        </div>
+      </div>
+      <button class="btn btn-outline btn-sm" onclick="window._contractFilter='urgent';renderPage()">Fristen prüfen →</button>
+    </div>
+  </div>`:''}
+
+  <!-- Filter Tabs -->
+  <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+    ${filterBtn('all','Alle',contracts.length)}
+    ${filterBtn('active','Aktiv',contracts.filter(c=>c.status!=='cancelled').length)}
+    ${filterBtn('urgent','Frist bald',urgent.length)}
+    ${filterBtn('cancelled','Gekündigt',contracts.filter(c=>c.status==='cancelled').length)}
+  </div>
+
+  <!-- Karten Grid -->
+  ${filtered.length?`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px">
+    ${filtered.map(card).join('')}
+  </div>`:`<div class="card" style="text-align:center;padding:48px 24px">
+    <p style="font-size:40px;margin:0 0 12px">📄</p>
+    <p style="font-size:16px;font-weight:700;margin:0 0 8px">${filter==='all'?'Noch keine Verträge':'Keine Verträge in dieser Kategorie'}</p>
+    <p style="font-size:13px;color:var(--tm);margin:0 0 16px">Lege Verträge an um Fristen, Preiserhöhungen und Jahreskosten im Blick zu behalten.</p>
+    ${filter==='all'?`<button class="btn btn-primary btn-sm" onclick="openContractAdd()">Ersten Vertrag anlegen</button>`:`<button class="btn btn-outline btn-sm" onclick="window._contractFilter='all';renderPage()">Alle anzeigen</button>`}
+  </div>`}`;
 }
-function openContractAdd(id=null){const c=id?contracts.find(x=>x.id===id):null;document.getElementById("modalContainer").innerHTML=`<div class="overlay" onclick="closeModal()"><div class="modal wide" onclick="event.stopPropagation()" style="max-width:700px"><div class="modal-head"><h3>${c?"Vertrag bearbeiten":"Neuer Vertrag"}</h3><button class="modal-close" onclick="closeModal()">✕</button></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><div class="field"><label>Vertragsname*</label><div class="input-wrap"><input id="ctName" value="${c?.name||""}" placeholder="z.B. Haftpflicht"></div></div><div class="field"><label>Anbieter</label><div class="input-wrap"><input id="ctProvider" value="${c?.provider||""}" placeholder="z.B. Allianz"></div></div></div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px"><div class="field"><label>Vertragsnummer</label><div class="input-wrap"><input id="ctNo" value="${c?.contractNo||""}" placeholder="VN-123..."></div></div><div class="field"><label>Status</label><div class="input-wrap"><input id="ctStatus" value="${c?.status||"active"}" placeholder="active/paused/cancelled"></div></div><div class="field"><label>Kategorie</label><div class="input-wrap"><input id="ctCategory" value="${c?.category||""}" placeholder="Versicherung, Abo..."></div></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><div class="field"><label>Monatliche Kosten</label><div class="input-wrap"><input id="ctMonthly" type="number" value="${c?.monthlyCost||0}" placeholder="0"><span class="suffix">€</span></div></div><div class="field"><label>Jahreskosten (optional)</label><div class="input-wrap"><input id="ctYearly" type="number" value="${c?.yearlyCost||0}" placeholder="0"><span class="suffix">€</span></div></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><div class="field"><label>Vorjahreskosten</label><div class="input-wrap"><input id="ctPrevAnnual" type="number" value="${c?.previousAnnualCost||0}" placeholder="0"><span class="suffix">€</span></div></div><div class="field"><label>Zahlungsart</label><div class="input-wrap"><input id="ctPayMethod" value="${c?.paymentMethod||""}" placeholder="SEPA, Kreditkarte, ..."></div></div></div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px"><div class="field"><label>Startdatum</label><div class="input-wrap"><input id="ctStart" type="date" value="${c?.startDate||""}"></div></div><div class="field"><label>Mindestlaufzeit (Mon.)</label><div class="input-wrap"><input id="ctTerm" type="number" value="${c?.minTermMonths||12}" placeholder="12"></div></div><div class="field"><label>Kündigungsfrist (Tage)</label><div class="input-wrap"><input id="ctNotice" type="number" value="${c?.noticeDays||30}" placeholder="30"></div></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><div class="field"><label>Kündigungsdeadline (fix)</label><div class="input-wrap"><input id="ctCancelBy" type="date" value="${c?.cancelBy||""}"></div></div><div class="field"><label>Abrechnungszyklus</label><div class="input-wrap"><input id="ctCycle" value="${c?.billingCycle||"monatlich"}" placeholder="monatlich/jährlich"></div></div></div><div class="field"><label>Notizen</label><div class="input-wrap"><input id="ctNotes" value="${(c?.notes||"").replace(/"/g,'&quot;')}" placeholder="Wichtige Vertragsdetails"></div></div><div style="display:flex;gap:12px;margin-top:8px"><button class="btn btn-outline" style="flex:1" onclick="closeModal()">Abbrechen</button><button class="btn btn-primary" style="flex:1" onclick="saveContract(${c?c.id:0})">${c?"Änderungen speichern":"Speichern"}</button></div></div></div>`}
-function saveContract(id=0){const name=(document.getElementById("ctName")?.value||"").trim();if(!name){flash("Vertragsname fehlt");return;}const item={id:id||Date.now(),name,provider:(document.getElementById("ctProvider")?.value||"").trim(),contractNo:(document.getElementById("ctNo")?.value||"").trim(),category:(document.getElementById("ctCategory")?.value||"").trim(),status:(document.getElementById("ctStatus")?.value||"active").trim(),monthlyCost:parseFloat(document.getElementById("ctMonthly")?.value)||0,yearlyCost:parseFloat(document.getElementById("ctYearly")?.value)||0,previousAnnualCost:parseFloat(document.getElementById("ctPrevAnnual")?.value)||0,paymentMethod:(document.getElementById("ctPayMethod")?.value||"").trim(),startDate:(document.getElementById("ctStart")?.value||""),minTermMonths:parseInt(document.getElementById("ctTerm")?.value||"0",10)||0,noticeDays:parseInt(document.getElementById("ctNotice")?.value||"0",10)||0,cancelBy:(document.getElementById("ctCancelBy")?.value||""),billingCycle:(document.getElementById("ctCycle")?.value||"monatlich").trim(),notes:(document.getElementById("ctNotes")?.value||"").trim(),documents:id?(contracts.find(c=>c.id===id)?.documents||[]):[]};if(id){contracts=contracts.map(c=>c.id===id?item:c)}else{contracts.unshift(item)}scheduleCloudSave();closeModal();flash(id?"Vertrag aktualisiert ✓":"Vertrag gespeichert ✓");renderPage()}
+
+// ─── Vertragsdetail ──────────────────────────────────────────────────────────
+function rContractDetail(id){
+  const c=contracts.find(x=>x.id===id);
+  if(!c){window._contractDetail=null;renderPage();return '';}
+  const ann=contractAnnualCost(c);
+  const days=contractDaysLeft(c);
+  const pct=contractIncreasePct(c);
+  const delta=contractDelta(c);
+  const dl=contractEffectiveDeadline(c);
+  const catIcon=(cat)=>{const m={'Versicherung':'🛡️','Streaming':'🎬','Internet':'🌐','Strom':'⚡','Gas':'🔥','Handy':'📱','Fitness':'💪','Software':'💻','Bank':'🏦','Miete':'🏠','Auto':'🚗','Sonstiges':'📄'};return m[cat]||m[Object.keys(m).find(k=>cat&&cat.toLowerCase().includes(k.toLowerCase()))||'']||'📄';};
+  const isUrgent=days!==null&&days<=30&&c.status!=='cancelled';
+  const isAcute=days!==null&&days<=14&&c.status!=='cancelled';
+
+  return `
+  <button onclick="window._contractDetail=null;renderPage()" style="background:none;border:none;color:var(--tm);cursor:pointer;font-size:13px;padding:0;margin-bottom:18px;display:flex;align-items:center;gap:6px">← Zurück zur Übersicht</button>
+
+  ${isUrgent?`<div style="background:${isAcute?'var(--coG)':'var(--amG)'};border:1px solid ${isAcute?'var(--co)':'var(--am)'};border-radius:14px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;gap:12px">
+    <span style="font-size:24px">${isAcute?'🚨':'⚠️'}</span>
+    <div style="flex:1">
+      <p style="font-size:14px;font-weight:700;color:${isAcute?'var(--co)':'var(--am)'};margin:0">Kündigungsfrist läuft ${days<=0?'ab!':'in '+days+' Tagen ab!'}</p>
+      <p style="font-size:12px;color:var(--tm);margin:4px 0 0">${dl?'Deadline: '+fDL(dl)+' · ':''}Jetzt kündigen um Verlängerung zu vermeiden.</p>
+    </div>
+    <button class="btn btn-sm" style="background:${isAcute?'var(--co)':'var(--am)'};color:#fff;border:none;white-space:nowrap" onclick="goToCancelAssist(${c.id})">Jetzt kündigen</button>
+  </div>`:''}
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+    <!-- Linke Spalte: Vertragsinfo -->
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="card" style="padding:20px">
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px">
+          <div style="width:52px;height:52px;border-radius:14px;background:var(--bgE);border:1px solid var(--b);display:flex;align-items:center;justify-content:center;font-size:26px">${catIcon(c.category)}</div>
+          <div>
+            <h2 style="font-size:20px;font-weight:800;margin:0 0 4px">${c.name}</h2>
+            <p style="font-size:13px;color:var(--tm);margin:0">${c.provider||''}${c.category?' · '+c.category:''}</p>
+          </div>
+          ${contractStatusBadge(c)}
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div style="background:var(--bgE);border-radius:12px;padding:12px">
+            <p style="font-size:10px;color:var(--ts);margin:0;text-transform:uppercase;letter-spacing:0.6px">Monatlich</p>
+            <p style="font-size:22px;font-weight:800;margin:4px 0 0">${fmt(ann/12)}</p>
+          </div>
+          <div style="background:var(--bgE);border-radius:12px;padding:12px">
+            <p style="font-size:10px;color:var(--ts);margin:0;text-transform:uppercase;letter-spacing:0.6px">Jährlich</p>
+            <p style="font-size:22px;font-weight:800;margin:4px 0 0">${fmt(ann)}</p>
+          </div>
+          ${delta?`<div style="background:${delta>0?'var(--coG)':'var(--emG)'};border:1px solid ${delta>0?'var(--co)':'var(--ba)'};border-radius:12px;padding:12px;grid-column:1/-1">
+            <p style="font-size:10px;color:var(--ts);margin:0;text-transform:uppercase;letter-spacing:0.6px">Preisveränderung</p>
+            <p style="font-size:18px;font-weight:800;margin:4px 0 0;color:${delta>0?'var(--co)':'var(--em)'}">${delta>0?'+':''}${fmt(delta)}/Jahr (${pct>0?'+':''}${pct}%)</p>
+          </div>`:''}
+        </div>
+      </div>
+
+      <div class="card" style="padding:18px">
+        <p style="font-size:12px;font-weight:700;color:var(--ts);margin:0 0 12px;text-transform:uppercase;letter-spacing:0.8px">Vertragsdetails</p>
+        ${[
+          ['Vertragsnummer', c.contractNo],
+          ['Kategorie', c.category],
+          ['Abrechnungszyklus', c.billingCycle],
+          ['Zahlungsart', c.paymentMethod],
+          ['Startdatum', c.startDate?new Date(c.startDate+'T00:00:00').toLocaleDateString('de-DE'):''],
+          ['Mindestlaufzeit', c.minTermMonths?c.minTermMonths+' Monate':''],
+          ['Kündigungsfrist', c.noticeDays?c.noticeDays+' Tage':''],
+          ['Nächste Preisanpassung', c.nextPriceDate?new Date(c.nextPriceDate+'T00:00:00').toLocaleDateString('de-DE')+(c.nextPriceAmount?' → '+fmt(c.nextPriceAmount/12)+'/Mon.':''):''],
+          ['Kontakt Anbieter', c.providerPhone||c.providerEmail?(c.providerPhone||'')+(c.providerPhone&&c.providerEmail?' · ':'')+(c.providerEmail||''):''],
+        ].filter(([,v])=>v).map(([k,v])=>`<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--b);gap:12px">
+          <span style="font-size:12px;color:var(--tm)">${k}</span>
+          <span style="font-size:13px;font-weight:600;text-align:right">${v}</span>
+        </div>`).join('')}
+        ${c.notes?`<p style="font-size:12px;color:var(--tm);margin:10px 0 0;padding:10px;background:var(--bgE);border-radius:8px">${c.notes}</p>`:''}
+      </div>
+    </div>
+
+    <!-- Rechte Spalte: Frist + Dokumente + Aktionen -->
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <!-- Fristen-Card -->
+      <div class="card" style="padding:18px;${isUrgent?'border-color:'+(isAcute?'var(--co)':'var(--am)'):''}">
+        <p style="font-size:12px;font-weight:700;color:var(--ts);margin:0 0 12px;text-transform:uppercase;letter-spacing:0.8px">⏰ Kündigungsfrist</p>
+        ${days!==null?`<div style="text-align:center;padding:16px 0">
+          <p style="font-size:48px;font-weight:900;margin:0;color:${isAcute?'var(--co)':isUrgent?'var(--am)':'var(--t)'};line-height:1">${Math.max(0,days)}</p>
+          <p style="font-size:14px;color:var(--tm);margin:4px 0 0">Tage verbleibend</p>
+          ${dl?`<p style="font-size:12px;color:var(--ts);margin:8px 0 0">Deadline: <strong>${fDL(dl)}</strong></p>`:''}
+        </div>
+        <div style="background:var(--bgE);border-radius:10px;height:8px;margin:8px 0">
+          <div style="height:8px;border-radius:10px;background:${isAcute?'var(--co)':isUrgent?'var(--am)':'var(--em)'};width:${Math.min(100,Math.max(5,days<=0?100:100-Math.min(100,days/90*100)))}%"></div>
+        </div>`:`<p style="font-size:14px;color:var(--tm);text-align:center;padding:16px 0">Keine Frist hinterlegt</p>`}
+      </div>
+
+      <!-- Dokumente -->
+      <div class="card" style="padding:18px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <p style="font-size:12px;font-weight:700;color:var(--ts);margin:0;text-transform:uppercase;letter-spacing:0.8px">📎 Dokumente</p>
+          <label class="btn btn-ghost btn-sm" style="cursor:pointer">+ Hinzufügen<input type="file" multiple style="display:none" onchange="attachContractDocs(${c.id},event)"></label>
+        </div>
+        ${(c.documents||[]).length?`<div style="display:flex;flex-direction:column;gap:6px">
+          ${c.documents.map(d=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--bgE);border-radius:8px">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="font-size:16px">📄</span>
+              <div><p style="font-size:12px;font-weight:600;margin:0">${d.name}</p><p style="font-size:11px;color:var(--tm);margin:1px 0 0">${new Date(d.uploadedAt).toLocaleDateString('de-DE')}</p></div>
+            </div>
+          </div>`).join('')}
+        </div>`:`<div style="text-align:center;padding:20px 0;color:var(--tm)">
+          <p style="font-size:24px;margin:0 0 6px">📂</p>
+          <p style="font-size:12px;margin:0">Noch keine Dokumente</p>
+        </div>`}
+      </div>
+
+      <!-- Aktionen -->
+      <div class="card" style="padding:18px">
+        <p style="font-size:12px;font-weight:700;color:var(--ts);margin:0 0 12px;text-transform:uppercase;letter-spacing:0.8px">Aktionen</p>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <button class="btn btn-outline" style="width:100%;justify-content:flex-start;gap:10px" onclick="goToCancelAssist(${c.id})">✉️ Kündigungsschreiben erstellen</button>
+          <button class="btn btn-outline" style="width:100%;justify-content:flex-start;gap:10px" onclick="openContractAdd(${c.id})">✏️ Vertrag bearbeiten</button>
+          <button class="btn btn-outline" style="width:100%;justify-content:flex-start;gap:10px;color:var(--am);border-color:var(--am)" onclick="markContractCancelled(${c.id})">${c.status==='cancelled'?'✅ Als aktiv markieren':'🔴 Als gekündigt markieren'}</button>
+          <button class="btn btn-danger" style="width:100%;justify-content:flex-start;gap:10px" onclick="deleteContract(${c.id})">🗑️ Vertrag löschen</button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function markContractCancelled(id){
+  const c=contracts.find(x=>x.id===id);
+  if(!c)return;
+  c.status=c.status==='cancelled'?'active':'cancelled';
+  scheduleCloudSave();
+  renderPage();
+  flash(c.status==='cancelled'?'Als gekündigt markiert':'Wieder auf aktiv gesetzt');
+}
+
+function openContractAdd(id=null){
+  const c=id?contracts.find(x=>x.id===id):null;
+  document.getElementById("modalContainer").innerHTML=`<div class="overlay" onclick="closeModal()"><div class="modal wide" onclick="event.stopPropagation()" style="max-width:720px">
+  <div class="modal-head"><h3>${c?'Vertrag bearbeiten':'Neuer Vertrag'}</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+    <div class="field"><label>Vertragsname *</label><div class="input-wrap"><input id="ctName" value="${c?.name||''}" placeholder="z.B. Haftpflicht"></div></div>
+    <div class="field"><label>Anbieter</label><div class="input-wrap"><input id="ctProvider" value="${c?.provider||''}" placeholder="z.B. Allianz"></div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+    <div class="field"><label>Kategorie</label><div class="input-wrap"><select id="ctCategory">
+      ${['Versicherung','Streaming','Internet','Strom','Gas','Handy','Fitness','Software','Bank','Miete','Auto','Sonstiges'].map(k=>`<option value="${k}" ${c?.category===k?'selected':''}>${k}</option>`).join('')}
+    </select></div></div>
+    <div class="field"><label>Vertragsnummer</label><div class="input-wrap"><input id="ctNo" value="${c?.contractNo||''}" placeholder="VN-123..."></div></div>
+    <div class="field"><label>Zahlungsart</label><div class="input-wrap"><input id="ctPayMethod" value="${c?.paymentMethod||''}" placeholder="SEPA, Überweisung..."></div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+    <div class="field"><label>Monatliche Kosten</label><div class="input-wrap"><input id="ctMonthly" type="number" step="0.01" value="${c?.monthlyCost||0}"><span class="suffix">€</span></div></div>
+    <div class="field"><label>Jahreskosten (alternativ)</label><div class="input-wrap"><input id="ctYearly" type="number" step="0.01" value="${c?.yearlyCost||0}"><span class="suffix">€</span></div></div>
+    <div class="field"><label>Vorjahreskosten</label><div class="input-wrap"><input id="ctPrevAnnual" type="number" step="0.01" value="${c?.previousAnnualCost||0}"><span class="suffix">€</span></div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+    <div class="field"><label>Startdatum</label><div class="input-wrap"><input id="ctStart" type="date" value="${c?.startDate||''}"></div></div>
+    <div class="field"><label>Mindestlaufzeit (Monate)</label><div class="input-wrap"><input id="ctTerm" type="number" value="${c?.minTermMonths||12}"></div></div>
+    <div class="field"><label>Kündigungsfrist (Tage)</label><div class="input-wrap"><input id="ctNotice" type="number" value="${c?.noticeDays||30}"></div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+    <div class="field"><label>Kündigungsdeadline (fix)</label><div class="input-wrap"><input id="ctCancelBy" type="date" value="${c?.cancelBy||''}"></div></div>
+    <div class="field"><label>Abrechnungszyklus</label><div class="input-wrap"><select id="ctCycle">
+      ${['monatlich','vierteljährlich','halbjährlich','jährlich','einmalig'].map(k=>`<option value="${k}" ${(c?.billingCycle||'monatlich')===k?'selected':''}>${k}</option>`).join('')}
+    </select></div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+    <div class="field"><label>Nächste Preisanpassung</label><div class="input-wrap"><input id="ctNextPriceDate" type="date" value="${c?.nextPriceDate||''}"></div></div>
+    <div class="field"><label>Neuer Monatsbetrag (erwartet)</label><div class="input-wrap"><input id="ctNextPriceAmt" type="number" step="0.01" value="${c?.nextPriceAmount||''}"><span class="suffix">€</span></div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+    <div class="field"><label>Anbieter Telefon</label><div class="input-wrap"><input id="ctPhone" value="${c?.providerPhone||''}" placeholder="z.B. 0800 123456"></div></div>
+    <div class="field"><label>Anbieter E-Mail</label><div class="input-wrap"><input id="ctEmail" value="${c?.providerEmail||''}" placeholder="service@anbieter.de"></div></div>
+  </div>
+  <div class="field"><label>Notizen</label><div class="input-wrap"><input id="ctNotes" value="${(c?.notes||'').replace(/"/g,'&quot;')}" placeholder="Wichtige Details..."></div></div>
+
+  <div style="display:flex;gap:12px;margin-top:8px">
+    <button class="btn btn-outline" style="flex:1" onclick="closeModal()">Abbrechen</button>
+    <button class="btn btn-primary" style="flex:1" onclick="saveContract(${c?c.id:0})">${c?'Änderungen speichern':'Vertrag anlegen'}</button>
+  </div>
+</div></div>`;
+}
+
+function saveContract(id=0){
+  const name=(document.getElementById("ctName")?.value||"").trim();
+  if(!name){flash("Vertragsname fehlt");return;}
+  const item={
+    id:id||Date.now(),name,
+    provider:(document.getElementById("ctProvider")?.value||"").trim(),
+    contractNo:(document.getElementById("ctNo")?.value||"").trim(),
+    category:document.getElementById("ctCategory")?.value||"Sonstiges",
+    status:(id?contracts.find(c=>c.id===id)?.status:null)||"active",
+    monthlyCost:parseFloat(document.getElementById("ctMonthly")?.value)||0,
+    yearlyCost:parseFloat(document.getElementById("ctYearly")?.value)||0,
+    previousAnnualCost:parseFloat(document.getElementById("ctPrevAnnual")?.value)||0,
+    paymentMethod:(document.getElementById("ctPayMethod")?.value||"").trim(),
+    startDate:document.getElementById("ctStart")?.value||"",
+    minTermMonths:parseInt(document.getElementById("ctTerm")?.value||"0",10)||0,
+    noticeDays:parseInt(document.getElementById("ctNotice")?.value||"0",10)||0,
+    cancelBy:document.getElementById("ctCancelBy")?.value||"",
+    billingCycle:document.getElementById("ctCycle")?.value||"monatlich",
+    nextPriceDate:document.getElementById("ctNextPriceDate")?.value||"",
+    nextPriceAmount:parseFloat(document.getElementById("ctNextPriceAmt")?.value)||0,
+    providerPhone:(document.getElementById("ctPhone")?.value||"").trim(),
+    providerEmail:(document.getElementById("ctEmail")?.value||"").trim(),
+    notes:(document.getElementById("ctNotes")?.value||"").trim(),
+    documents:id?(contracts.find(c=>c.id===id)?.documents||[]):[]
+  };
+  if(id){contracts=contracts.map(c=>c.id===id?item:c);}else{contracts.unshift(item);}
+  scheduleCloudSave();
+  closeModal();
+  flash(id?"Vertrag aktualisiert ✓":"Vertrag angelegt ✓");
+  if(id&&window._contractDetail===id) renderPage();
+  else renderPage();
+}
+
+
 function goToCancelAssist(id){
   if(id)cancelForm.contractId=id;
   cancelForm.step=1;
