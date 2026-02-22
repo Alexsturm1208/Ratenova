@@ -1669,6 +1669,7 @@ function rAgreePreview(){
       <button class="btn btn-outline" onclick="sendAgreeMail()">✉️ E-Mail</button>
       <button class="btn btn-primary" onclick="agreeForm.editBetreff=document.getElementById('agEditBetreff')?.value||agreeForm.editBetreff;agreeForm.editBody=document.getElementById('agEditBody')?.value||agreeForm.editBody;agreeForm.editClosing=document.getElementById('agEditClosing')?.value||agreeForm.editClosing;openAgreementPdfPreview()" style="background:linear-gradient(135deg,#7C3AED,#6D28D9)">📄 PDF generieren</button>
     </div>`;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>sigInitCanvas('agree')));
 }
 
 function copyAgreement(){
@@ -2362,123 +2363,86 @@ function rCancelPreview(){
 // ═══════════════════════════════════════════════════════
 // UNTERSCHRIFTS-SYSTEM
 // ═══════════════════════════════════════════════════════
-const sigState = { agree: null, cancel: null }; // base64 data URLs
+const sigState = { agree: null, cancel: null };
 
 function sigSetMode(form, mode){
-  const prefix = form==="agree" ? "ag" : "ca";
-  document.getElementById(prefix+"SigDraw").style.display   = mode==="draw"   ? "" : "none";
-  document.getElementById(prefix+"SigUpload").style.display = mode==="upload" ? "" : "none";
-  // Tab-Styling
-  const drawBtn   = document.getElementById(prefix+"SigTabDraw");
-  const uploadBtn = document.getElementById(prefix+"SigTabUpload");
-  if(drawBtn){
-    drawBtn.style.background   = mode==="draw"   ? "var(--emG)"      : "transparent";
-    drawBtn.style.color        = mode==="draw"   ? "var(--em)"       : "var(--tm)";
-    drawBtn.style.borderColor  = mode==="draw"   ? "var(--ba)"       : "var(--b)";
-    drawBtn.style.fontWeight   = mode==="draw"   ? "600"             : "400";
-  }
-  if(uploadBtn){
-    uploadBtn.style.background  = mode==="upload" ? "var(--emG)"     : "transparent";
-    uploadBtn.style.color       = mode==="upload" ? "var(--em)"      : "var(--tm)";
-    uploadBtn.style.borderColor = mode==="upload" ? "var(--ba)"      : "var(--b)";
-    uploadBtn.style.fontWeight  = mode==="upload" ? "600"            : "400";
-  }
-  if(mode==="draw") setTimeout(()=>sigInitCanvas(form), 50);
+  const p = form==="agree" ? "ag" : "ca";
+  const drawDiv   = document.getElementById(p+"SigDraw");
+  const uploadDiv = document.getElementById(p+"SigUpload");
+  const drawBtn   = document.getElementById(p+"SigTabDraw");
+  const uploadBtn = document.getElementById(p+"SigTabUpload");
+  if(drawDiv)   drawDiv.style.display   = mode==="draw"   ? "" : "none";
+  if(uploadDiv) uploadDiv.style.display = mode==="upload" ? "" : "none";
+  const active   = "border:1px solid var(--ba);background:var(--emG);color:var(--em);font-weight:600;cursor:pointer;font-size:11px;padding:4px 10px;border-radius:6px";
+  const inactive = "border:1px solid var(--b);background:transparent;color:var(--tm);cursor:pointer;font-size:11px;padding:4px 10px;border-radius:6px";
+  if(drawBtn)   drawBtn.style.cssText   = mode==="draw"   ? active : inactive;
+  if(uploadBtn) uploadBtn.style.cssText = mode==="upload" ? active : inactive;
+  if(mode==="draw") requestAnimationFrame(()=>requestAnimationFrame(()=>sigInitCanvas(form)));
 }
 
 function sigInitCanvas(form){
-  const id = (form==="agree" ? "ag" : "ca") + "SigCanvas";
-  const canvas = document.getElementById(id);
+  const p = form==="agree" ? "ag" : "ca";
+  const canvas = document.getElementById(p+"SigCanvas");
   if(!canvas) return;
 
-  // Setze canvas-Pixel exakt auf die gerenderte CSS-Größe
+  // Always resize canvas pixels to match rendered CSS size
   const rect = canvas.getBoundingClientRect();
-  const W = Math.round(rect.width)  || 500;
-  const H = Math.round(rect.height) || 120;
-  canvas.width  = W;
-  canvas.height = H;
+  if(rect.width === 0) { setTimeout(()=>sigInitCanvas(form), 50); return; }
 
-  // Vorhandene Listener entfernen (bei Re-Init nach renderPage)
-  const newCanvas = canvas.cloneNode(true);
-  canvas.parentNode.replaceChild(newCanvas, canvas);
-  const c = newCanvas;
+  canvas.width  = rect.width;
+  canvas.height = rect.height;
 
-  const ctx = c.getContext("2d");
-  // Weißer Hintergrund explizit zeichnen
+  const ctx = canvas.getContext("2d");
   ctx.fillStyle = "#ffffff";
-  ctx.fillRect(0, 0, W, H);
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  let drawing = false;
-  let lx = 0, ly = 0;
-
-  function coords(e){
-    const r = c.getBoundingClientRect();
-    const src = e.touches ? e.touches[0] : e;
-    return { x: src.clientX - r.left, y: src.clientY - r.top };
+  // Remove old listeners by replacing with clone, keep reference
+  if(canvas._sigHandler){
+    canvas.removeEventListener("mousedown",  canvas._sigHandler.md);
+    canvas.removeEventListener("mousemove",  canvas._sigHandler.mm);
+    canvas.removeEventListener("mouseup",    canvas._sigHandler.mu);
+    canvas.removeEventListener("mouseleave", canvas._sigHandler.ml);
+    canvas.removeEventListener("touchstart", canvas._sigHandler.ts);
+    canvas.removeEventListener("touchmove",  canvas._sigHandler.tm);
+    canvas.removeEventListener("touchend",   canvas._sigHandler.te);
   }
 
-  c.addEventListener("mousedown", e => {
-    drawing = true;
-    const p = coords(e);
-    lx = p.x; ly = p.y;
-    ctx.fillStyle = "#000000";
-    ctx.beginPath();
-    ctx.arc(lx, ly, 1.2, 0, Math.PI * 2);
-    ctx.fill();
-  });
+  let drawing = false, lx = 0, ly = 0;
 
-  c.addEventListener("mousemove", e => {
-    if(!drawing) return;
-    const p = coords(e);
-    ctx.strokeStyle = "#000000";
-    ctx.lineWidth = 2.5;
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-    ctx.beginPath();
-    ctx.moveTo(lx, ly);
-    ctx.lineTo(p.x, p.y);
-    ctx.stroke();
-    lx = p.x; ly = p.y;
-  });
+  function xy(e){
+    const r = canvas.getBoundingClientRect();
+    const s = e.touches ? e.touches[0] : e;
+    return { x: s.clientX - r.left, y: s.clientY - r.top };
+  }
 
-  const stopDrawing = () => {
-    if(!drawing) return;
-    drawing = false;
-    sigState[form] = c.toDataURL("image/png");
+  function save(){
+    sigState[form] = canvas.toDataURL("image/png");
     sigShowPreview(form, sigState[form]);
-  };
+  }
 
-  c.addEventListener("mouseup",    stopDrawing);
-  c.addEventListener("mouseleave", stopDrawing);
+  const md = e => { drawing=true; const c=xy(e); lx=c.x; ly=c.y;
+    ctx.fillStyle="#000"; ctx.beginPath(); ctx.arc(lx,ly,1,0,Math.PI*2); ctx.fill(); };
+  const mm = e => { if(!drawing) return; const c=xy(e);
+    ctx.strokeStyle="#000"; ctx.lineWidth=2.5; ctx.lineCap="round"; ctx.lineJoin="round";
+    ctx.beginPath(); ctx.moveTo(lx,ly); ctx.lineTo(c.x,c.y); ctx.stroke();
+    lx=c.x; ly=c.y; };
+  const mu = e => { if(!drawing) return; drawing=false; save(); };
+  const ml = e => { if(!drawing) return; drawing=false; save(); };
+  const ts = e => { e.preventDefault(); drawing=true; const c=xy(e); lx=c.x; ly=c.y; };
+  const tm = e => { e.preventDefault(); if(!drawing) return; const c=xy(e);
+    ctx.strokeStyle="#000"; ctx.lineWidth=2.5; ctx.lineCap="round"; ctx.lineJoin="round";
+    ctx.beginPath(); ctx.moveTo(lx,ly); ctx.lineTo(c.x,c.y); ctx.stroke();
+    lx=c.x; ly=c.y; };
+  const te = e => { e.preventDefault(); drawing=false; save(); };
 
-  c.addEventListener("touchstart", e => {
-    e.preventDefault();
-    drawing = true;
-    const p = coords(e);
-    lx = p.x; ly = p.y;
-  }, {passive:false});
-
-  c.addEventListener("touchmove", e => {
-    e.preventDefault();
-    if(!drawing) return;
-    const p = coords(e);
-    ctx.strokeStyle = "#000000";
-    ctx.lineWidth = 2.5;
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-    ctx.beginPath();
-    ctx.moveTo(lx, ly);
-    ctx.lineTo(p.x, p.y);
-    ctx.stroke();
-    lx = p.x; ly = p.y;
-  }, {passive:false});
-
-  c.addEventListener("touchend", e => {
-    e.preventDefault();
-    drawing = false;
-    sigState[form] = c.toDataURL("image/png");
-    sigShowPreview(form, sigState[form]);
-  }, {passive:false});
+  canvas.addEventListener("mousedown",  md);
+  canvas.addEventListener("mousemove",  mm);
+  canvas.addEventListener("mouseup",    mu);
+  canvas.addEventListener("mouseleave", ml);
+  canvas.addEventListener("touchstart", ts, {passive:false});
+  canvas.addEventListener("touchmove",  tm, {passive:false});
+  canvas.addEventListener("touchend",   te, {passive:false});
+  canvas._sigHandler = {md,mm,mu,ml,ts,tm,te};
 }
 
 function sigLoadFile(form, input){
@@ -2494,33 +2458,28 @@ function sigLoadFile(form, input){
 }
 
 function sigShowPreview(form, dataUrl){
-  const prefix = form==="agree" ? "ag" : "ca";
-  const preview = document.getElementById(prefix+"SigPreview");
-  const img     = document.getElementById(prefix+"SigImg");
-  if(preview && img && dataUrl){
-    img.src = dataUrl;
-    preview.style.display = "";
-  }
+  const p = form==="agree" ? "ag" : "ca";
+  const preview = document.getElementById(p+"SigPreview");
+  const img     = document.getElementById(p+"SigImg");
+  if(preview && img && dataUrl){ img.src=dataUrl; preview.style.display=""; }
 }
 
 function sigClear(form){
   sigState[form] = null;
-  const prefix = form==="agree" ? "ag" : "ca";
-  const canvas = document.getElementById(prefix+"SigCanvas");
+  const p = form==="agree" ? "ag" : "ca";
+  const canvas = document.getElementById(p+"SigCanvas");
   if(canvas){
     const ctx = canvas.getContext("2d");
     ctx.fillStyle = "#ffffff";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    setTimeout(()=>sigInitCanvas(form), 30);
+    ctx.fillRect(0,0,canvas.width,canvas.height);
   }
-  const preview = document.getElementById(prefix+"SigPreview");
+  const preview = document.getElementById(p+"SigPreview");
   if(preview) preview.style.display="none";
   flash("Unterschrift gelöscht");
 }
 
-// Init canvas on first render (draw mode is default)
 function sigMaybeInit(form){
-  setTimeout(()=>sigInitCanvas(form), 80);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>sigInitCanvas(form)));
 }
 function sendAgreeMail(){
   const d=agreeForm.data;
