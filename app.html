@@ -1555,15 +1555,6 @@ function rAgreePreview(){
   const today=new Date().toLocaleDateString("de-DE",{day:"numeric",month:"long",year:"numeric"});
   const styleLabels={formell:"⚖️ Formell",kooperativ:"🤝 Kooperativ",bestimmt:"⚡ Bestimmt"};
 
-  function sendAgreeMail(){
-    const betreff=document.getElementById("agEditBetreff")?.value||agreeForm.editBetreff;
-    const body=document.getElementById("agEditBody")?.value||agreeForm.editBody;
-    const closing=document.getElementById("agEditClosing")?.value||agreeForm.editClosing;
-    const creditorEmail=agreeForm.debt?.creditorEmail||"";
-    const fullText="Sehr geehrte Damen und Herren,\n\n"+body+"\n\n"+closing+"\n\nMit freundlichen Grüßen\n"+d.name;
-    window.location.href="mailto:"+creditorEmail+"?subject="+encodeURIComponent(betreff)+"&body="+encodeURIComponent(fullText);
-  }
-
   return`
     <button onclick="agreeForm.step=2;renderPage()" style="background:none;border:none;color:var(--tm);font-size:13px;display:flex;align-items:center;gap:6px;margin-bottom:20px;padding:0;cursor:pointer">← Zurück zur Bearbeitung</button>
 
@@ -2307,14 +2298,30 @@ function rCancelPreview(){
       <button class="btn btn-primary" onclick="cancelForm.editSubject=document.getElementById('caEditSubject')?.value||cancelForm.editSubject;cancelForm.editBody=document.getElementById('caEditBody')?.value||cancelForm.editBody;cancelForm.editClosing=document.getElementById('caEditClosing')?.value||cancelForm.editClosing;openCancelPdfPreview()" style="background:linear-gradient(135deg,#7C3AED,#6D28D9)">📄 PDF generieren</button>
     </div>`;
 }
+function sendAgreeMail(){
+  const d=agreeForm.data;
+  const betreff=document.getElementById("agEditBetreff")?.value||agreeForm.editBetreff||getDocContent().betreff;
+  const body=document.getElementById("agEditBody")?.value||agreeForm.editBody||getDocContent().body;
+  const closing=document.getElementById("agEditClosing")?.value||agreeForm.editClosing||getDocContent().closing;
+  const creditorEmail=agreeForm.debt?.creditorEmail||"";
+  const senderName=d.name||user.name||"";
+  const fullText="Sehr geehrte Damen und Herren,\n\n"+body+"\n\n"+closing+"\n\nMit freundlichen Grüßen\n"+senderName;
+  const mailto="mailto:"+creditorEmail+"?subject="+encodeURIComponent(betreff)+"&body="+encodeURIComponent(fullText);
+  if(!creditorEmail){flash("E-Mail-Client wird geöffnet – bitte Empfänger eintragen");}
+  window.location.href=mailto;
+}
 function sendCancelMail(){
   const c=selectedCancelContract();
   const d=cancelForm.data;
   const subject=document.getElementById("caEditSubject")?.value||cancelForm.editSubject||getCancelDocContent().subject;
   const bodyText=document.getElementById("caEditBody")?.value||cancelForm.editBody||getCancelDocContent().body;
   const closing=document.getElementById("caEditClosing")?.value||cancelForm.editClosing||getCancelDocContent().closing;
-  const fullBody="Sehr geehrte Damen und Herren,\n\n"+bodyText+"\n\n"+closing+"\n\nMit freundlichen Grüßen\n"+d.senderName;
-  const mailto="mailto:"+(c?.creditorEmail||"")+"?subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(fullBody);
+  const senderName=d.senderName||user.name||"";
+  const fullBody="Sehr geehrte Damen und Herren,\n\n"+bodyText+"\n\n"+closing+"\n\nMit freundlichen Grüßen\n"+senderName;
+  // Verträge haben selten eine hinterlegte E-Mail – trotzdem öffnen, Nutzer trägt Empfänger ein
+  const to=c?.email||c?.creditorEmail||"";
+  const mailto="mailto:"+to+"?subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(fullBody);
+  if(!to){flash("E-Mail-Client wird geöffnet – bitte Empfänger eintragen");}
   window.location.href=mailto;
 }
 function printContractLetter(){
