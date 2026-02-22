@@ -2426,7 +2426,32 @@ function sigInitCanvas(form){
   }
 
   function save(){
-    sigState[form] = canvas.toDataURL("image/png");
+    // Auto-crop: nur den tatsächlich beschriebenen Bereich speichern
+    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const d = imgData.data;
+    let minX=canvas.width, minY=canvas.height, maxX=0, maxY=0;
+    for(let y=0;y<canvas.height;y++){
+      for(let x=0;x<canvas.width;x++){
+        const i=(y*canvas.width+x)*4;
+        // Pixel ist nicht weiß/transparent
+        if(d[i]<240 || d[i+1]<240 || d[i+2]<240){
+          if(x<minX)minX=x; if(x>maxX)maxX=x;
+          if(y<minY)minY=y; if(y>maxY)maxY=y;
+        }
+      }
+    }
+    if(maxX<=minX || maxY<=minY){
+      // Nichts gezeichnet
+      sigState[form]=null; return;
+    }
+    // Padding um die Unterschrift
+    const pad=12;
+    minX=Math.max(0,minX-pad); minY=Math.max(0,minY-pad);
+    maxX=Math.min(canvas.width,maxX+pad); maxY=Math.min(canvas.height,maxY+pad);
+    const crop=document.createElement("canvas");
+    crop.width=maxX-minX; crop.height=maxY-minY;
+    crop.getContext("2d").drawImage(canvas,minX,minY,crop.width,crop.height,0,0,crop.width,crop.height);
+    sigState[form] = crop.toDataURL("image/png");
     sigShowPreview(form, sigState[form]);
   }
 
