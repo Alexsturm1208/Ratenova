@@ -113,6 +113,121 @@ button{font-family:inherit;cursor:pointer}input{font-family:inherit}input::place
 <div id="confettiContainer" style="position:fixed;inset:0;z-index:3000;pointer-events:none;overflow:hidden;display:none"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <!-- Paddle loaded dynamically -->
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Ratenova</title>
+<link rel="icon" type="image/png" href="https://kdbuduwztmxxykfvqbie.supabase.co/storage/v1/object/public/public-assets/Ratenova%20Icon.png" sizes="32x32">
+<style>
+:root{--bg:#0F1117;--bgS:#161820;--bgC:#1C1E27;--bgH:#22242E;--bgE:#252836;--em:#34D399;--emD:#059669;--emG:rgba(52,211,153,0.15);--emG2:rgba(52,211,153,0.08);--co:#F97066;--coG:rgba(249,112,102,0.12);--am:#FBBF24;--amG:rgba(251,191,36,0.12);--sk:#38BDF8;--t:#F1F2F6;--ts:#A0A3B1;--tm:#6B6F80;--tf:#454857;--b:rgba(255,255,255,0.06);--bl:rgba(255,255,255,0.1);--ba:rgba(52,211,153,0.3)}
+*{box-sizing:border-box;margin:0;padding:0}body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;overflow-x:hidden;min-height:100vh}
+::selection{background:var(--emG);color:var(--em)}::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--b);border-radius:4px}
+button{font-family:inherit;cursor:pointer}input{font-family:inherit}input::placeholder{color:var(--tf)}input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(0.7)}select option{background:var(--bgC);color:var(--t)}
+.layout{display:flex;min-height:100vh}.sidebar{width:220px;position:fixed;top:0;left:0;bottom:0;background:var(--bgS);border-right:1px solid var(--b);display:flex;flex-direction:column;padding:24px 0;z-index:100}
+.sidebar-logo{padding:0 20px 28px;display:flex;align-items:center;gap:10px}.sidebar-logo img{max-width:170px;height:auto;display:block}
+.sidebar-nav{flex:none}.nav-btn{display:flex;align-items:center;gap:10px;width:100%;padding:11px 20px;border:none;background:transparent;color:var(--tm);font-size:14px;font-weight:400;border-right:2px solid transparent;transition:all 0.15s}
+.nav-btn:hover{color:var(--ts);background:rgba(255,255,255,0.02)}.nav-btn.active{background:var(--emG2);color:var(--em);font-weight:600;border-right-color:var(--em)}.nav-btn .icon{font-size:17px;width:24px;text-align:center}
+.sidebar-settings{padding:0 16px 12px;margin-top:auto}.sidebar-tools{padding:0 16px 12px;display:flex;flex-direction:column;gap:8px;margin-top:26px}.sidebar-bottom{padding:0 16px}.main{flex:1;margin-left:220px;padding:32px 36px;max-width:960px}
+.card{background:var(--bgC);border-radius:16px;padding:20px;border:1px solid var(--b);transition:all 0.25s cubic-bezier(0.16,1,0.3,1)}.card.clickable:hover{border-color:var(--bl);background:var(--bgH);transform:translateY(-2px)}.card.glow{box-shadow:0 0 0 1px var(--ba),0 0 40px rgba(52,211,153,0.12)}
+.btn{padding:11px 22px;font-size:14px;font-weight:600;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:all 0.2s ease;border:none}.btn:hover{filter:brightness(1.12);transform:translateY(-1px)}
+.btn-primary{background:linear-gradient(135deg,var(--emD),var(--em));color:#fff;box-shadow:0 4px 20px rgba(52,211,153,0.25)}.btn-ghost{background:var(--emG);color:var(--em);border:1px solid var(--ba)}.btn-outline{background:transparent;color:var(--ts);border:1px solid var(--bl)}.btn-danger{background:var(--coG);color:var(--co);border:1px solid rgba(249,112,102,0.2)}
+.btn-sm{padding:8px 16px;font-size:13px}.btn-lg{padding:16px 28px;font-size:15px}.btn-full{width:100%}
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;letter-spacing:0.3px;line-height:1}.badge-dot{width:5px;height:5px;border-radius:50%}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:12px;font-weight:600;color:var(--ts);margin-bottom:6px;letter-spacing:0.5px}
+.field .input-wrap{display:flex;align-items:center;background:var(--bgE);border:1px solid var(--b);border-radius:10px;padding:0 14px;transition:border-color 0.2s,box-shadow 0.2s;position:relative}
+.field .input-wrap:focus-within{border-color:var(--ba);box-shadow:0 0 0 3px var(--emG)}
+.field .input-wrap:has(select):after{content:'▾';position:absolute;right:12px;color:var(--tm);pointer-events:none;font-size:12px}
+.field .input-wrap select{appearance:none;-webkit-appearance:none;-moz-appearance:none;border:none;background:transparent;color:var(--t);padding:13px 28px 13px 0;font-size:15px;width:100%}
+.field input{flex:1;border:none;outline:none;padding:13px 0;font-size:15px;color:var(--t);background:transparent}
+.field .suffix{font-size:14px;color:var(--tm);margin-left:8px;font-weight:600}
+.custom-select{cursor:pointer}
+.custom-select .cs-value{flex:1;padding:13px 0;color:var(--t);font-size:15px}
+.custom-select .cs-list{position:absolute;left:12px;right:12px;top:calc(100% + 8px);background:linear-gradient(180deg,var(--bgC),var(--bgS));border:1px solid var(--b);border-radius:10px;padding:8px;box-shadow:0 12px 36px rgba(0,0,0,0.6);display:none;z-index:50}
+.custom-select[aria-expanded="true"] .cs-list{display:block}
+.custom-select .cs-item{display:block;width:100%;text-align:left;padding:10px 12px;border-radius:8px;background:transparent;border:none;color:var(--t);cursor:pointer}
+.custom-select .cs-item:hover{background:rgba(255,255,255,0.02)}
+.custom-select .cs-item.active{background:var(--emG);color:var(--em)}
+.pbar{height:4px;background:var(--b);border-radius:2px;overflow:hidden}.pbar-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--emD),var(--em));transition:width 0.8s cubic-bezier(0.16,1,0.3,1)}
+.overlay{position:fixed;inset:0;z-index:2000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);padding:20px;animation:fadeIn 0.2s ease}.modal{background:var(--bgC);border-radius:24px;padding:28px;width:100%;max-width:460px;max-height:88vh;overflow:auto;border:1px solid var(--bl);box-shadow:0 24px 64px rgba(0,0,0,0.4);animation:slideUp 0.3s cubic-bezier(0.16,1,0.3,1)}.modal.wide{max-width:560px}.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}.modal-head h3{font-size:18px;font-weight:700}.modal-close{width:32px;height:32px;border-radius:10px;border:1px solid var(--b);background:var(--bgE);color:var(--tm);font-size:16px;display:flex;align-items:center;justify-content:center}
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:3000;background:var(--bgE);color:var(--em);border:1px solid var(--ba);padding:12px 24px;border-radius:14px;font-size:14px;font-weight:600;box-shadow:0 24px 64px rgba(0,0,0,0.4);display:flex;align-items:center;gap:8px;animation:slideUp 0.3s ease}.toast-dot{width:8px;height:8px;border-radius:50%;background:var(--em);box-shadow:0 0 8px var(--em)}
+.confetti-piece{position:absolute;top:-16px;border-radius:2px}
+.hero{background:linear-gradient(135deg,var(--bgC) 0%,rgba(52,211,153,0.06) 100%);border-radius:24px;padding:28px;border:1px solid var(--ba);margin-bottom:20px;position:relative;overflow:hidden}.hero-orb1{position:absolute;top:-80px;right:-80px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,var(--emG) 0%,transparent 70%)}.hero-orb2{position:absolute;bottom:-60px;left:30%;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(56,189,248,0.06) 0%,transparent 70%)}
+.preset-btn{padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600;border:1px solid var(--b);background:var(--bgE);color:var(--tm);transition:all 0.15s}.preset-btn.active{background:var(--emG);color:var(--em);border-color:var(--ba)}
+.emoji-btn{width:38px;height:38px;border-radius:10px;font-size:17px;border:2px solid var(--b);background:var(--bgE);display:flex;align-items:center;justify-content:center;transition:all 0.15s}.emoji-btn.active{border-color:var(--em);background:var(--emG)}
+.chip{padding:8px 14px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid var(--b);background:var(--bgC);color:var(--tm);transition:all 0.2s}.chip.active{background:var(--emG);color:var(--em);border-color:var(--ba)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}.flex-col{display:flex;flex-direction:column;gap:8px}
+.mobile-nav{position:fixed;bottom:0;left:0;right:0;z-index:900;background:var(--bgS);border-top:1px solid var(--b);display:none;justify-content:space-around;align-items:center;padding:6px 0 8px}.mobile-nav-btn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 16px;border:none;background:transparent;color:var(--tm);font-size:10px}.mobile-nav-btn.active{color:var(--em);font-weight:600}.mobile-fab{width:44px;height:44px;border-radius:14px;border:none;background:linear-gradient(135deg,var(--emD),var(--em));color:#fff;font-size:22px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(52,211,153,0.3)}
+.auth-root{position:fixed;inset:0;z-index:5000;background:radial-gradient(1200px 600px at 80% -10%,rgba(52,211,153,0.12),transparent 60%),radial-gradient(900px 500px at -10% 110%,rgba(56,189,248,0.1),transparent 60%),var(--bg);display:none;align-items:center;justify-content:center;padding:24px}
+.auth-wrap{width:100%;max-width:860px;margin:0 auto;padding:12px;display:block}
+.auth-card{background:linear-gradient(160deg,var(--bgS),var(--bgC));border:1px solid var(--b);border-radius:20px;padding:36px;box-shadow:0 24px 60px rgba(0,0,0,0.6);max-width:420px;margin:0 auto}
+.auth-tabs{display:flex;gap:8px;background:transparent;border:none;padding:0;margin-bottom:18px}
+.auth-tabs button{border:none;background:transparent;color:var(--tm);padding:10px 14px;border-radius:999px;font-weight:700;cursor:pointer;border:1px solid transparent}
+.auth-tabs button.active{background:linear-gradient(135deg,var(--emD),var(--em));color:#05271c;box-shadow:0 6px 18px rgba(52,211,153,0.12)}
+.auth-row{display:flex;justify-content:space-between;align-items:center;margin:10px 0 14px}.auth-link{background:none;border:none;color:var(--em);font-size:13px;font-weight:700;cursor:pointer}.auth-muted{color:var(--tm);font-size:13px}.auth-notice{margin-top:12px;padding:10px 12px;border-radius:10px;font-size:13px}.auth-ok{background:rgba(52,211,153,0.12);border:1px solid var(--ba);color:#8CF2C8}.auth-err{background:rgba(249,112,102,0.12);border:1px solid rgba(249,112,102,0.35);color:#FFB3AB}.auth-hidden{display:none}
+.auth-logo{display:flex;justify-content:center;align-items:center;margin:0 0 18px}
+.auth-logo img{max-width:640px;height:auto;opacity:0.98}
+.master-root{display:none;min-height:100vh;background:radial-gradient(1200px 600px at 90% -20%,rgba(52,211,153,0.14),transparent 60%),radial-gradient(1000px 500px at -20% 120%,rgba(56,189,248,0.1),transparent 60%),var(--bg);padding:24px}.master-shell{max-width:1400px;margin:0 auto}.master-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}.master-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}.master-grid{display:grid;grid-template-columns:1.15fr 1fr;gap:12px}.master-card{background:linear-gradient(155deg,var(--bgC),var(--bgS));border:1px solid var(--b);border-radius:16px;padding:16px}.master-list{display:flex;flex-direction:column;gap:10px;max-height:55vh;overflow:auto}.master-login{max-width:440px;margin:10vh auto 0}
+@media(max-width:899px){.sidebar{display:none}.main{margin-left:0;padding:20px 16px 80px}.mobile-nav{display:flex}.grid2{grid-template-columns:1fr}.hero{padding:20px}}
+@media(max-width:920px){.auth-wrap{max-width:360px}}
+@media(max-width:920px){.auth-logo img{max-width:320px}}
+@media(max-width:980px){.master-grid{grid-template-columns:1fr}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}@keyframes slideUp{from{opacity:0;transform:translateY(16px) scale(0.98)}to{opacity:1;transform:none}}@keyframes confettiFall{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(800deg);opacity:0}}@keyframes glow{0%,100%{box-shadow:0 0 20px rgba(52,211,153,0.15)}50%{box-shadow:0 0 40px rgba(52,211,153,0.15)}}
+</style>
+</head>
+<body>
+<div id="authRoot" class="auth-root">
+  <div class="auth-wrap">
+    <div class="auth-logo"><img id="authLogo" alt="Ratenova"></div>
+    <section class="auth-card">
+      <h2 style="margin:0 0 12px;font-size:22px">Willkommen zurück</h2>
+      <div class="auth-tabs">
+        <button id="tabLogin" class="active" type="button">Login</button>
+        <button id="tabRegister" type="button">Registrieren</button>
+      </div>
+      <form id="formLogin">
+        <div class="field"><label>E-Mail</label><div class="input-wrap"><input id="loginEmail" type="email" required placeholder="name@firma.de"></div></div>
+        <div class="field"><label>Passwort</label><div class="input-wrap"><input id="loginPassword" type="password" required placeholder="••••••••"></div></div>
+        <div class="auth-row"><span class="auth-muted">Bestandskunde</span><button id="forgotLink" class="auth-link" type="button">Passwort vergessen?</button></div>
+        <button class="btn btn-primary" type="submit">Einloggen</button>
+      </form>
+      <form id="formRegister" class="auth-hidden">
+        <div class="field"><label>Vollständiger Name</label><div class="input-wrap"><input id="regName" type="text" required placeholder="Max Mustermann"></div></div>
+        <div class="field"><label>E-Mail</label><div class="input-wrap"><input id="regEmail" type="email" required placeholder="name@firma.de"></div></div>
+        <div class="field"><label>Passwort</label><div class="input-wrap"><input id="regPassword" type="password" required minlength="6" placeholder="mind. 6 Zeichen"></div></div>
+        <div style="background:linear-gradient(135deg,var(--emG),rgba(56,189,248,0.08));border:1px solid var(--ba);border-radius:12px;padding:12px 14px;margin-bottom:16px;display:flex;align-items:center;gap:10px">
+          <span style="font-size:20px">🎁</span>
+          <div><p style="font-size:13px;font-weight:700;color:var(--em);margin:0">30 Tage Pro kostenlos</p><p style="font-size:12px;color:var(--tm);margin:2px 0 0">Alle Features, danach Basic oder Upgrade.</p></div>
+        </div>
+        <p style="font-size:12px;color:var(--tm);margin:0 0 12px;line-height:1.6">Mit der Registrierung stimmst du unseren <a href="https://ratenova.de/agb" target="_blank" rel="noopener" style="color:var(--em);font-weight:600;cursor:pointer;text-decoration:underline" onclick="event.stopPropagation()">AGB</a> zu.</p>
+        <button class="btn btn-primary" type="submit">Konto erstellen</button>
+      </form>
+      
+      <div id="authNotice" class="auth-hidden"></div>
+    </section>
+    <div style="text-align:center;margin-top:20px;padding-bottom:8px">
+      <p style="font-size:12px;color:var(--tf);margin:0 0 10px">&copy; 2026 Ratenova &ndash; Alexander Falco Sturm</p>
+      <div style="display:flex;justify-content:center;gap:20px;flex-wrap:wrap">
+        <a href="https://ratenova.de/agb" target="_blank" rel="noopener" style="font-size:12px;color:var(--tm);text-decoration:none" onmouseover="this.style.color='var(--em)'" onmouseout="this.style.color='var(--tm)'">AGB</a>
+        <a href="https://ratenova.de/datenschutz" target="_blank" rel="noopener" style="font-size:12px;color:var(--tm);text-decoration:none" onmouseover="this.style.color='var(--em)'" onmouseout="this.style.color='var(--tm)'">Datenschutz</a>
+        <a href="https://ratenova.de/impressum" target="_blank" rel="noopener" style="font-size:12px;color:var(--tm);text-decoration:none" onmouseover="this.style.color='var(--em)'" onmouseout="this.style.color='var(--tm)'">Impressum</a>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="masterRoot" class="master-root"></div>
+<div class="layout">
+  <div class="sidebar"><div class="sidebar-logo"><img id="sidebarLogo" alt="Ratenova"></div><div class="sidebar-nav" id="sidebarNav"></div><div class="sidebar-tools" id="sidebarTools"></div><div class="sidebar-settings" id="sidebarSettings"></div><div class="sidebar-bottom" id="sidebarBottom"></div></div>
+  <div class="main" id="mainContent"></div>
+</div>
+<div class="mobile-nav" id="mobileNav"></div>
+<div id="modalContainer"></div>
+<div id="toastContainer"></div>
+<div id="confettiContainer" style="position:fixed;inset:0;z-index:3000;pointer-events:none;overflow:hidden;display:none"></div>
+
+<!-- Paddle loaded dynamically -->
 <script>
 let debts=[
   {id:1,name:"Stadtwerke",emoji:"⚡",original:2400,paid:1600,rate:85,due:"2026-02-17",notes:"Ratenzahlung nach Nachzahlung 2024",creditorName:"Stadtwerke München GmbH",creditorAddress:"Renatastr. 14, 80639 München",creditorPhone:"089 2361-0",creditorEmail:"service@swm.de",bankName:"Stadtwerke München",bankIban:"DE89 7015 0000 0000 1234 56",bankBic:"SSKMDEMMXXX",bankRef:"Kd-Nr. 4471829 / Nachzahlung 2024",history:[{date:"2026-01-15",amount:85,note:"Dauerauftrag"},{date:"2025-12-15",amount:85,note:"Dauerauftrag"},{date:"2025-11-15",amount:85,note:""},{date:"2025-10-15",amount:85,note:""},{date:"2025-09-15",amount:85,note:""},{date:"2025-08-15",amount:85,note:"Erste Rate"}]},
@@ -458,21 +573,7 @@ function buildVerificationEmailHTML(confirmationURL){
       </table>
     </td></tr>
   </table></div>
-</div>
-
-  },
-  resolve(){ this._close(true); },
-  reject(){  this._close(false); },
-  _close(val){
-    document.getElementById("confirmModal").style.display = "none";
-    if(this._resolve) this._resolve(val);
-    this._resolve = null;
-  }
-};
-// Click backdrop to cancel
-
-
-</div>
+</div></div>
 
 </div>
 </body></html>`;
@@ -1804,19 +1905,7 @@ function printAgreement(){
   </div>
   <div class="footer">Erstellt mit Ratenova · ratenova.de</div>
 </div></div>
-</div>
-
-  },
-  resolve(){ this._close(true); },
-  reject(){  this._close(false); },
-  _close(val){
-    document.getElementById("confirmModal").style.display = "none";
-    if(this._resolve) this._resolve(val);
-    this._resolve = null;
-  }
-};
-// Click backdrop to cancel
-</body></html>`);
+</div></body></html>`);
   w.document.close();
   setTimeout(()=>w.print(),350);
 }
@@ -2736,19 +2825,7 @@ function printContractLetter(){
   <strong>${d.senderName||""}</strong>
   <div class="footer">Erstellt mit Ratenova · ratenova.de</div>
 </div></div>
-</div>
-
-  },
-  resolve(){ this._close(true); },
-  reject(){  this._close(false); },
-  _close(val){
-    document.getElementById("confirmModal").style.display = "none";
-    if(this._resolve) this._resolve(val);
-    this._resolve = null;
-  }
-};
-// Click backdrop to cancel
-</body></html>`);
+</div></body></html>`);
   w.document.close();
   setTimeout(()=>w.print(),350);
 }
@@ -3187,19 +3264,7 @@ function printBudget(){
       </table>
     </div>
   </div></div>
-</div>
-
-  },
-  resolve(){ this._close(true); },
-  reject(){  this._close(false); },
-  _close(val){
-    document.getElementById("confirmModal").style.display = "none";
-    if(this._resolve) this._resolve(val);
-    this._resolve = null;
-  }
-};
-// Click backdrop to cancel
-</body></html>`);
+</div></body></html>`);
   w.document.close();
   setTimeout(()=>w.print(),400);
 }
@@ -3468,19 +3533,7 @@ ${activeDebts.some(d=>d.bankIban)?`<div class="section">
 </div>
 
 </div></div>
-</div>
-
-  },
-  resolve(){ this._close(true); },
-  reject(){  this._close(false); },
-  _close(val){
-    document.getElementById("confirmModal").style.display = "none";
-    if(this._resolve) this._resolve(val);
-    this._resolve = null;
-  }
-};
-// Click backdrop to cancel
-</body></html>`);
+</div></body></html>`);
   w.document.close();
   setTimeout(()=>w.print(),400);
 }
@@ -3573,20 +3626,7 @@ if(document.readyState==="loading"){
   else{hideAuthPage();renderNav();renderUser();renderPage();}
 })();
 </script></div>
-</div>
-
-  },
-  resolve(){ this._close(true); },
-  reject(){  this._close(false); },
-  _close(val){
-    document.getElementById("confirmModal").style.display = "none";
-    if(this._resolve) this._resolve(val);
-    this._resolve = null;
-  }
-};
-// Click backdrop to cancel
-
-<!-- Custom Confirm Modal -->
+</div><!-- Custom Confirm Modal -->
 <div id="confirmModal" onclick="if(event.target===this)confirmModal.reject()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);z-index:9999;align-items:center;justify-content:center;padding:20px">
   <div style="background:var(--bgD);border:1px solid var(--b);border-radius:18px;padding:28px;max-width:400px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.5)">
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
