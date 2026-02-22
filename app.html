@@ -111,122 +111,9 @@ button{font-family:inherit;cursor:pointer}input{font-family:inherit}input::place
 <div id="modalContainer"></div>
 <div id="toastContainer"></div>
 <div id="confettiContainer" style="position:fixed;inset:0;z-index:3000;pointer-events:none;overflow:hidden;display:none"></div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<!-- Paddle loaded dynamically -->
-<!DOCTYPE html>
-<html lang="de">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Ratenova</title>
-<link rel="icon" type="image/png" href="https://kdbuduwztmxxykfvqbie.supabase.co/storage/v1/object/public/public-assets/Ratenova%20Icon.png" sizes="32x32">
-<style>
-:root{--bg:#0F1117;--bgS:#161820;--bgC:#1C1E27;--bgH:#22242E;--bgE:#252836;--em:#34D399;--emD:#059669;--emG:rgba(52,211,153,0.15);--emG2:rgba(52,211,153,0.08);--co:#F97066;--coG:rgba(249,112,102,0.12);--am:#FBBF24;--amG:rgba(251,191,36,0.12);--sk:#38BDF8;--t:#F1F2F6;--ts:#A0A3B1;--tm:#6B6F80;--tf:#454857;--b:rgba(255,255,255,0.06);--bl:rgba(255,255,255,0.1);--ba:rgba(52,211,153,0.3)}
-*{box-sizing:border-box;margin:0;padding:0}body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;overflow-x:hidden;min-height:100vh}
-::selection{background:var(--emG);color:var(--em)}::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--b);border-radius:4px}
-button{font-family:inherit;cursor:pointer}input{font-family:inherit}input::placeholder{color:var(--tf)}input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(0.7)}select option{background:var(--bgC);color:var(--t)}
-.layout{display:flex;min-height:100vh}.sidebar{width:220px;position:fixed;top:0;left:0;bottom:0;background:var(--bgS);border-right:1px solid var(--b);display:flex;flex-direction:column;padding:24px 0;z-index:100}
-.sidebar-logo{padding:0 20px 28px;display:flex;align-items:center;gap:10px}.sidebar-logo img{max-width:170px;height:auto;display:block}
-.sidebar-nav{flex:none}.nav-btn{display:flex;align-items:center;gap:10px;width:100%;padding:11px 20px;border:none;background:transparent;color:var(--tm);font-size:14px;font-weight:400;border-right:2px solid transparent;transition:all 0.15s}
-.nav-btn:hover{color:var(--ts);background:rgba(255,255,255,0.02)}.nav-btn.active{background:var(--emG2);color:var(--em);font-weight:600;border-right-color:var(--em)}.nav-btn .icon{font-size:17px;width:24px;text-align:center}
-.sidebar-settings{padding:0 16px 12px;margin-top:auto}.sidebar-tools{padding:0 16px 12px;display:flex;flex-direction:column;gap:8px;margin-top:26px}.sidebar-bottom{padding:0 16px}.main{flex:1;margin-left:220px;padding:32px 36px;max-width:960px}
-.card{background:var(--bgC);border-radius:16px;padding:20px;border:1px solid var(--b);transition:all 0.25s cubic-bezier(0.16,1,0.3,1)}.card.clickable:hover{border-color:var(--bl);background:var(--bgH);transform:translateY(-2px)}.card.glow{box-shadow:0 0 0 1px var(--ba),0 0 40px rgba(52,211,153,0.12)}
-.btn{padding:11px 22px;font-size:14px;font-weight:600;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:all 0.2s ease;border:none}.btn:hover{filter:brightness(1.12);transform:translateY(-1px)}
-.btn-primary{background:linear-gradient(135deg,var(--emD),var(--em));color:#fff;box-shadow:0 4px 20px rgba(52,211,153,0.25)}.btn-ghost{background:var(--emG);color:var(--em);border:1px solid var(--ba)}.btn-outline{background:transparent;color:var(--ts);border:1px solid var(--bl)}.btn-danger{background:var(--coG);color:var(--co);border:1px solid rgba(249,112,102,0.2)}
-.btn-sm{padding:8px 16px;font-size:13px}.btn-lg{padding:16px 28px;font-size:15px}.btn-full{width:100%}
-.badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;letter-spacing:0.3px;line-height:1}.badge-dot{width:5px;height:5px;border-radius:50%}
-.field{margin-bottom:16px}
-.field label{display:block;font-size:12px;font-weight:600;color:var(--ts);margin-bottom:6px;letter-spacing:0.5px}
-.field .input-wrap{display:flex;align-items:center;background:var(--bgE);border:1px solid var(--b);border-radius:10px;padding:0 14px;transition:border-color 0.2s,box-shadow 0.2s;position:relative}
-.field .input-wrap:focus-within{border-color:var(--ba);box-shadow:0 0 0 3px var(--emG)}
-.field .input-wrap:has(select):after{content:'▾';position:absolute;right:12px;color:var(--tm);pointer-events:none;font-size:12px}
-.field .input-wrap select{appearance:none;-webkit-appearance:none;-moz-appearance:none;border:none;background:transparent;color:var(--t);padding:13px 28px 13px 0;font-size:15px;width:100%}
-.field input{flex:1;border:none;outline:none;padding:13px 0;font-size:15px;color:var(--t);background:transparent}
-.field .suffix{font-size:14px;color:var(--tm);margin-left:8px;font-weight:600}
-.custom-select{cursor:pointer}
-.custom-select .cs-value{flex:1;padding:13px 0;color:var(--t);font-size:15px}
-.custom-select .cs-list{position:absolute;left:12px;right:12px;top:calc(100% + 8px);background:linear-gradient(180deg,var(--bgC),var(--bgS));border:1px solid var(--b);border-radius:10px;padding:8px;box-shadow:0 12px 36px rgba(0,0,0,0.6);display:none;z-index:50}
-.custom-select[aria-expanded="true"] .cs-list{display:block}
-.custom-select .cs-item{display:block;width:100%;text-align:left;padding:10px 12px;border-radius:8px;background:transparent;border:none;color:var(--t);cursor:pointer}
-.custom-select .cs-item:hover{background:rgba(255,255,255,0.02)}
-.custom-select .cs-item.active{background:var(--emG);color:var(--em)}
-.pbar{height:4px;background:var(--b);border-radius:2px;overflow:hidden}.pbar-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--emD),var(--em));transition:width 0.8s cubic-bezier(0.16,1,0.3,1)}
-.overlay{position:fixed;inset:0;z-index:2000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);padding:20px;animation:fadeIn 0.2s ease}.modal{background:var(--bgC);border-radius:24px;padding:28px;width:100%;max-width:460px;max-height:88vh;overflow:auto;border:1px solid var(--bl);box-shadow:0 24px 64px rgba(0,0,0,0.4);animation:slideUp 0.3s cubic-bezier(0.16,1,0.3,1)}.modal.wide{max-width:560px}.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}.modal-head h3{font-size:18px;font-weight:700}.modal-close{width:32px;height:32px;border-radius:10px;border:1px solid var(--b);background:var(--bgE);color:var(--tm);font-size:16px;display:flex;align-items:center;justify-content:center}
-.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:3000;background:var(--bgE);color:var(--em);border:1px solid var(--ba);padding:12px 24px;border-radius:14px;font-size:14px;font-weight:600;box-shadow:0 24px 64px rgba(0,0,0,0.4);display:flex;align-items:center;gap:8px;animation:slideUp 0.3s ease}.toast-dot{width:8px;height:8px;border-radius:50%;background:var(--em);box-shadow:0 0 8px var(--em)}
-.confetti-piece{position:absolute;top:-16px;border-radius:2px}
-.hero{background:linear-gradient(135deg,var(--bgC) 0%,rgba(52,211,153,0.06) 100%);border-radius:24px;padding:28px;border:1px solid var(--ba);margin-bottom:20px;position:relative;overflow:hidden}.hero-orb1{position:absolute;top:-80px;right:-80px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,var(--emG) 0%,transparent 70%)}.hero-orb2{position:absolute;bottom:-60px;left:30%;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(56,189,248,0.06) 0%,transparent 70%)}
-.preset-btn{padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600;border:1px solid var(--b);background:var(--bgE);color:var(--tm);transition:all 0.15s}.preset-btn.active{background:var(--emG);color:var(--em);border-color:var(--ba)}
-.emoji-btn{width:38px;height:38px;border-radius:10px;font-size:17px;border:2px solid var(--b);background:var(--bgE);display:flex;align-items:center;justify-content:center;transition:all 0.15s}.emoji-btn.active{border-color:var(--em);background:var(--emG)}
-.chip{padding:8px 14px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid var(--b);background:var(--bgC);color:var(--tm);transition:all 0.2s}.chip.active{background:var(--emG);color:var(--em);border-color:var(--ba)}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}.flex-col{display:flex;flex-direction:column;gap:8px}
-.mobile-nav{position:fixed;bottom:0;left:0;right:0;z-index:900;background:var(--bgS);border-top:1px solid var(--b);display:none;justify-content:space-around;align-items:center;padding:6px 0 8px}.mobile-nav-btn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 16px;border:none;background:transparent;color:var(--tm);font-size:10px}.mobile-nav-btn.active{color:var(--em);font-weight:600}.mobile-fab{width:44px;height:44px;border-radius:14px;border:none;background:linear-gradient(135deg,var(--emD),var(--em));color:#fff;font-size:22px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(52,211,153,0.3)}
-.auth-root{position:fixed;inset:0;z-index:5000;background:radial-gradient(1200px 600px at 80% -10%,rgba(52,211,153,0.12),transparent 60%),radial-gradient(900px 500px at -10% 110%,rgba(56,189,248,0.1),transparent 60%),var(--bg);display:none;align-items:center;justify-content:center;padding:24px}
-.auth-wrap{width:100%;max-width:860px;margin:0 auto;padding:12px;display:block}
-.auth-card{background:linear-gradient(160deg,var(--bgS),var(--bgC));border:1px solid var(--b);border-radius:20px;padding:36px;box-shadow:0 24px 60px rgba(0,0,0,0.6);max-width:420px;margin:0 auto}
-.auth-tabs{display:flex;gap:8px;background:transparent;border:none;padding:0;margin-bottom:18px}
-.auth-tabs button{border:none;background:transparent;color:var(--tm);padding:10px 14px;border-radius:999px;font-weight:700;cursor:pointer;border:1px solid transparent}
-.auth-tabs button.active{background:linear-gradient(135deg,var(--emD),var(--em));color:#05271c;box-shadow:0 6px 18px rgba(52,211,153,0.12)}
-.auth-row{display:flex;justify-content:space-between;align-items:center;margin:10px 0 14px}.auth-link{background:none;border:none;color:var(--em);font-size:13px;font-weight:700;cursor:pointer}.auth-muted{color:var(--tm);font-size:13px}.auth-notice{margin-top:12px;padding:10px 12px;border-radius:10px;font-size:13px}.auth-ok{background:rgba(52,211,153,0.12);border:1px solid var(--ba);color:#8CF2C8}.auth-err{background:rgba(249,112,102,0.12);border:1px solid rgba(249,112,102,0.35);color:#FFB3AB}.auth-hidden{display:none}
-.auth-logo{display:flex;justify-content:center;align-items:center;margin:0 0 18px}
-.auth-logo img{max-width:640px;height:auto;opacity:0.98}
-.master-root{display:none;min-height:100vh;background:radial-gradient(1200px 600px at 90% -20%,rgba(52,211,153,0.14),transparent 60%),radial-gradient(1000px 500px at -20% 120%,rgba(56,189,248,0.1),transparent 60%),var(--bg);padding:24px}.master-shell{max-width:1400px;margin:0 auto}.master-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}.master-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}.master-grid{display:grid;grid-template-columns:1.15fr 1fr;gap:12px}.master-card{background:linear-gradient(155deg,var(--bgC),var(--bgS));border:1px solid var(--b);border-radius:16px;padding:16px}.master-list{display:flex;flex-direction:column;gap:10px;max-height:55vh;overflow:auto}.master-login{max-width:440px;margin:10vh auto 0}
-@media(max-width:899px){.sidebar{display:none}.main{margin-left:0;padding:20px 16px 80px}.mobile-nav{display:flex}.grid2{grid-template-columns:1fr}.hero{padding:20px}}
-@media(max-width:920px){.auth-wrap{max-width:360px}}
-@media(max-width:920px){.auth-logo img{max-width:320px}}
-@media(max-width:980px){.master-grid{grid-template-columns:1fr}}
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}@keyframes slideUp{from{opacity:0;transform:translateY(16px) scale(0.98)}to{opacity:1;transform:none}}@keyframes confettiFall{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(800deg);opacity:0}}@keyframes glow{0%,100%{box-shadow:0 0 20px rgba(52,211,153,0.15)}50%{box-shadow:0 0 40px rgba(52,211,153,0.15)}}
-</style>
-</head>
-<body>
-<div id="authRoot" class="auth-root">
-  <div class="auth-wrap">
-    <div class="auth-logo"><img id="authLogo" alt="Ratenova"></div>
-    <section class="auth-card">
-      <h2 style="margin:0 0 12px;font-size:22px">Willkommen zurück</h2>
-      <div class="auth-tabs">
-        <button id="tabLogin" class="active" type="button">Login</button>
-        <button id="tabRegister" type="button">Registrieren</button>
-      </div>
-      <form id="formLogin">
-        <div class="field"><label>E-Mail</label><div class="input-wrap"><input id="loginEmail" type="email" required placeholder="name@firma.de"></div></div>
-        <div class="field"><label>Passwort</label><div class="input-wrap"><input id="loginPassword" type="password" required placeholder="••••••••"></div></div>
-        <div class="auth-row"><span class="auth-muted">Bestandskunde</span><button id="forgotLink" class="auth-link" type="button">Passwort vergessen?</button></div>
-        <button class="btn btn-primary" type="submit">Einloggen</button>
-      </form>
-      <form id="formRegister" class="auth-hidden">
-        <div class="field"><label>Vollständiger Name</label><div class="input-wrap"><input id="regName" type="text" required placeholder="Max Mustermann"></div></div>
-        <div class="field"><label>E-Mail</label><div class="input-wrap"><input id="regEmail" type="email" required placeholder="name@firma.de"></div></div>
-        <div class="field"><label>Passwort</label><div class="input-wrap"><input id="regPassword" type="password" required minlength="6" placeholder="mind. 6 Zeichen"></div></div>
-        <div style="background:linear-gradient(135deg,var(--emG),rgba(56,189,248,0.08));border:1px solid var(--ba);border-radius:12px;padding:12px 14px;margin-bottom:16px;display:flex;align-items:center;gap:10px">
-          <span style="font-size:20px">🎁</span>
-          <div><p style="font-size:13px;font-weight:700;color:var(--em);margin:0">30 Tage Pro kostenlos</p><p style="font-size:12px;color:var(--tm);margin:2px 0 0">Alle Features, danach Basic oder Upgrade.</p></div>
-        </div>
-        <p style="font-size:12px;color:var(--tm);margin:0 0 12px;line-height:1.6">Mit der Registrierung stimmst du unseren <a href="https://ratenova.de/agb" target="_blank" rel="noopener" style="color:var(--em);font-weight:600;cursor:pointer;text-decoration:underline" onclick="event.stopPropagation()">AGB</a> zu.</p>
-        <button class="btn btn-primary" type="submit">Konto erstellen</button>
-      </form>
-      
-      <div id="authNotice" class="auth-hidden"></div>
-    </section>
-    <div style="text-align:center;margin-top:20px;padding-bottom:8px">
-      <p style="font-size:12px;color:var(--tf);margin:0 0 10px">&copy; 2026 Ratenova &ndash; Alexander Falco Sturm</p>
-      <div style="display:flex;justify-content:center;gap:20px;flex-wrap:wrap">
-        <a href="https://ratenova.de/agb" target="_blank" rel="noopener" style="font-size:12px;color:var(--tm);text-decoration:none" onmouseover="this.style.color='var(--em)'" onmouseout="this.style.color='var(--tm)'">AGB</a>
-        <a href="https://ratenova.de/datenschutz" target="_blank" rel="noopener" style="font-size:12px;color:var(--tm);text-decoration:none" onmouseover="this.style.color='var(--em)'" onmouseout="this.style.color='var(--tm)'">Datenschutz</a>
-        <a href="https://ratenova.de/impressum" target="_blank" rel="noopener" style="font-size:12px;color:var(--tm);text-decoration:none" onmouseover="this.style.color='var(--em)'" onmouseout="this.style.color='var(--tm)'">Impressum</a>
-      </div>
-    </div>
-  </div>
-</div>
-<div id="masterRoot" class="master-root"></div>
-<div class="layout">
-  <div class="sidebar"><div class="sidebar-logo"><img id="sidebarLogo" alt="Ratenova"></div><div class="sidebar-nav" id="sidebarNav"></div><div class="sidebar-tools" id="sidebarTools"></div><div class="sidebar-settings" id="sidebarSettings"></div><div class="sidebar-bottom" id="sidebarBottom"></div></div>
-  <div class="main" id="mainContent"></div>
-</div>
-<div class="mobile-nav" id="mobileNav"></div>
-<div id="modalContainer"></div>
-<div id="toastContainer"></div>
-<div id="confettiContainer" style="position:fixed;inset:0;z-index:3000;pointer-events:none;overflow:hidden;display:none"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <!-- Paddle loaded dynamically -->
 <script>
 let debts=[
@@ -2886,30 +2773,224 @@ async function openCancelPdfPreview(){
   await generateLetterPdf(payload, subject);
 }
 
-// ─── Gemeinsame Funktion: POST → Netlify Function → PDF in neuem Tab ────────
+// ─── Gemeinsame Funktion: Browser-seitige PDF-Generierung mit jsPDF ──────────
 async function generateLetterPdf(payload, title){
   flash("📄 PDF wird erstellt…");
   try {
-    const response = await fetch("/.netlify/functions/generate-letter", {
-      method:  "POST",
-      headers: { "Content-Type": "application/json" },
-      body:    JSON.stringify(payload),
-    });
-    if (!response.ok) {
-      const errText = await response.text();
-      flash("PDF-Fehler: " + (errText || response.status));
-      return;
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ format: "a4", unit: "mm" });
+
+    // ── Seitenmaße & Ränder (DIN 5008) ──────────────────────────────────────
+    const mL = 25, mR = 22, mT = 20;
+    const pageW = 210, pageH = 297;
+    const contentW = pageW - mL - mR;
+    let y = mT;
+
+    // ── Hilfsfunktionen ──────────────────────────────────────────────────────
+    const checkPage = (needed = 8) => {
+      if (y + needed > pageH - 20) { doc.addPage(); y = mT; }
+    };
+
+    const writeLine = (text, x, fontSize = 10.5, style = "normal", color = [26,26,26]) => {
+      doc.setFontSize(fontSize);
+      doc.setFont("helvetica", style);
+      doc.setTextColor(...color);
+      doc.text(String(text || ""), x, y);
+    };
+
+    const writeBlock = (lines, x, fontSize = 10.5, style = "normal", color = [26,26,26], lineH = 5.5) => {
+      doc.setFontSize(fontSize);
+      doc.setFont("helvetica", style);
+      doc.setTextColor(...color);
+      for (const line of lines) {
+        checkPage(lineH);
+        doc.text(String(line || ""), x, y);
+        y += lineH;
+      }
+    };
+
+    const writeWrapped = (text, x, maxW, fontSize = 10.5, style = "normal", color = [26,26,26], lineH = 5.5) => {
+      doc.setFontSize(fontSize);
+      doc.setFont("helvetica", style);
+      doc.setTextColor(...color);
+      const lines = doc.splitTextToSize(String(text || ""), maxW);
+      for (const line of lines) {
+        checkPage(lineH);
+        doc.text(line, x, y);
+        y += lineH;
+      }
+    };
+
+    const {
+      senderName="", senderStreet="", senderZip="", senderCity="", senderEmail="",
+      recipientName="", recipientStreet="", recipientZip="", recipientCity="",
+      date="", subject="", salutation="Sehr geehrte Damen und Herren,",
+      body="", closing="", signatureName="", signatureImage=""
+    } = payload;
+
+    // ── Seite 1 ──────────────────────────────────────────────────────────────
+
+    // Absenderblock oben links
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(26,26,26);
+    doc.text(senderName, mL, y);
+
+    // Datum oben rechts
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(51,51,51);
+    const dateText = (senderCity ? senderCity + ", " : "") + date;
+    doc.text(dateText, pageW - mR, y + 10, { align: "right" });
+
+    y += 5.5;
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(34,34,34);
+    doc.text(senderStreet, mL, y); y += 5.5;
+    doc.text(senderZip + " " + senderCity, mL, y); y += 5.5;
+    if (senderEmail) {
+      doc.setTextColor(85,85,85);
+      doc.setFontSize(9.5);
+      doc.text(senderEmail, mL, y); y += 5;
     }
-    const blob = await response.blob();
-    const url  = URL.createObjectURL(blob);
-    const tab  = window.open(url, "_blank");
-    if (!tab) {
-      flash("Popup blockiert – bitte Popups für diese Seite erlauben");
-      return;
+
+    // Trennlinie
+    y += 3;
+    doc.setDrawColor(26,26,26);
+    doc.setLineWidth(0.5);
+    doc.line(mL, y, pageW - mR, y);
+    y += 8;
+
+    // Rücksendeadresse (klein, über Empfänger)
+    const senderLine = [senderName, senderStreet, senderZip + " " + senderCity].filter(Boolean).join(" · ");
+    doc.setFontSize(7);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(136,136,136);
+    doc.text(senderLine, mL, y);
+    y += 3;
+    doc.setDrawColor(187,187,187);
+    doc.setLineWidth(0.3);
+    doc.line(mL, y, mL + 85, y);
+    y += 4;
+
+    // Empfängerblock
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(26,26,26);
+    doc.text(recipientName, mL, y); y += 6;
+    doc.setFontSize(10.5);
+    doc.setFont("helvetica", "normal");
+    if (recipientStreet) { doc.text(recipientStreet, mL, y); y += 5.5; }
+    if (recipientZip || recipientCity) { doc.text((recipientZip + " " + recipientCity).trim(), mL, y); y += 5.5; }
+
+    y += 14; // Abstand vor Betreff
+
+    // Betreff (fett, unterstrichen)
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(26,26,26);
+    const betreffText = "Betreff: " + subject;
+    const betreffLines = doc.splitTextToSize(betreffText, contentW);
+    for (const line of betreffLines) {
+      doc.text(line, mL, y);
+      const tw = doc.getTextWidth(line);
+      doc.setDrawColor(26,26,26);
+      doc.setLineWidth(0.3);
+      doc.line(mL, y + 0.8, mL + tw, y + 0.8);
+      y += 6;
     }
-    // ObjectURL nach 5 Minuten freigeben
-    setTimeout(() => URL.revokeObjectURL(url), 5 * 60 * 1000);
-    flash("✓ PDF geöffnet");
+    y += 6;
+
+    // Anrede
+    writeWrapped(salutation, mL, contentW, 10.5, "normal", [26,26,26], 5.5);
+    y += 6;
+
+    // Brieftext – Zahlungsblock erkennen (Zeilen mit 4+ Spaces = Tabellenzeilen)
+    const bodyLines = (body || "").split("\n");
+    let i = 0;
+    while (i < bodyLines.length) {
+      const line = bodyLines[i];
+      if (/^ {4}/.test(line) && line.trim().length > 0) {
+        // Zahlungsblock sammeln
+        const tableLines = [];
+        while (i < bodyLines.length && /^ {4}/.test(bodyLines[i]) && bodyLines[i].trim().length > 0) {
+          tableLines.push(bodyLines[i].trim());
+          i++;
+        }
+        // Tabelle zeichnen
+        y += 2;
+        for (const tl of tableLines) {
+          checkPage(6);
+          const match = tl.match(/^(.+?)\s{2,}(.+)$/);
+          if (match) {
+            doc.setFontSize(10.5); doc.setFont("helvetica","normal"); doc.setTextColor(51,51,51);
+            doc.text(match[1], mL + 8, y);
+            doc.setFont("helvetica","bold"); doc.setTextColor(26,26,26);
+            doc.text(match[2], mL + 72, y);
+            y += 6;
+          } else {
+            doc.setFontSize(10.5); doc.setFont("helvetica","normal"); doc.setTextColor(26,26,26);
+            doc.text(tl, mL + 8, y); y += 6;
+          }
+        }
+        y += 2;
+      } else {
+        // Normaler Text
+        if (line.trim() === "") {
+          y += 4;
+        } else {
+          const wrapped = doc.splitTextToSize(line, contentW);
+          doc.setFontSize(10.5); doc.setFont("helvetica","normal"); doc.setTextColor(26,26,26);
+          for (const wl of wrapped) {
+            checkPage(5.5);
+            doc.text(wl, mL, y); y += 5.5;
+          }
+        }
+        i++;
+      }
+    }
+
+    // Abschlusstext
+    if (closing) {
+      y += 4;
+      writeWrapped(closing, mL, contentW, 10.5, "normal", [26,26,26], 5.5);
+    }
+
+    y += 10;
+    checkPage(40);
+
+    // Mit freundlichen Grüßen
+    doc.setFontSize(10.5); doc.setFont("helvetica","normal"); doc.setTextColor(26,26,26);
+    doc.text("Mit freundlichen Grüßen", mL, y); y += 14;
+
+    // Unterschrift oder Linie
+    if (signatureImage && signatureImage.startsWith("data:image")) {
+      try {
+        const imgFormat = signatureImage.includes("data:image/png") ? "PNG" : "JPEG";
+        // 52px → ~18mm bei 72dpi
+        doc.addImage(signatureImage, imgFormat, mL, y, 52, 18, undefined, "FAST");
+        y += 20;
+      } catch(e) {
+        doc.setDrawColor(26,26,26); doc.setLineWidth(0.4);
+        doc.line(mL, y, mL + 52, y); y += 4;
+      }
+    } else {
+      doc.setDrawColor(26,26,26); doc.setLineWidth(0.4);
+      doc.line(mL, y, mL + 52, y); y += 4;
+    }
+
+    // Name fett
+    doc.setFontSize(10.5); doc.setFont("helvetica","bold"); doc.setTextColor(26,26,26);
+    doc.text(signatureName || senderName, mL, y); y += 5.5;
+    // Adresse
+    doc.setFontSize(9); doc.setFont("helvetica","normal"); doc.setTextColor(85,85,85);
+    doc.text(senderStreet + ", " + senderZip + " " + senderCity, mL, y);
+
+    // ── Speichern & Öffnen ────────────────────────────────────────────────────
+    const filename = (title || "Brief").replace(/[^a-zA-Z0-9äöüÄÖÜß _-]/g, "") + ".pdf";
+    doc.save(filename);
+    flash("✓ PDF gespeichert");
   } catch (err) {
     console.error("PDF generation failed:", err);
     flash("PDF-Fehler: " + (err.message || "Unbekannter Fehler"));
