@@ -107,18 +107,18 @@ exports.handler = async (event) => {
     margin-bottom: 0;
   }
 
-  /* ── Linke Seite: Rücksendeadresse + Absender ── */
+  /* ── Linke Seite: nur Absender ── */
   .sender-zone {
-    width: 85mm; /* DIN 5008: Anschriftzone 85mm breit */
+    width: 85mm;
   }
 
-  /* Rücksendeadresse: 1 Zeile, 5mm hoch, 7pt, unterstrichen */
+  /* Rücksendeadresse: direkt über Empfängerblock (DIN 5008 Anschriftfeld) */
   .return-address {
     font-size: 7pt;
     color: #888;
     border-bottom: 1px solid #bbb;
     padding-bottom: 2px;
-    margin-bottom: 5mm;
+    margin-bottom: 2px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -126,7 +126,7 @@ exports.handler = async (event) => {
     line-height: 5mm;
   }
 
-  /* Absenderblock darunter */
+  /* Absenderblock oben links */
   .sender-block .sender-name {
     font-size: 11pt;
     font-weight: 700;
@@ -225,7 +225,6 @@ exports.handler = async (event) => {
 
 <div class="letter-top">
   <div class="sender-zone">
-    <div class="return-address">${senderLine}</div>
     <div class="sender-block">
       <div class="sender-name">${senderName}</div>
       <div class="sender-addr">
@@ -241,6 +240,7 @@ exports.handler = async (event) => {
 <hr class="header-rule">
 
 <div class="recipient-block">
+  <div class="return-address">${senderLine}</div>
   <strong>${recipientName}</strong><br>
   ${recipientStreet ? recipientStreet + "<br>" : ""}
   ${recipientZip} ${recipientCity}
