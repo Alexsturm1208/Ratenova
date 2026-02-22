@@ -457,16 +457,7 @@ function buildVerificationEmailHTML(confirmationURL){
         <tr><td style="padding:16px 24px 24px" align="center"><p style="margin:0;font-size:12px;color:#667085">© ${new Date().getFullYear()} Ratenova – Sicher und vertraulich</p></td></tr>
       </table>
     </td></tr>
-  </table>
-  
-      <h3 id="confirmTitle" style="font-size:16px;font-weight:700;margin:0">Bestätigung</h3>
-    </div>
-    <p id="confirmMessage" style="font-size:14px;color:var(--tm);margin:0 0 24px;line-height:1.6"></p>
-    <div style="display:flex;gap:10px;justify-content:flex-end">
-      <button onclick="confirmModal.reject()" style="padding:10px 20px;border-radius:10px;border:1px solid var(--b);background:transparent;color:var(--t);font-size:14px;font-weight:600;cursor:pointer">Abbrechen</button>
-      <button id="confirmOkBtn" onclick="confirmModal.resolve()" style="padding:10px 20px;border-radius:10px;border:none;font-size:14px;font-weight:700;cursor:pointer;background:#ef4444;color:#fff">Löschen</button>
-    </div>
-  </div>
+  </table></div>
 </div>
 
   },
@@ -480,19 +471,9 @@ function buildVerificationEmailHTML(confirmationURL){
 };
 // Click backdrop to cancel
 
-<!-- Custom Confirm Modal -->
-<div id="confirmModal" onclick="if(event.target===this)confirmModal.reject()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);z-index:9999;align-items:center;justify-content:center;padding:20px">
-  <div style="background:var(--bgD);border:1px solid var(--b);border-radius:18px;padding:28px;max-width:400px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.5)">
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
-      <div id="confirmIcon" style="width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;background:rgba(239,68,68,0.15)">⚠️</div>
-      <h3 id="confirmTitle" style="font-size:16px;font-weight:700;margin:0">Bestätigung</h3>
-    </div>
-    <p id="confirmMessage" style="font-size:14px;color:var(--tm);margin:0 0 24px;line-height:1.6"></p>
-    <div style="display:flex;gap:10px;justify-content:flex-end">
-      <button onclick="confirmModal.reject()" style="padding:10px 20px;border-radius:10px;border:1px solid var(--b);background:transparent;color:var(--t);font-size:14px;font-weight:600;cursor:pointer">Abbrechen</button>
-      <button id="confirmOkBtn" onclick="confirmModal.resolve()" style="padding:10px 20px;border-radius:10px;border:none;font-size:14px;font-weight:700;cursor:pointer;background:#ef4444;color:#fff">Löschen</button>
-    </div>
-  </div>
+
+</div>
+
 </div>
 </body></html>`;
 }
@@ -1822,15 +1803,7 @@ function printAgreement(){
     <div style="font-size:9.5pt;color:#555;margin-top:3px">${d.street||""}, ${d.zip||""} ${d.city||""}</div>
   </div>
   <div class="footer">Erstellt mit Ratenova · ratenova.de</div>
-</div>
-      <h3 id="confirmTitle" style="font-size:16px;font-weight:700;margin:0">Bestätigung</h3>
-    </div>
-    <p id="confirmMessage" style="font-size:14px;color:var(--tm);margin:0 0 24px;line-height:1.6"></p>
-    <div style="display:flex;gap:10px;justify-content:flex-end">
-      <button onclick="confirmModal.reject()" style="padding:10px 20px;border-radius:10px;border:1px solid var(--b);background:transparent;color:var(--t);font-size:14px;font-weight:600;cursor:pointer">Abbrechen</button>
-      <button id="confirmOkBtn" onclick="confirmModal.resolve()" style="padding:10px 20px;border-radius:10px;border:none;font-size:14px;font-weight:700;cursor:pointer;background:#ef4444;color:#fff">Löschen</button>
-    </div>
-  </div>
+</div></div>
 </div>
 
   },
@@ -2762,15 +2735,7 @@ function printContractLetter(){
   <div class="sig-line"></div>
   <strong>${d.senderName||""}</strong>
   <div class="footer">Erstellt mit Ratenova · ratenova.de</div>
-</div>
-      <h3 id="confirmTitle" style="font-size:16px;font-weight:700;margin:0">Bestätigung</h3>
-    </div>
-    <p id="confirmMessage" style="font-size:14px;color:var(--tm);margin:0 0 24px;line-height:1.6"></p>
-    <div style="display:flex;gap:10px;justify-content:flex-end">
-      <button onclick="confirmModal.reject()" style="padding:10px 20px;border-radius:10px;border:1px solid var(--b);background:transparent;color:var(--t);font-size:14px;font-weight:600;cursor:pointer">Abbrechen</button>
-      <button id="confirmOkBtn" onclick="confirmModal.resolve()" style="padding:10px 20px;border-radius:10px;border:none;font-size:14px;font-weight:700;cursor:pointer;background:#ef4444;color:#fff">Löschen</button>
-    </div>
-  </div>
+</div></div>
 </div>
 
   },
@@ -3169,15 +3134,7 @@ function printBudget(){
         <tbody><tr><td>Monat ${label}</td><td class="right mono" style="font-weight:800;${bal>=0?'color:#059669':'color:#DC2626'}">${fmt(bal)}</td></tr></tbody>
       </table>
     </div>
-  </div>
-      <h3 id="confirmTitle" style="font-size:16px;font-weight:700;margin:0">Bestätigung</h3>
-    </div>
-    <p id="confirmMessage" style="font-size:14px;color:var(--tm);margin:0 0 24px;line-height:1.6"></p>
-    <div style="display:flex;gap:10px;justify-content:flex-end">
-      <button onclick="confirmModal.reject()" style="padding:10px 20px;border-radius:10px;border:1px solid var(--b);background:transparent;color:var(--t);font-size:14px;font-weight:600;cursor:pointer">Abbrechen</button>
-      <button id="confirmOkBtn" onclick="confirmModal.resolve()" style="padding:10px 20px;border-radius:10px;border:none;font-size:14px;font-weight:700;cursor:pointer;background:#ef4444;color:#fff">Löschen</button>
-    </div>
-  </div>
+  </div></div>
 </div>
 
   },
@@ -3458,15 +3415,7 @@ ${activeDebts.some(d=>d.bankIban)?`<div class="section">
   <span>Vertraulich – Nur für den persönlichen Gebrauch</span>
 </div>
 
-</div>
-      <h3 id="confirmTitle" style="font-size:16px;font-weight:700;margin:0">Bestätigung</h3>
-    </div>
-    <p id="confirmMessage" style="font-size:14px;color:var(--tm);margin:0 0 24px;line-height:1.6"></p>
-    <div style="display:flex;gap:10px;justify-content:flex-end">
-      <button onclick="confirmModal.reject()" style="padding:10px 20px;border-radius:10px;border:1px solid var(--b);background:transparent;color:var(--t);font-size:14px;font-weight:600;cursor:pointer">Abbrechen</button>
-      <button id="confirmOkBtn" onclick="confirmModal.resolve()" style="padding:10px 20px;border-radius:10px;border:none;font-size:14px;font-weight:700;cursor:pointer;background:#ef4444;color:#fff">Löschen</button>
-    </div>
-  </div>
+</div></div>
 </div>
 
   },
@@ -3571,16 +3520,7 @@ if(document.readyState==="loading"){
   if(!authed){showAuthPage("login");}
   else{hideAuthPage();renderNav();renderUser();renderPage();}
 })();
-</script>
-
-      <h3 id="confirmTitle" style="font-size:16px;font-weight:700;margin:0">Bestätigung</h3>
-    </div>
-    <p id="confirmMessage" style="font-size:14px;color:var(--tm);margin:0 0 24px;line-height:1.6"></p>
-    <div style="display:flex;gap:10px;justify-content:flex-end">
-      <button onclick="confirmModal.reject()" style="padding:10px 20px;border-radius:10px;border:1px solid var(--b);background:transparent;color:var(--t);font-size:14px;font-weight:600;cursor:pointer">Abbrechen</button>
-      <button id="confirmOkBtn" onclick="confirmModal.resolve()" style="padding:10px 20px;border-radius:10px;border:none;font-size:14px;font-weight:700;cursor:pointer;background:#ef4444;color:#fff">Löschen</button>
-    </div>
-  </div>
+</script></div>
 </div>
 
   },
@@ -3593,5 +3533,20 @@ if(document.readyState==="loading"){
   }
 };
 // Click backdrop to cancel
+
+<!-- Custom Confirm Modal -->
+<div id="confirmModal" onclick="if(event.target===this)confirmModal.reject()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);z-index:9999;align-items:center;justify-content:center;padding:20px">
+  <div style="background:var(--bgD);border:1px solid var(--b);border-radius:18px;padding:28px;max-width:400px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.5)">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+      <div id="confirmIcon" style="width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;background:rgba(239,68,68,0.15)">⚠️</div>
+      <h3 id="confirmTitle" style="font-size:16px;font-weight:700;margin:0">Bestätigung</h3>
+    </div>
+    <p id="confirmMessage" style="font-size:14px;color:var(--tm);margin:0 0 24px;line-height:1.6"></p>
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button onclick="confirmModal.reject()" style="padding:10px 20px;border-radius:10px;border:1px solid var(--b);background:transparent;color:var(--t);font-size:14px;font-weight:600;cursor:pointer">Abbrechen</button>
+      <button id="confirmOkBtn" onclick="confirmModal.resolve()" style="padding:10px 20px;border-radius:10px;border:none;font-size:14px;font-weight:700;cursor:pointer;background:#ef4444;color:#fff">Löschen</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
