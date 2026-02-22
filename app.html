@@ -1524,7 +1524,40 @@ function rAgreeForm(){
         <div class="card">
           <h3 style="font-size:15px;font-weight:700;margin:0 0 16px">💰 Zahlungsdetails</h3>
           <div class="field"><label>Offener Gesamtbetrag</label><div class="input-wrap"><input id="agAm" type="number" value="${d.amount}" oninput="agreeForm.data.amount=this.value" placeholder="0"><span class="suffix">€</span></div></div>
-          ${showRate?`<div class="field"><label>Vorgeschlagene Monatsrate</label><div class="input-wrap"><input id="agR" type="number" value="${d.rate}" oninput="agreeForm.data.rate=this.value" placeholder="0"><span class="suffix">€</span></div></div>
+          ${showRate?`<div class="field"><label>Vorgeschlagene Monatsrate</label><div class="input-wrap"><input id="agR" type="number" value="${d.rate}" oninput="agreeForm.data.rate=this.value;calcRate()" placeholder="0"><span class="suffix">€</span></div></div>
+
+          <div style="background:var(--bgC);border:1px solid var(--b);border-radius:12px;padding:14px;margin-bottom:14px">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+              <span style="font-size:14px">🧮</span>
+              <span style="font-size:11px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:0.8px">Ratenrechner</span>
+            </div>
+            <p style="font-size:12px;color:var(--tm);margin:0 0 10px">Laufzeit wählen – Rate wird automatisch berechnet:</p>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">
+              ${[3,6,12,18,24,36].map(m=>`<button type="button" id="agCalcBtn${m}" onclick="applyCalcMonths(${m})" style="font-size:12px;padding:5px 10px;border-radius:8px;border:1px solid var(--b);background:var(--bgE);color:var(--tm);cursor:pointer;transition:all 0.15s">${m} Mo.</button>`).join("")}
+            </div>
+            <input type="range" id="agCalcSlider" min="1" max="48" value="${Math.round((d.amount||0)/(d.rate||1))||12}" oninput="applyCalcMonths(+this.value)" style="width:100%;accent-color:var(--em);margin-bottom:8px">
+            <div id="agCalcResult" style="border-radius:10px;background:var(--emG);border:1px solid var(--ba);overflow:hidden">
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--ba)">
+                <div style="padding:10px 12px;background:var(--emG2)">
+                  <p style="font-size:10px;color:var(--tm);margin:0;text-transform:uppercase;letter-spacing:0.6px">Monatsrate</p>
+                  <p id="agCalcRate" style="font-size:18px;font-weight:800;color:var(--em);margin:3px 0 0;line-height:1">–</p>
+                </div>
+                <div style="padding:10px 12px;background:var(--emG2)">
+                  <p style="font-size:10px;color:var(--tm);margin:0;text-transform:uppercase;letter-spacing:0.6px">Laufzeit</p>
+                  <p id="agCalcMonths" style="font-size:18px;font-weight:800;margin:3px 0 0;line-height:1">–</p>
+                </div>
+                <div style="padding:10px 12px;background:var(--emG2)">
+                  <p style="font-size:10px;color:var(--tm);margin:0;text-transform:uppercase;letter-spacing:0.6px">Gesamtbetrag</p>
+                  <p id="agCalcTotal" style="font-size:18px;font-weight:800;margin:3px 0 0;line-height:1">–</p>
+                </div>
+              </div>
+              <div style="padding:8px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px">
+                <p id="agCalcHint" style="font-size:11px;color:var(--tm);margin:0"></p>
+                <button type="button" onclick="adoptCalcRate()" style="background:var(--em);color:#000;font-size:12px;font-weight:700;padding:7px 14px;border-radius:8px;border:none;cursor:pointer;white-space:nowrap;flex-shrink:0">↑ Übernehmen</button>
+              </div>
+            </div>
+          </div>
+
           <div class="field"><label>Beginn der Ratenzahlung</label><div class="input-wrap"><input id="agSD" type="date" value="${d.startDate}" oninput="agreeForm.data.startDate=this.value"></div></div>`:""}
           ${showOffer?`<div class="field"><label>Angebotener Betrag (reduziert)</label><div class="input-wrap"><input id="agOA" type="number" value="${d.offerAmount}" oninput="agreeForm.data.offerAmount=this.value" placeholder="0"><span class="suffix">€</span></div></div>
           <p style="font-size:12px;color:var(--am);margin:-8px 0 16px">💡 Tipp: 60–80% der Forderung sind oft verhandelbar</p>`:""}
@@ -2514,6 +2547,71 @@ function sigClear(form){
 }
 
 function sigMaybeInit(form){ setTimeout(()=>sigInitCanvas(form), 200); }
+
+// ─── Ratenrechner ────────────────────────────────────────────────────────────
+let _calcMonths = 12;
+
+function calcRate(){
+  const amt = parseFloat(document.getElementById("agAm")?.value || agreeForm.data.amount || 0);
+  const rate = parseFloat(document.getElementById("agR")?.value || agreeForm.data.rate || 0);
+  if(amt > 0 && rate > 0){
+    _calcMonths = Math.ceil(amt / rate);
+    const slider = document.getElementById("agCalcSlider");
+    if(slider) slider.value = Math.min(48, _calcMonths);
+    updateCalcDisplay(amt, _calcMonths);
+  }
+}
+
+function applyCalcMonths(months){
+  _calcMonths = months;
+  const slider = document.getElementById("agCalcSlider");
+  if(slider) slider.value = months;
+  const amt = parseFloat(document.getElementById("agAm")?.value || agreeForm.data.amount || 0);
+  updateCalcDisplay(amt, months);
+  // Highlight active quick-button
+  [3,6,12,18,24,36].forEach(m => {
+    const btn = document.getElementById("agCalcBtn"+m);
+    if(btn){
+      btn.style.background   = m===months ? "var(--emG)" : "var(--bgE)";
+      btn.style.color        = m===months ? "var(--em)"  : "var(--tm)";
+      btn.style.borderColor  = m===months ? "var(--ba)"  : "var(--b)";
+      btn.style.fontWeight   = m===months ? "700"        : "400";
+    }
+  });
+}
+
+function updateCalcDisplay(amt, months){
+  const rate  = amt > 0 && months > 0 ? Math.ceil((amt / months) * 100) / 100 : 0;
+  const total = rate * months;
+  const diff  = total - amt;
+  const fmt2  = n => n.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2});
+  const rEl   = document.getElementById("agCalcRate");
+  const mEl   = document.getElementById("agCalcMonths");
+  const tEl   = document.getElementById("agCalcTotal");
+  const hEl   = document.getElementById("agCalcHint");
+  if(rEl) rEl.textContent  = rate  > 0 ? fmt2(rate)  + " €" : "–";
+  if(mEl) mEl.textContent  = months > 0 ? months + " Mo." : "–";
+  if(tEl){
+    tEl.textContent = total > 0 ? fmt2(total) + " €" : "–";
+    tEl.style.color = diff > 0.01 ? "var(--co)" : "var(--em)";
+  }
+  if(hEl){
+    if(diff > 0.01) hEl.textContent = "+" + fmt2(diff) + " € Rundungsaufschlag";
+    else if(amt > 0) hEl.textContent = "✓ Geht genau auf";
+    else hEl.textContent = "";
+  }
+}
+
+function adoptCalcRate(){
+  const amt = parseFloat(document.getElementById("agAm")?.value || agreeForm.data.amount || 0);
+  if(!amt || !_calcMonths){ flash("Bitte zuerst Betrag eingeben"); return; }
+  const rate = Math.ceil((amt / _calcMonths) * 100) / 100;
+  agreeForm.data.rate = rate;
+  const rateInput = document.getElementById("agR");
+  if(rateInput){ rateInput.value = rate; }
+  flash("Rate von " + rate.toLocaleString("de-DE",{minimumFractionDigits:2}) + " € übernommen ✓");
+}
+
 function sendAgreeMail(){
   const d=agreeForm.data;
   const betreff=document.getElementById("agEditBetreff")?.value||agreeForm.editBetreff||getDocContent().betreff;
