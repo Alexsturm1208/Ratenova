@@ -32,6 +32,7 @@ exports.handler = async (event) => {
     body    = "",
     closing = "",
     signatureName = senderName,
+    signatureImage = "",
   } = payload;
 
   const senderLine = [senderName, senderStreet, `${senderZip} ${senderCity}`]
@@ -256,7 +257,7 @@ ${closing ? `<div class="closing-text">${closing}</div>` : ""}
 
 <p class="sign-off">Mit freundlichen Grüßen</p>
 
-<div class="sig-line"></div>
+${signatureImage ? `<img src="${signatureImage}" style="max-height:55px;max-width:180px;display:block;margin-bottom:4px;object-fit:contain">` : '<div class="sig-line"></div>'}
 <div class="sig-name">${signatureName}</div>
 <div class="sig-addr">${senderStreet}, ${senderZip} ${senderCity}</div>
 
