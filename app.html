@@ -37,6 +37,23 @@
   --ff-display:'Bricolage Grotesque',sans-serif;
   --ff-body:'DM Sans',sans-serif;
 }
+/* ── Designer Dropdown ── */
+.dd-container{position:relative;width:100%}
+.dd-trigger{width:100%;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--bg);border:1px solid var(--b);border-radius:12px;color:var(--t);font-family:var(--ff-body);font-size:14px;cursor:pointer;transition:all 0.2s;text-align:left}
+.dd-trigger:hover{border-color:var(--tm);background:var(--bgH)}
+.dd-trigger.active{border-color:var(--em);box-shadow:0 0 0 3px var(--emG2);background:var(--bgH)}
+.dd-menu{position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--bgC);border:1px solid var(--b);border-radius:14px;padding:6px;box-shadow:0 10px 30px rgba(0,0,0,0.5);z-index:100;display:none;max-height:320px;overflow-y:auto}
+.dd-menu.show{display:block;animation:ddFadeIn 0.15s ease-out}
+.dd-item{width:100%;display:flex;align-items:center;gap:12px;padding:10px 12px;border:none;background:transparent;color:var(--t);font-family:var(--ff-body);text-align:left;border-radius:8px;cursor:pointer;transition:background 0.15s}
+.dd-item:hover{background:var(--bgH)}
+.dd-item.selected{background:var(--emG2);color:var(--em)}
+.dd-item .dd-icon{font-size:18px;color:var(--tm);display:flex;align-items:center;justify-content:center;width:24px;height:24px;background:rgba(255,255,255,0.03);border-radius:6px}
+.dd-item.selected .dd-icon{color:var(--em);background:rgba(22,163,74,0.1)}
+.dd-info{display:flex;flex-direction:column;gap:1px}
+.dd-title{font-size:14px;font-weight:600}
+.dd-sub{font-size:11px;color:var(--tm)}
+@keyframes ddFadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--t);font-family:var(--ff-body);font-weight:400;overflow-x:hidden;min-height:100vh}
 h1,h2,h3,h4,.font-display,.kpi-num{font-family:var(--ff-display);font-weight:800}
@@ -233,18 +250,20 @@ select option{background:var(--bgC);color:var(--t)}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <!-- Paddle loaded dynamically -->
 <script>
-let debts=[
-  {id:1,name:"Stadtwerke",emoji:"⚡",original:2400,paid:1600,rate:85,due:"2026-02-17",notes:"Ratenzahlung nach Nachzahlung 2024",creditorName:"Stadtwerke München GmbH",creditorAddress:"Renatastr. 14, 80639 München",creditorPhone:"089 2361-0",creditorEmail:"service@swm.de",bankName:"Stadtwerke München",bankIban:"DE89 7015 0000 0000 1234 56",bankBic:"SSKMDEMMXXX",bankRef:"Kd-Nr. 4471829 / Nachzahlung 2024",history:[{date:"2026-01-15",amount:85,note:"Dauerauftrag"},{date:"2025-12-15",amount:85,note:"Dauerauftrag"},{date:"2025-11-15",amount:85,note:""},{date:"2025-10-15",amount:85,note:""},{date:"2025-09-15",amount:85,note:""},{date:"2025-08-15",amount:85,note:"Erste Rate"}]},
-  {id:2,name:"Möbelhaus Schmidt",emoji:"🪑",original:3200,paid:2100,rate:150,due:"2026-02-20",notes:"0% Finanzierung Küche",creditorName:"Möbelhaus Schmidt GmbH",creditorAddress:"Leopoldstr. 88, 80802 München",creditorPhone:"089 3832-100",creditorEmail:"finanzen@moebelschmidt.de",bankName:"Möbelhaus Schmidt",bankIban:"DE55 7001 0080 0012 3456 78",bankBic:"PBNKDEFFXXX",bankRef:"Finanzierung KV-2025-00814",history:[{date:"2026-01-20",amount:150,note:"Lastschrift"},{date:"2025-12-20",amount:150,note:""},{date:"2025-11-20",amount:150,note:""},{date:"2025-10-20",amount:150,note:""},{date:"2025-09-20",amount:150,note:""}]},
-  {id:3,name:"Autokredit VW Bank",emoji:"🚗",original:6880,paid:3820,rate:215,due:"2026-03-01",notes:"VW Bank Finanzierung",creditorName:"Volkswagen Bank GmbH",creditorAddress:"Gifhorner Str. 57, 38112 Braunschweig",creditorPhone:"0531 212-0",creditorEmail:"",bankName:"VW Bank",bankIban:"DE12 2707 0024 0000 9876 54",bankBic:"DEUTDEDBXXX",bankRef:"Kreditvertrag VW-2024-39182",history:[{date:"2026-01-01",amount:215,note:"Lastschrift"},{date:"2025-12-01",amount:215,note:""},{date:"2025-11-01",amount:215,note:""},{date:"2025-10-01",amount:215,note:""},{date:"2025-09-01",amount:215,note:""}]},
-  {id:4,name:"Zahnbehandlung",emoji:"🦷",original:1800,paid:1200,rate:100,due:"2026-02-14",notes:"Dr. Meier – Zahnersatz",creditorName:"Dr. med. dent. Hans Meier",creditorAddress:"Prinzregentenstr. 22, 81675 München",creditorPhone:"089 4400-2200",creditorEmail:"praxis@dr-meier.de",bankName:"Dr. Meier Praxis",bankIban:"DE34 7005 0000 0000 5566 77",bankBic:"BYLADEMMXXX",bankRef:"Re-Nr. 2025-0341 / Patient Müller",history:[{date:"2026-01-14",amount:100,note:"Überweisung"},{date:"2025-12-14",amount:100,note:""},{date:"2025-11-14",amount:100,note:""}]}
-];
+let debts=[];
 let currentPage="dashboard",selectedDebtId=null,currentFilter="all",selectedEmoji="📄";window._contractDetail=null;window._contractFilter="all";
 const isMasterMode=new URLSearchParams(window.location.search).get("master")==="1";
 const fmt=n=>new Intl.NumberFormat("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2}).format(n)+" €";
 const fmt2=n=>new Intl.NumberFormat("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2}).format(n)+" €";
 const fD=d=>{try{return new Date(d+"T00:00:00").toLocaleDateString("de-DE",{day:"numeric",month:"short"})}catch(e){return d}};
 const fDL=d=>{try{return new Date(d+"T00:00:00").toLocaleDateString("de-DE",{day:"numeric",month:"long",year:"numeric"})}catch(e){return d}};
+const CONTRACT_CATS = [
+    {v:'Versicherung',i:'🛡️'},{v:'Streaming',i:'🎬'},{v:'Internet',i:'🌐'},
+    {v:'Strom',i:'⚡'},{v:'Gas',i:'🔥'},{v:'Handy',i:'📱'},
+    {v:'Fitness',i:'💪'},{v:'Software',i:'💻'},{v:'Bank',i:'🏦'},
+    {v:'Miete',i:'🏠'},{v:'Auto',i:'🚗'},{v:'Sonstiges',i:'📄'}
+];
+const getContractIcon = (cat) => (CONTRACT_CATS.find(c => c.v === cat) || {i:'📄'}).i;
 const pc=(p,o)=>o===0?100:Math.round(p/o*100);const dU=d=>Math.ceil((new Date(d+"T00:00:00")-new Date())/864e5);
 const gS=d=>{if(d.paid>=d.original)return"done";const nd=effDue(d)||d.due;const dy=dU(nd);return dy<0?"overdue":dy===0?"today":dy<=5?"soon":"ok"};
 const sI={ok:{l:"Aktuell",c:"var(--em)",bg:"var(--emG)"},soon:{l:"Bald fällig",c:"var(--am)",bg:"var(--amG)"},today:{l:"Heute fällig",c:"var(--co)",bg:"var(--coG)"},overdue:{l:"Handlungsbedarf",c:"var(--co)",bg:"var(--coG)"},done:{l:"Erledigt",c:"var(--em)",bg:"var(--emG)"}};
@@ -2953,12 +2972,7 @@ function markContractCancelled(id){
 
 function openContractAdd(id=null){
   const c=id?contracts.find(x=>x.id===id):null;
-  const cats=[
-    {v:'Versicherung',i:'🛡️'},{v:'Streaming',i:'🎬'},{v:'Internet',i:'🌐'},
-    {v:'Strom',i:'⚡'},{v:'Gas',i:'🔥'},{v:'Handy',i:'📱'},
-    {v:'Fitness',i:'💪'},{v:'Software',i:'💻'},{v:'Bank',i:'🏦'},
-    {v:'Miete',i:'🏠'},{v:'Auto',i:'🚗'},{v:'Sonstiges',i:'📄'}
-  ];
+  const cats=CONTRACT_CATS;
   const cycles=['monatlich','vierteljährlich','halbjährlich','jährlich','einmalig'];
   const secHdr=(icon,title,color='var(--em)')=>`<div style="display:flex;align-items:center;gap:8px;margin:18px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--b)"><span style="font-size:18px">${icon}</span><p style="font-size:12px;font-weight:700;color:${color};text-transform:uppercase;letter-spacing:0.8px;margin:0">${title}</p></div>`;
   document.getElementById("modalContainer").innerHTML=`<div class="overlay" onclick="closeModal()"><div class="modal wide" onclick="event.stopPropagation()" style="max-width:880px;max-height:90vh;overflow-y:auto">
@@ -3127,15 +3141,34 @@ function rCancelAssistant(){
     <div>
       <div class="card" style="padding:14px 16px;margin-bottom:14px;background:var(--bgE)">
         <div style="font-size:11px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">1. Vertrag</div>
-        ${contracts.length?`<div style="display:flex;flex-direction:column;gap:8px">
-          ${contracts.map(x=>`<button class="card clickable" onclick="selectCancelContract(${x.id});renderPage()" style="padding:12px;display:flex;align-items:center;gap:10px;${c&&c.id===x.id?'border-color:var(--ba);background:var(--emG2);box-shadow:0 0 0 3px rgba(34,197,94,0.15)':''}">
-            <span style="font-size:24px">📄</span>
-            <div style="text-align:left">
-              <p style="font-size:14px;font-weight:700;margin:0;color:${c&&c.id===x.id?'var(--em)':'var(--t)'}">${x.name}</p>
-              <p style="font-size:12px;color:var(--tm);margin:2px 0 0">${x.provider||"Anbieter"} · ${fmt(contractAnnualCost(x))}/Jahr</p>
-            </div>
-          </button>`).join("")}
-        </div>`:`<div style="padding:20px;text-align:center"><p style="margin:0 0 6px;font-size:26px">📄</p><p style="font-size:13px;color:var(--tm);margin:0">Keine Verträge vorhanden</p><div style="margin-top:8px"><button class="btn btn-primary btn-sm" onclick="goTo('contracts')">Vertrag anlegen</button></div></div>`}
+        ${contracts.length?`
+        <div class="dd-container" id="ddContract">
+          <button class="dd-trigger" onclick="toggleDropdown('ddContract')">
+            ${c ? `
+              <div style="display:flex;align-items:center;gap:10px">
+                <span style="font-size:18px">${getContractIcon(c.category)}</span>
+                <div style="text-align:left;line-height:1.2">
+                  <span style="font-weight:600;display:block;font-size:14px">${c.name}</span>
+                  <span style="font-size:11px;color:var(--tm)">${c.provider||"Anbieter"}</span>
+                </div>
+              </div>
+            ` : `<span style="color:var(--tm)">Bitte wählen...</span>`}
+            <span style="font-size:10px;color:var(--tm)">▼</span>
+          </button>
+          <div class="dd-menu">
+            ${contracts.map(x=>`
+              <button class="dd-item ${c&&c.id===x.id?'selected':''}" onclick="selectCancelContract(${x.id});renderPage()">
+                <span class="dd-icon">${getContractIcon(x.category)}</span>
+                <div class="dd-info">
+                  <span class="dd-title">${x.name}</span>
+                  <span class="dd-sub">${x.provider||"Anbieter"}</span>
+                </div>
+                ${c&&c.id===x.id?'<span style="margin-left:auto;color:var(--em)">✓</span>':''}
+              </button>
+            `).join("")}
+          </div>
+        </div>
+        `:`<div style="padding:20px;text-align:center"><p style="margin:0 0 6px;font-size:26px">📄</p><p style="font-size:13px;color:var(--tm);margin:0">Keine Verträge vorhanden</p><div style="margin-top:8px"><button class="btn btn-primary btn-sm" onclick="goTo('contracts')">Vertrag anlegen</button></div></div>`}
       </div>
 
       <div class="card" style="padding:14px 16px;margin-bottom:14px;background:var(--bgE)">
@@ -5488,6 +5521,32 @@ document.getElementById("modalContainer").innerHTML=`<div class="overlay" onclic
 </div></div>`}
 async function saveEdit(id){const d=debts.find(x=>x.id===id);if(!d)return;await autoSnapshot("debt_change",true);d.name=document.getElementById("eN").value||d.name;d.original=toNum(document.getElementById("eA").value)||d.original;d.rate=toNum(document.getElementById("eR").value);d.due=document.getElementById("eD").value||d.due;d.notes=document.getElementById("eNt").value;d.clarificationStatus=document.getElementById("eCS").value||d.clarificationStatus;d.paymentStatus=document.getElementById("ePS").value||d.paymentStatus;d.creditorType=(document.getElementById("eCTY")?.value)||d.creditorType||"firma";d.creditorName=document.getElementById("eCN").value;d.creditorAddress=document.getElementById("eCA").value;d.creditorZip=document.getElementById("eCZip").value;d.creditorCity=document.getElementById("eCCity").value;d.creditorPhone=document.getElementById("eCT").value;d.creditorEmail=document.getElementById("eCE").value;d.bankName=document.getElementById("eBN").value;const eIban=normIban(document.getElementById("eBI").value||"");if(d.creditorType==="privat"&&eIban){d.iban_hint=`${eIban.slice(0,4)}:${eIban.slice(-4)}`;d.iban_enc=await encryptText(eIban);d.bankIban=""}else{d.bankIban=eIban;d.iban_enc="";d.iban_hint=""}d.bankBic=document.getElementById("eBB").value;d.bankRef=document.getElementById("eBR").value;autoUpdateDebtStatuses(d,{respectManual:true});scheduleCloudSave();closeModal();flash("Gespeichert ✓");renderPage()}
 async function deleteDebt(id){if(!await confirmModal.show("Eintrag wirklich löschen? Dieser Schritt kann nicht rückgängig gemacht werden.",{title:"Eintrag löschen",okText:"Löschen",icon:"🗑️"}))return;await autoSnapshot("debt_delete",true);debts=debts.filter(d=>d.id!==id);scheduleCloudSave();selectedDebtId=null;currentPage="debts";renderNav();renderPage();flash("Gelöscht")}
+
+// ─── Dropdown Logic ───
+function toggleDropdown(id){
+  const el=document.getElementById(id);if(!el)return;
+  const m=el.querySelector('.dd-menu');const t=el.querySelector('.dd-trigger');
+  const isOpen=m.classList.contains('show');
+  document.querySelectorAll('.dd-menu.show').forEach(x=>{
+    if(x!==m){
+      x.classList.remove('show');
+      const p=x.closest('.dd-container');
+      if(p)p.querySelector('.dd-trigger').classList.remove('active');
+    }
+  });
+  if(isOpen){m.classList.remove('show');t.classList.remove('active');}
+  else{m.classList.add('show');t.classList.add('active');}
+}
+window.addEventListener('click',e=>{
+  if(!e.target.closest('.dd-container')){
+    document.querySelectorAll('.dd-menu.show').forEach(m=>{
+      m.classList.remove('show');
+      const p=m.closest('.dd-container');
+      if(p)p.querySelector('.dd-trigger').classList.remove('active');
+    });
+  }
+});
+
 normalizeDebtStatuses();
 loadLocalState();
 loadBudget();
