@@ -241,9 +241,10 @@ async function masterLogout(){
 
 async function loadMasterData(){
   if(!supabaseClient){masterState.error="Supabase nicht verbunden";return;}
+  // Increase limit to 5000 to show more users
   const [{data:users,error:uErr},{data:states,error:sErr}]=await Promise.all([
-    supabaseClient.from("user_profiles").select("id,email,first_name,last_name,plan,role,trial_end,address_street,address_zip,address_city,phone,updated_at,is_blocked,admin_note"),
-    supabaseClient.from("app_state").select("user_id,debts,budget_items,contracts,updated_at")
+    supabaseClient.from("user_profiles").select("id,email,first_name,last_name,plan,role,trial_end,address_street,address_zip,address_city,phone,updated_at,is_blocked,admin_note").range(0,4999),
+    supabaseClient.from("app_state").select("user_id,debts,budget_items,contracts,updated_at").range(0,4999)
   ]);
   if(uErr||sErr){
     const e=(err,t)=>err?`${t}: ${err.message||"Fehler"}`:"";
@@ -252,8 +253,15 @@ async function loadMasterData(){
   }
   masterState.users=users||[];
   masterState.states=states||[];
+  
+  // Check if users are missing (RLS issue?)
+  if (masterState.users.length === 0) {
+    masterState.error = "Keine Nutzer gefunden. Prüfen Sie die RLS-Policies in Supabase (Tabelle 'user_profiles').";
+  } else {
+    masterState.error="";
+  }
+
   if(!masterState.selectedUserId&&masterState.users.length)masterState.selectedUserId=masterState.users[0].id;
-  masterState.error="";
 }
 
 function masterStateMap(){const m={};masterState.states.forEach(s=>{if(s?.user_id)m[s.user_id]=s});return m}
@@ -302,14 +310,25 @@ function masterStats(){
 async function masterSaveUser(id){
   const get=k=>document.getElementById(`${k}-${id}`)?.value?.trim()||"";
   const trialRaw=document.getElementById(`muTrial-${id}`)?.value||"";
+  const newPlan = get("muPlan")||"Basic";
+  
   const {error}=await supabaseClient.from("user_profiles").upsert({
-    id,first_name:get("muFirst"),last_name:get("muLast"),plan:get("muPlan")||"Basic",
+    id,first_name:get("muFirst"),last_name:get("muLast"),plan:newPlan,
     trial_end:trialRaw?new Date(trialRaw).toISOString():null,
     address_street:get("muStreet"),address_zip:get("muZip"),address_city:get("muCity"),
     phone:get("muPhone"),admin_note:get("muNote")||null,updated_at:new Date().toISOString()
   });
+  
   if(error){flash("Speichern fehlgeschlagen: "+error.message);return;}
-  flash("Nutzerdaten gespeichert ✓");
+  
+  // Verify update
+  const {data: verify} = await supabaseClient.from("user_profiles").select("plan").eq("id", id).single();
+  if (verify && verify.plan === newPlan) {
+    flash(`Erfolg: Plan auf '${newPlan}' aktualisiert und verifiziert ✓`);
+  } else {
+    flash(`Fehler: Plan konnte nicht auf '${newPlan}' geändert werden (RLS prüfen?)`);
+  }
+
   await loadMasterData();render();
 }
 
@@ -326,12 +345,35 @@ async function masterBlockUser(id){
 async function masterDeleteUser(id){
   if(masterState.deleteConfirm!==id){masterState.deleteConfirm=id;render();flash("⚠️ Nochmals klicken zum endgültigen Löschen");return;}
   masterState.deleteConfirm=null;
-  await Promise.all([
+  
+  // Try to delete via Edge Function (for auth.users)
+  let authDeleted = false;
+  try {
+    const { error } = await supabaseClient.functions.invoke('admin-delete-user', {
+      body: { user_id: id }
+    });
+    if (!error) authDeleted = true;
+  } catch (e) {
+    console.warn("Edge Function admin-delete-user failed or missing", e);
+  }
+
+  // Fallback: Delete public data (profile & state)
+  const [{error: e1}, {error: e2}] = await Promise.all([
     supabaseClient.from("app_state").delete().eq("user_id",id),
     supabaseClient.from("user_profiles").delete().eq("id",id)
   ]);
+
   if(masterState.selectedUserId===id)masterState.selectedUserId=null;
-  flash("Nutzerdaten gelöscht ✓");
+  
+  if (authDeleted) {
+    flash("Nutzer komplett gelöscht (Auth & Daten) ✓");
+  } else if (!e1 && !e2) {
+    flash("⚠️ Achtung: Nur Profildaten gelöscht! Auth-User existiert noch (Edge Function fehlt).");
+    console.warn("Hinweis: Um den Login-User komplett zu löschen, wird eine Edge Function 'admin-delete-user' benötigt.");
+  } else {
+    flash("Fehler beim Löschen der Daten: " + (e1?.message || e2?.message || "Unbekannt"));
+  }
+
   await loadMasterData();render();
 }
 
