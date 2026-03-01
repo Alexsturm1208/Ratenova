@@ -138,21 +138,34 @@ async function callMasterAPI(action, params={}) {
   const { data: { session } } = await supabaseClient.auth.getSession();
   if (!session) throw new Error("Keine aktive Session");
   
-  const res = await fetch(
-    "https://kdbuduwztmxxykfvqbie.supabase.co/functions/v1/hyper-api",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + session.access_token,
-        "apikey": "sb_publishable_ZZpjQ4Lqcqd2uVpGrSthcQ_nnCYSGPv"
-      },
-      body: JSON.stringify({ action, ...params })
-    }
-  );
+  let res, data;
+  try {
+    res = await fetch(
+      "https://kdbuduwztmxxykfvqbie.supabase.co/functions/v1/hyper-api",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + session.access_token,
+          "apikey": "sb_publishable_ZZpjQ4Lqcqd2uVpGrSthcQ_nnCYSGPv"
+        },
+        body: JSON.stringify({ action, ...params })
+      }
+    );
+  } catch(networkErr) {
+    throw new Error("Netzwerkfehler: " + networkErr.message);
+  }
+
+  // Raw text first for debugging
+  const rawText = await res.text();
+  console.log("[hyper-api] Status:", res.status, "Body:", rawText.substring(0, 300));
   
-  const data = await res.json();
-  if (!res.ok || data.error) throw new Error(data.error || "Unbekannter Fehler");
+  try { data = JSON.parse(rawText); } 
+  catch(e) { throw new Error(`HTTP ${res.status} – Antwort kein JSON: ${rawText.substring(0,150)}`); }
+  
+  if (!res.ok || data.error) {
+    throw new Error(`HTTP ${res.status}: ${data.error || data.message || rawText.substring(0,150)}`);
+  }
   return data;
 }
 
@@ -291,7 +304,7 @@ async function loadMasterData(){
   } catch(e) {
     // Fallback: Direkt aus Supabase laden (mit RLS-Einschränkungen)
     console.warn("Edge Function nicht erreichbar, nutze Fallback:", e.message);
-    masterState.error = "⚠️ Edge Function 'hyper-api' Fehler – Zeige nur Profil-Daten. Fehler: " + e.message;
+    masterState.error = "⚠️ hyper-api Fehler: " + e.message + " | Öffne Browser-Konsole (F12 → Console) für Details.";
     
     const [{data:users,error:uErr},{data:states,error:sErr}]=await Promise.all([
       supabaseClient.from("user_profiles").select("id,email,first_name,last_name,plan,role,trial_end,address_street,address_zip,address_city,phone,updated_at,is_blocked,admin_note").range(0,9999),
