@@ -545,30 +545,25 @@ function scheduleCloudSave(){
 // Beim Tab schließen/aktualisieren: sofort speichern, nicht warten
 window.addEventListener("beforeunload",()=>{
   if(supabaseClient&&currentUserId){
-    // Synchroner localStorage Save ist immer sicher
     saveLocalState();
-    // Async cloud save als "fire and forget" beim Schließen
     saveCloudState().catch(()=>{});
+  }
+});
 
 // ── Auto-Logout nach Inaktivität ─────────────────────────────────────────
 const AUTO_LOGOUT_MS = 30 * 60 * 1000; // 30 Minuten
 const AUTO_LOGOUT_WARN_MS = 28 * 60 * 1000; // Warnung nach 28 Minuten
 let autoLogoutTimer = null;
 let autoLogoutWarnTimer = null;
-let autoLogoutWarnShown = false;
 
 function resetAutoLogout(){
   if(!user.loggedIn) return;
   clearTimeout(autoLogoutTimer);
   clearTimeout(autoLogoutWarnTimer);
-  autoLogoutWarnShown = false;
-  
   autoLogoutWarnTimer = setTimeout(()=>{
     if(!user.loggedIn) return;
-    autoLogoutWarnShown = true;
     flash("⚠️ Du wirst in 2 Minuten automatisch ausgeloggt.");
   }, AUTO_LOGOUT_WARN_MS);
-  
   autoLogoutTimer = setTimeout(async()=>{
     if(!user.loggedIn) return;
     flash("🔒 Automatisch ausgeloggt (Inaktivität).");
@@ -576,12 +571,8 @@ function resetAutoLogout(){
   }, AUTO_LOGOUT_MS);
 }
 
-// Activity Events zurücksetzen
 ["mousemove","keydown","click","touchstart","scroll"].forEach(ev=>{
   document.addEventListener(ev, ()=>{ if(user.loggedIn) resetAutoLogout(); }, {passive:true});
-});
-
-  }
 });
 function readJsonLocal(key,fallback){try{const raw=localStorage.getItem(key);if(!raw)return fallback;const parsed=JSON.parse(raw);return parsed??fallback}catch(e){return fallback}}
 async function migrateLegacyLocalData(authUser){
