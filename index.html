@@ -272,7 +272,7 @@ const paymentMeta={keine_zahlung_faellig:{l:"Keine Zahlung fällig",c:"var(--ts)
 const clarificationOptions=[["neu","Neu"],["vereinbarung_in_verhandlung","In Verhandlung"],["vereinbart","Vereinbart"],["abgelehnt_oder_streit","Streitfall"],["geschlossen","Geschlossen"]];
 const paymentOptions=[["ratenplan_aktiv","Ratenplan aktiv"],["faellig_einmalig","Fällig"],["ueberfaellig","Handlungsbedarf"],["bezahlt","Bezahlt"]];
 const encs=["Du bist auf dem richtigen Weg.","Jede Rate zählt – bleib dran.","Schritt für Schritt zur Entlastung.","Du hast mehr geschafft als du denkst.","Kontrolle fühlt sich gut an."];
-const tdy=()=>new Date().toISOString().split("T")[0];
+const tdy=()=>{const d=new Date();const y=d.getFullYear();const m=String(d.getMonth()+1).padStart(2,"0");const da=String(d.getDate()).padStart(2,"0");return`${y}-${m}-${da}`};
 function toNum(v){const s=String(v||"").trim().replace(/\./g,"").replace(/,/g,".");const n=parseFloat(s);return Number.isFinite(n)?n:0}
 function toEur(v){try{return new Intl.NumberFormat('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2}).format(Number(v)||0)}catch(e){return String(v||"")}}
 function fmtEurField(el){if(!el)return;el.value=toEur(toNum(el.value))}
@@ -282,11 +282,11 @@ function inferPaymentStatus(d){if(d.paid>=d.original)return"bezahlt";if(d.rate>0
 function getPaymentStatus(d){return paymentMeta[d.paymentStatus]?d.paymentStatus:inferPaymentStatus(d)}
 function normalizeDebtStatuses(){debts=debts.map(d=>({...d,clarificationStatus:getClarificationStatus(d),paymentStatus:getPaymentStatus(d)}))}
 function setStatus(prefix,kind,value){const input=document.getElementById(`${prefix}${kind}`);if(!input)return;input.value=value;document.querySelectorAll(`button[data-status='${prefix}${kind}']`).forEach(b=>{const a=b.dataset.value===value;b.classList.toggle("btn-ghost",a);b.classList.toggle("btn-outline",!a);});}
-function autoUpdateDebtStatuses(d,opt={}){if(!d)return;const respectManual=!!opt.respectManual;const cs=getClarificationStatus(d);if(d.paid>=d.original){d.paymentStatus="bezahlt";if(cs!=="abgelehnt_oder_streit")d.clarificationStatus="geschlossen";return;}if(respectManual&&paymentMeta[d.paymentStatus])return;if(["neu","in_pruefung","rueckfrage_offen","vereinbarung_in_verhandlung"].includes(cs)){d.paymentStatus="keine_zahlung_faellig";return;}if(d.paymentStatus==="stundung_aktiv")return;if(d.rate>0){const dueStr=d.due||"";const due=dueStr?new Date(dueStr+"T00:00:00"):null;if(due&&Array.isArray(d.history)){const prev=new Date(due);prev.setMonth(prev.getMonth()-1);const cyclePaid=(d.history||[]).filter(h=>h&&h.date).map(h=>({date:new Date(h.date+"T00:00:00"),amount:+h.amount||0})).filter(h=>h.date>prev&&h.date<=due).reduce((s,h)=>s+h.amount,0);const remaining=Math.max(d.original-d.paid,0);const need=Math.max(0,Math.min(d.rate||0,remaining));if(need>0&&cyclePaid>=need){d.paymentStatus="keine_zahlung_faellig";return;}}d.paymentStatus="ratenplan_aktiv";return;}const dueState=gS(d);d.paymentStatus=(dueState==="today"||dueState==="overdue")?"ueberfaellig":"faellig_einmalig";}
+function autoUpdateDebtStatuses(d,opt={}){if(!d)return;const respectManual=!!opt.respectManual;const cs=getClarificationStatus(d);if(d.paid>=d.original){d.paymentStatus="bezahlt";if(cs!=="abgelehnt_oder_streit")d.clarificationStatus="geschlossen";return;}if(respectManual&&paymentMeta[d.paymentStatus])return;if(d.paymentStatus==="stundung_aktiv")return;if(d.rate>0){d.paymentStatus="ratenplan_aktiv";return;}if(["neu","in_pruefung","rueckfrage_offen","vereinbarung_in_verhandlung"].includes(cs)){d.paymentStatus="keine_zahlung_faellig";return;}const dueState=gS(d);d.paymentStatus=(dueState==="today"||dueState==="overdue")?"ueberfaellig":"faellig_einmalig";}
 function gT(){const o=debts.reduce((s,d)=>s+d.original,0),p=debts.reduce((s,d)=>s+d.paid,0),r=o-p,m=debts.filter(d=>d.paid<d.original).reduce((s,d)=>s+d.rate,0),sorted=[...debts].filter(d=>d.paid<d.original).sort((a,b)=>new Date(effDue(a)||a.due)-new Date(effDue(b)||b.due));return{o,p,r,m,pct:pc(p,o),next:sorted[0]||null}}
 function bdg(st){const s=sI[st]||sI.ok;return`<span class="badge" style="color:${s.c};background:${s.bg}"><span class="badge-dot" style="background:${s.c};box-shadow:0 0 6px ${s.c}"></span>${s.l}</span>`}
 function pb(p,h=4){return`<div class="pbar" style="height:${h}px"><div class="pbar-fill" style="width:${Math.min(p,100)}%"></div></div>`}
-function addMonthsISO(ds,m=1){try{const dt=new Date(ds+"T00:00:00");dt.setMonth(dt.getMonth()+m);return dt.toISOString().slice(0,10)}catch(e){return ds}}
+function addMonthsISO(ds,m=1){if(!ds)return ds;try{let[y,mo,da]=ds.split("-").map(Number);mo+=m;while(mo>12){mo-=12;y++}while(mo<1){mo+=12;y--}const last=new Date(y,mo,0).getDate();const d=Math.min(da,last);return`${y}-${String(mo).padStart(2,"0")}-${String(d).padStart(2,"0")}`}catch(e){return ds}}
 function normIban(s){try{return(String(s||"").replace(/[^A-Za-z0-9]/g,"").toUpperCase())}catch(e){return String(s||"")}}
 function formatIbanSpaced(s){const r=normIban(s);if(!r)return"";let out=[];for(let i=0;i<r.length;i+=4){out.push(r.slice(i,i+4))}return out.join(" ")}
 function maskIban(s){
@@ -303,8 +303,35 @@ function b64d(str){const bin=atob(str);const arr=new Uint8Array(bin.length);for(
 async function getIbanKey(){let raw=localStorage.getItem("iban_key");if(!raw){const k=new Uint8Array(32);crypto.getRandomValues(k);raw=b64e(k);localStorage.setItem("iban_key",raw)}const keyBytes=b64d(raw);return await crypto.subtle.importKey("raw",keyBytes,"AES-GCM",false,["encrypt","decrypt"])}
 async function encryptText(txt){const key=await getIbanKey();const iv=new Uint8Array(12);crypto.getRandomValues(iv);const enc=new TextEncoder().encode(txt);const ct=await crypto.subtle.encrypt({name:"AES-GCM",iv},key,enc);return`v1:${b64e(iv)}:${b64e(ct)}`}
 async function decryptText(data){try{if(!data||!data.startsWith("v1:"))return data;const[,ivB,ctB]=data.split(":");const key=await getIbanKey();const pt=await crypto.subtle.decrypt({name:"AES-GCM",iv:new Uint8Array(b64d(ivB))},key,b64d(ctB));return new TextDecoder().decode(pt)}catch(e){return""}}
-function addMonthsISO(ds,m=1){try{const dt=new Date(ds+"T00:00:00");dt.setMonth(dt.getMonth()+m);return dt.toISOString().slice(0,10)}catch(e){return ds}}
-function effDue(d){if(!d||d.paid>=d.original)return null;if(d.rate>0){const ds=d.due||"";if(!ds)return ds;const due=new Date(ds+"T00:00:00");const prev=new Date(due);prev.setMonth(prev.getMonth()-1);const rem=Math.max(d.original-d.paid,0);const need=Math.max(0,Math.min(d.rate||0,rem));const cyclePaid=(d.history||[]).filter(h=>h&&h.date).map(h=>({date:new Date(h.date+"T00:00:00"),amount:+h.amount||0})).filter(h=>h.date>prev&&h.date<=due).reduce((s,h)=>s+h.amount,0);return need>0&&cyclePaid>=need?addMonthsISO(ds,1):ds}return d.due||""}
+
+function effDue(d){
+  if(!d||d.paid>=d.original)return null;
+  if(!(d.rate>0))return d.due||"";
+  let ds=d.due||"";
+  if(!ds)return ds;
+  const today=new Date(tdy()+"T00:00:00");
+  for(let i=0;i<48;i++){
+    const due=new Date(ds+"T00:00:00");
+    if(!Number.isFinite(due.getTime()))return ds;
+    const prev=new Date(due);prev.setMonth(prev.getMonth()-1);
+    const rem=Math.max(d.original-d.paid,0);
+    const need=Math.max(0,Math.min(d.rate||0,rem));
+    if(!(need>0))return ds;
+    const cyclePaid=(d.history||[])
+      .filter(h=>h&&h.date)
+      .map(h=>({date:new Date(String(h.date).slice(0,10)+"T00:00:00"),amount:Number(h.amount)}))
+      .filter(h=>Number.isFinite(h.date?.getTime?.())&&h.date>prev&&h.date<=today&&Number.isFinite(h.amount))
+      .reduce((s,h)=>s+h.amount,0);
+    if(cyclePaid>=need){
+      const next=addMonthsISO(ds,1);
+      if(!next||next===ds)return ds;
+      ds=next;
+      continue;
+    }
+    return ds;
+  }
+  return ds;
+}
 function rng(pct,sz=140,sw=8){const r=(sz-sw*2)/2,ci=2*Math.PI*r;return`<svg width="${sz}" height="${sz}"><defs><linearGradient id="rg${sz}" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="var(--em)"/><stop offset="100%" stop-color="var(--sk)"/></linearGradient><filter id="gl${sz}"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><circle cx="${sz/2}" cy="${sz/2}" r="${r}" fill="none" stroke="var(--b)" stroke-width="${sw}"/><circle cx="${sz/2}" cy="${sz/2}" r="${r}" fill="none" stroke="url(#rg${sz})" stroke-width="${sw}" stroke-linecap="round" stroke-dasharray="${ci}" stroke-dashoffset="${ci-(pct/100)*ci}" transform="rotate(-90 ${sz/2} ${sz/2})" filter="url(#gl${sz})" style="transition:stroke-dashoffset 1.2s cubic-bezier(0.16,1,0.3,1)"/></svg>`}
 function flash(m){const c=document.getElementById("toastContainer");c.innerHTML=`<div class="toast"><span class="toast-dot"></span>${m}</div>`;setTimeout(()=>c.innerHTML="",2800)}
 function showConfetti(){const c=document.getElementById("confettiContainer");c.style.display="block";const cols=["var(--em)","#38BDF8","#FBBF24","var(--co)","#A78BFA","#FB7185"];let h="";for(let i=0;i<40;i++)h+=`<div class="confetti-piece" style="left:${Math.random()*100}%;width:${5+Math.random()*7}px;height:${5+Math.random()*4}px;background:${cols[i%6]};animation:confettiFall ${1.5+Math.random()*1.5}s ease-in ${Math.random()*0.5}s forwards"></div>`;c.innerHTML=h;setTimeout(()=>{c.style.display="none";c.innerHTML=""},3500)}
@@ -508,7 +535,54 @@ function deleteSnapshotLocal(i){const arr=listSnapshotsLocal();if(!arr[i])return
 async function renderSnapshotList(){const host=document.getElementById("snapshotList");if(!host)return;host.innerHTML='<p style="font-size:12px;color:var(--tm);margin:0">Lade Sicherungspunkte…</p>';const cloud=await fetchSnapshotsCloud();if(Array.isArray(cloud)){const rows=cloud.map((s,idx)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:${idx===0?'1px solid var(--b)':'none'};border-bottom:1px solid var(--b)"><div><span style="font-size:12px;color:var(--ts)">${new Date(s.created_at).toLocaleString('de-DE')}</span><span style="font-size:11px;color:var(--tm);margin-left:8px">${s.kind==='daily'?'Automatisch (täglich)':'Automatisch'}</span></div><div style="display:flex;gap:6px"><button class="btn btn-outline btn-sm" onclick="restoreSnapshotCloud('${s.storage_path}')">Wiederherstellen</button><button class="btn btn-ghost btn-sm" onclick="deleteSnapshotCloud('${s.storage_path}')">Löschen</button></div></div>`).join("");host.innerHTML=`<p style="font-size:12px;color:var(--tm);margin:0 0 8px">Sicherungspunkte (max 5 · 7 Tage)</p>${rows||'<p style="font-size:12px;color:var(--tm);margin:0">Keine Sicherungspunkte vorhanden.</p>'}`;return}const local=listSnapshotsLocal();const rows=local.map((s,i)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:${i===0?'1px solid var(--b)':'none'};border-bottom:1px solid var(--b)"><div><span style="font-size:12px;color:var(--ts)">${new Date(s.createdAt).toLocaleString('de-DE')}</span><span style="font-size:11px;color:var(--tm);margin-left:8px">${(s.kind||'auto')==='daily'?'Automatisch (täglich)':'Automatisch'}</span></div><div style="display:flex;gap:6px"><button class="btn btn-outline btn-sm" onclick="restoreSnapshotLocal(${i})">Wiederherstellen</button><button class="btn btn-ghost btn-sm" onclick="deleteSnapshotLocal(${i})">Löschen</button></div></div>`).slice(0,5).join("");host.innerHTML=`<p style="font-size:12px;color:var(--tm);margin:0 0 8px">Sicherungspunkte (lokal · max 5 · 7 Tage)</p>${rows||'<p style="font-size:12px;color:var(--tm);margin:0">Keine Sicherungspunkte vorhanden.</p>'}`}
 async function ensureDailySnapshot(){const last=localStorage.getItem("sfLastSnapshotDate")||"";const t=new Date().toISOString().slice(0,10);if(last!==t){await autoSnapshot("daily",false);localStorage.setItem("sfLastSnapshotDate",t)}}
 function loadLocalState(){try{const ld=readJsonLocal("debts",null);const lb=readJsonLocal("budgetItems",null);const lc=readJsonLocal("contracts",null);const lm=localStorage.getItem("budgetMonth");if(Array.isArray(ld))debts=ld;if(Array.isArray(lb))budgetItems=lb;if(Array.isArray(lc))contracts=lc;if(typeof lm==="string"&&lm)currentBudgetMonth=lm;normalizeDebtStatuses()}catch(e){}}
-function scheduleCloudSave(){saveLocalState();if(!supabaseClient||!currentUserId)return;clearTimeout(stateSaveTimer);stateSaveTimer=setTimeout(()=>{saveCloudState().catch(()=>{})},250)}
+function scheduleCloudSave(){
+  saveLocalState(); // Sofort lokal speichern – niemals verlieren
+  if(!supabaseClient||!currentUserId)return;
+  clearTimeout(stateSaveTimer);
+  // 2 Sekunden Debounce – danach sicher in Cloud speichern
+  stateSaveTimer=setTimeout(()=>{saveCloudState().catch(()=>{})},2000);
+}
+// Beim Tab schließen/aktualisieren: sofort speichern, nicht warten
+window.addEventListener("beforeunload",()=>{
+  if(supabaseClient&&currentUserId){
+    // Synchroner localStorage Save ist immer sicher
+    saveLocalState();
+    // Async cloud save als "fire and forget" beim Schließen
+    saveCloudState().catch(()=>{});
+
+// ── Auto-Logout nach Inaktivität ─────────────────────────────────────────
+const AUTO_LOGOUT_MS = 30 * 60 * 1000; // 30 Minuten
+const AUTO_LOGOUT_WARN_MS = 28 * 60 * 1000; // Warnung nach 28 Minuten
+let autoLogoutTimer = null;
+let autoLogoutWarnTimer = null;
+let autoLogoutWarnShown = false;
+
+function resetAutoLogout(){
+  if(!user.loggedIn) return;
+  clearTimeout(autoLogoutTimer);
+  clearTimeout(autoLogoutWarnTimer);
+  autoLogoutWarnShown = false;
+  
+  autoLogoutWarnTimer = setTimeout(()=>{
+    if(!user.loggedIn) return;
+    autoLogoutWarnShown = true;
+    flash("⚠️ Du wirst in 2 Minuten automatisch ausgeloggt.");
+  }, AUTO_LOGOUT_WARN_MS);
+  
+  autoLogoutTimer = setTimeout(async()=>{
+    if(!user.loggedIn) return;
+    flash("🔒 Automatisch ausgeloggt (Inaktivität).");
+    await logoutUser();
+  }, AUTO_LOGOUT_MS);
+}
+
+// Activity Events zurücksetzen
+["mousemove","keydown","click","touchstart","scroll"].forEach(ev=>{
+  document.addEventListener(ev, ()=>{ if(user.loggedIn) resetAutoLogout(); }, {passive:true});
+});
+
+  }
+});
 function readJsonLocal(key,fallback){try{const raw=localStorage.getItem(key);if(!raw)return fallback;const parsed=JSON.parse(raw);return parsed??fallback}catch(e){return fallback}}
 async function migrateLegacyLocalData(authUser){
   if(!supabaseClient||!currentUserId)return;
@@ -575,6 +649,7 @@ async function completeLoginFromSession(sessionUser,isNewReg=false){
   currentUserId=sessionUser.id;
   await loadCloudProfile(currentUserId,sessionUser);
   await migrateLegacyLocalData(sessionUser);
+  resetAutoLogout(); // Auto-Logout Timer starten
   // Set 30-day trial for new registrations if not yet set
   if(isNewReg&&!user.trialEnd){
     const trialEnd=new Date();trialEnd.setDate(trialEnd.getDate()+30);
@@ -1635,18 +1710,53 @@ async function confirmDeleteAccount(){
   if(!input||input!==expected){flash("E-Mail stimmt nicht überein ✗");return;}
   closeModal();
   flash("Account wird gelöscht…");
+  
+  let authDeleted = false;
   try{
-    if(window.supabase&&currentUserId){
-      await supabase.from("profiles").delete().eq("id",currentUserId);
-      await supabase.from("app_state").delete().eq("user_id",currentUserId);
-      try{await supabase.rpc("delete_user")}catch(e){}
-      await supabase.auth.signOut();
+    if(supabaseClient&&currentUserId){
+      const uid = currentUserId;
+      
+      // 1. Profil- und App-Daten löschen (mit korrekten Tabellennamen)
+      await Promise.all([
+        supabaseClient.from("user_profiles").delete().eq("id", uid),
+        supabaseClient.from("app_state").delete().eq("user_id", uid),
+      ]);
+      
+      // 2. Auth-User über hyper-api Edge Function löschen
+      // (nur die Edge Function mit Service Role Key kann auth.users löschen)
+      try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        const res = await fetch(
+          "https://kdbuduwztmxxykfvqbie.supabase.co/functions/v1/hyper-api",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtkYnVkdXd6dG14eHlrZnZxYmllIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzk5MDc1NzAsImV4cCI6MjA1NTQ4MzU3MH0.bGVL8kkRdZ_RRE6sElUWLYQsKb3j9QLTRSXqcrnXTHI",
+              "x-master-secret": "planavo-master-2026"
+            },
+            body: JSON.stringify({ action: "delete_user", user_id: uid })
+          }
+        );
+        if(res.ok) authDeleted = true;
+      } catch(e){ console.warn("Edge Function delete fehlgeschlagen:", e); }
+      
+      // 3. Ausloggen
+      await supabaseClient.auth.signOut();
     }
   }catch(e){console.error("Delete error:",e);}
+  
+  // 4. Lokalen State komplett löschen
   try{localStorage.clear();sessionStorage.clear();}catch(e){}
   debts=[];contracts=[];budgetItems=[];
-  user={loggedIn:false,name:"",firstName:"",lastName:"",email:"",plan:"basic",addressStreet:"",addressZip:"",addressCity:"",phone:""};
-  setTimeout(()=>{flash("Account gelöscht. Auf Wiedersehen!");currentPage="dashboard";renderNav();renderPage();},800);
+  currentUserId=null;
+  user={loggedIn:false,name:"",firstName:"",lastName:"",email:"",plan:"Basis",addressStreet:"",addressZip:"",addressCity:"",phone:""};
+  
+  // 5. Feedback
+  const msg = authDeleted 
+    ? "Account vollständig gelöscht. Auf Wiedersehen!" 
+    : "Daten gelöscht. Auf Wiedersehen! (Login-Account wird vom System entfernt)";
+  setTimeout(()=>{flash(msg);showAuthPage("login");},500);
 }
 
 function dashContractWidget(){
@@ -5387,14 +5497,44 @@ function buildMonthlyChecklistData(month=currentBudgetMonth){
   debts.filter(d=>d.paid<d.original).forEach(d=>{
     const ps=getPaymentStatus(d);
     const remaining=Math.max(d.original-d.paid,0);
-    const dueDay=((d.due||"").split("-")[2]||"01").padStart(2,"0");
-    const pDate=`${month}-${dueDay}`;
+    // Use effDue to get the next valid due date, then adjust to current month if needed
+    let effectiveDate=effDue(d)||d.due||"";
+    if(effectiveDate){
+      // If effective date is in future months, backtrack to current month
+      while(effectiveDate>monthEnd){
+        effectiveDate=addMonthsISO(effectiveDate,-1);
+      }
+      // If effective date is way in the past but we want current month for active plan?
+      // Actually, if it's overdue, we want to show the overdue date.
+      // If it's a future installment (ratenplan_aktiv), we want the date in this month.
+      if(ps==="ratenplan_aktiv" && effectiveDate < `${month}-01`){
+         // It's an installment, should be due this month
+         // But wait, if it's overdue, it stays overdue.
+         // If it is 'ok' but previous month?
+         // Let's stick to the heuristic: for active plans, show date in this month.
+         // But use the day from effectiveDate (which comes from effDue -> stable)
+         const day=effectiveDate.split("-")[2];
+         effectiveDate=`${month}-${day}`;
+      }
+    } else {
+       // Fallback
+       const dueDay=((d.due||"").split("-")[2]||"01").padStart(2,"0");
+       effectiveDate=`${month}-${dueDay}`;
+    }
+
     const hint=d.iban_hint||"";
     const iban=d.bankIban||"";
     const enc=d.iban_enc||"";
-    if(ps==="ratenplan_aktiv"&&(d.rate||0)>0)rows.push({title:d.name,creditor:d.creditorName||d.bankName||d.name,amount:Math.min(d.rate||0,remaining),iban,iban_enc:enc,iban_hint:hint,bic:d.bankBic||"",ref:d.bankRef||"",due:pDate});
-    if(ps==="faellig_einmalig"&&(d.due||"").startsWith(month))rows.push({title:d.name,creditor:d.creditorName||d.bankName||d.name,amount:remaining,iban,iban_enc:enc,iban_hint:hint,bic:d.bankBic||"",ref:d.bankRef||"",due:d.due});
-    if(ps==="ueberfaellig"&&((d.due||"")<=monthEnd))rows.push({title:d.name,creditor:d.creditorName||d.bankName||d.name,amount:remaining,iban,iban_enc:enc,iban_hint:hint,bic:d.bankBic||"",ref:d.bankRef||"",due:d.due});
+    const common={title:d.name,creditor:d.creditorName||d.bankName||d.name,amount:Math.min(d.rate||0,remaining),remaining:remaining,iban,iban_enc:enc,iban_hint:hint,bic:d.bankBic||"",ref:d.bankRef||"",due:effectiveDate};
+
+    if(ps==="ratenplan_aktiv"&&(d.rate||0)>0)rows.push(common);
+    else if(ps==="faellig_einmalig"&&(d.due||"").startsWith(month))rows.push({...common,amount:remaining}); // Full amount for one-time
+    else if(ps==="ueberfaellig"&&((d.due||"")<=monthEnd))rows.push({...common,amount:remaining});
+    else if(ps==="keine_zahlung_faellig"&&getClarificationStatus(d)==="neu"){
+       if((d.due||"").startsWith(month) || (d.due||"")<=monthEnd) {
+          rows.push({...common, amount: remaining > 0 ? remaining : (d.rate||0)});
+       }
+    }
   });
   return rows.sort((a,b)=>new Date(a.due)-new Date(b.due));
 }
@@ -5422,12 +5562,13 @@ function buildChecklistHTML(rows,month){
   .purpose{color:#64748b;font-size:11px;margin-top:2px;max-width:420px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .footer{display:flex;justify-content:space-between;color:#64748b;font-size:10px;margin-top:14px}
   @media print{.page{padding:0}}
-  </style></head><body><div class="page"><h1>Monatliche Zahlungs‑Checkliste</h1><p class="sub">${ml}</p><table><thead><tr><th class="check"></th><th>Empfänger</th><th>Fällig</th><th class="right">Betrag</th><th>IBAN</th><th>Verwendungszweck</th></tr></thead><tbody>`;
+  </style></head><body><div class="page"><h1>Monatliche Zahlungs‑Checkliste</h1><p class="sub">${ml}</p><table><thead><tr><th class="check"></th><th>Empfänger</th><th>Fällig</th><th class="right">Rate</th><th class="right">Offen</th><th>IBAN</th><th>Verwendungszweck</th></tr></thead><tbody>`;
   const rowsHtml=rows.map(r=>{const ibanShown=r.iban?formatIbanSpaced(r.iban):(r.iban_hint?maskFromHint(r.iban_hint):"–");return `<tr>
     <td class="check">☐</td>
     <td><strong>${r.creditor}</strong><div class="purpose">${r.title}</div></td>
     <td><span class="chip date">${fD(r.due)}</span></td>
     <td class="right mono">${fmt(r.amount)}</td>
+    <td class="right mono" style="color:#64748b">${fmt(r.remaining)}</td>
     <td class="mono"><span class="chip iban">${ibanShown}</span></td>
     <td>${r.ref||"–"}</td>
   </tr>`}).join("");
