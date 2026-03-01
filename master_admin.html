@@ -61,6 +61,7 @@ select option{background:var(--bgC);color:var(--t)}
 <script>
 const SUPABASE_URL="https://kdbuduwztmxxykfvqbie.supabase.co";
 const SUPABASE_ANON_KEY="sb_publishable_ZZpjQ4Lqcqd2uVpGrSthcQ_nnCYSGPv";
+const MASTER_SECRET="planavo-master-2026"; // Muss mit MASTER_SECRET Secret in Supabase übereinstimmen
 const MASTER_USERNAME="master";
 const MASTER_AUTH_EMAIL="master@ratenova.local";
 
@@ -135,9 +136,6 @@ let masterState={loggedIn:false,tab:"stats",users:[],states:[],selectedUserId:nu
 // Das umgeht RLS und erlaubt echte Admin-Operationen auf auth.users
 async function callMasterAPI(action, params={}) {
   if (!supabaseClient) throw new Error("Supabase nicht verbunden");
-  const { data: { session } } = await supabaseClient.auth.getSession();
-  if (!session) throw new Error("Keine aktive Session");
-  
   let res, data;
   try {
     res = await fetch(
@@ -146,8 +144,7 @@ async function callMasterAPI(action, params={}) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": "Bearer " + session.access_token,
-          "apikey": "sb_publishable_ZZpjQ4Lqcqd2uVpGrSthcQ_nnCYSGPv"
+          "x-master-secret": MASTER_SECRET
         },
         body: JSON.stringify({ action, ...params })
       }
