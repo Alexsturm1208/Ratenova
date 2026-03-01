@@ -285,7 +285,14 @@ function setStatus(prefix,kind,value){const input=document.getElementById(`${pre
 function autoUpdateDebtStatuses(d,opt={}){if(!d)return;const respectManual=!!opt.respectManual;const cs=getClarificationStatus(d);if(d.paid>=d.original){d.paymentStatus="bezahlt";if(cs!=="abgelehnt_oder_streit")d.clarificationStatus="geschlossen";return;}if(respectManual&&paymentMeta[d.paymentStatus])return;if(d.paymentStatus==="stundung_aktiv")return;if(d.rate>0){d.paymentStatus="ratenplan_aktiv";return;}if(["neu","in_pruefung","rueckfrage_offen","vereinbarung_in_verhandlung"].includes(cs)){d.paymentStatus="keine_zahlung_faellig";return;}const dueState=gS(d);d.paymentStatus=(dueState==="today"||dueState==="overdue")?"ueberfaellig":"faellig_einmalig";}
 function gT(){const o=debts.reduce((s,d)=>s+d.original,0),p=debts.reduce((s,d)=>s+d.paid,0),r=o-p,m=debts.filter(d=>d.paid<d.original).reduce((s,d)=>s+d.rate,0),sorted=[...debts].filter(d=>d.paid<d.original).sort((a,b)=>new Date(effDue(a)||a.due)-new Date(effDue(b)||b.due));return{o,p,r,m,pct:pc(p,o),next:sorted[0]||null}}
 function bdg(st){const s=sI[st]||sI.ok;return`<span class="badge" style="color:${s.c};background:${s.bg}"><span class="badge-dot" style="background:${s.c};box-shadow:0 0 6px ${s.c}"></span>${s.l}</span>`}
-function pb(p,h=4){return`<div class="pbar" style="height:${h}px"><div class="pbar-fill" style="width:${Math.min(p,100)}%"></div></div>`}
+function pb(p,h=4){
+  const pct=Math.min(Math.round(p),100);
+  const col=pct>=100?"var(--em)":pct>=60?"var(--em)":pct>=30?"var(--am)":"var(--co)";
+  return`<div style="display:flex;align-items:center;gap:8px">
+    <div class="pbar" style="height:${h}px;flex:1"><div class="pbar-fill" style="width:${pct}%;background:${col}"></div></div>
+    <span style="font-size:11px;color:var(--ts);font-weight:600;min-width:28px;text-align:right">${pct}%</span>
+  </div>`;
+}
 function addMonthsISO(ds,m=1){if(!ds)return ds;try{let[y,mo,da]=ds.split("-").map(Number);mo+=m;while(mo>12){mo-=12;y++}while(mo<1){mo+=12;y--}const last=new Date(y,mo,0).getDate();const d=Math.min(da,last);return`${y}-${String(mo).padStart(2,"0")}-${String(d).padStart(2,"0")}`}catch(e){return ds}}
 function normIban(s){try{return(String(s||"").replace(/[^A-Za-z0-9]/g,"").toUpperCase())}catch(e){return String(s||"")}}
 function formatIbanSpaced(s){const r=normIban(s);if(!r)return"";let out=[];for(let i=0;i<r.length;i+=4){out.push(r.slice(i,i+4))}return out.join(" ")}
@@ -2043,16 +2050,93 @@ function rDebts(){
     {id:"clarify",l:"Klärung",c:debts.filter(d=>["neu","in_pruefung","rueckfrage_offen","vereinbarung_in_verhandlung"].includes(getClarificationStatus(d))).length},
     {id:"done",l:"Erledigt",c:debts.filter(d=>d.paid>=d.original).length}
   ];
+
+  // Gefilterte Liste
   const list=debts.filter(d=>{
     if(currentFilter==="active")return d.paid<d.original;
     if(currentFilter==="clarify")return["neu","in_pruefung","rueckfrage_offen","vereinbarung_in_verhandlung"].includes(getClarificationStatus(d));
     if(currentFilter==="done")return d.paid>=d.original;
     return true;
   });
-  list.sort((a,b)=>{const ad=a&&a.due?new Date(a.due):null;const bd=b&&b.due?new Date(b.due):null;if(!ad&&!bd)return 0;if(!ad)return 1;if(!bd)return -1;return ad-bd;});
-  return`${limitBanner}<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:12px"><h1 style="font-size:24px;font-weight:800;margin:0">Alle Verbindlichkeiten</h1><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-outline btn-sm" onclick="exportChecklistPDF()">🖨️ PDF‑Checkliste</button><button class="btn btn-primary btn-sm" onclick="openAdd()" ${basicLimit?"disabled style=\"opacity:0.5;cursor:not-allowed;\"":""}>＋ Hinzufügen</button></div></div>
+
+  // Sortierung: Überfällige zuerst, dann nach Fälligkeitsdatum
+  list.sort((a,b)=>{
+    const sa=gS(a), sb=gS(b);
+    const prio={overdue:0,today:1,soon:2,ok:3,done:4};
+    const pa=prio[sa]??3, pb2=prio[sb]??3;
+    if(pa!==pb2)return pa-pb2;
+    const ad=a.due?new Date(a.due):null;
+    const bd=b.due?new Date(b.due):null;
+    if(!ad&&!bd)return 0;
+    if(!ad)return 1;
+    if(!bd)return -1;
+    return ad-bd;
+  });
+
+  // KPI-Zeile
+  const aktiv=debts.filter(d=>d.paid<d.original);
+  const gesamtOffen=aktiv.reduce((s,d)=>s+d.original-d.paid,0);
+  const gesamtRate=aktiv.reduce((s,d)=>s+d.rate,0);
+  const ueberfaellig=aktiv.filter(d=>gS(d)==="overdue"||gS(d)==="today").length;
+  const naechste=aktiv.sort((a,b)=>new Date(a.due||"9999")-new Date(b.due||"9999"))[0];
+  const naechsteDatum=naechste?(effDue(naechste)||naechste.due):null;
+
+  const kpiBar=aktiv.length>0?`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px">
+    <div style="background:var(--bgC);border:1px solid var(--b);border-radius:14px;padding:14px 16px">
+      <p style="font-size:11px;color:var(--tm);margin:0 0 4px;text-transform:uppercase;letter-spacing:0.5px">Gesamt offen</p>
+      <p style="font-size:20px;font-weight:800;font-family:'Bricolage Grotesque',sans-serif;margin:0;color:var(--co)">${fmt(gesamtOffen)}</p>
+    </div>
+    <div style="background:var(--bgC);border:1px solid var(--b);border-radius:14px;padding:14px 16px">
+      <p style="font-size:11px;color:var(--tm);margin:0 0 4px;text-transform:uppercase;letter-spacing:0.5px">Monatsrate</p>
+      <p style="font-size:20px;font-weight:800;font-family:'Bricolage Grotesque',sans-serif;margin:0;color:var(--am)">${fmt(gesamtRate)}</p>
+    </div>
+    <div style="background:var(--bgC);border:1px solid ${ueberfaellig>0?"var(--co)":"var(--b)"};border-radius:14px;padding:14px 16px">
+      <p style="font-size:11px;color:var(--tm);margin:0 0 4px;text-transform:uppercase;letter-spacing:0.5px">Nächste Fälligkeit</p>
+      <p style="font-size:${naechsteDatum?"15px":"20px"};font-weight:800;font-family:'Bricolage Grotesque',sans-serif;margin:0;color:${ueberfaellig>0?"var(--co)":"var(--t)"}">${naechsteDatum?fD(naechsteDatum):"–"}</p>
+    </div>
+  </div>`:"";
+
+  return`${limitBanner}
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:12px">
+    <h1 style="font-size:24px;font-weight:800;margin:0">Alle Verbindlichkeiten</h1>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-outline btn-sm" onclick="exportChecklistPDF()">🏦 Überweisungsliste</button>
+      <button class="btn btn-primary btn-sm" onclick="openAdd()" ${basicLimit?"disabled style=\"opacity:0.5;cursor:not-allowed;\"":""}>＋ Hinzufügen</button>
+    </div>
+  </div>
+  ${kpiBar}
   <div style="display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap">${fs.map(f=>`<button class="chip ${currentFilter===f.id?"active":""}" onclick="currentFilter='${f.id}';renderPage()">${f.l} (${f.c})</button>`).join("")}</div>
-  <div class="flex-col">${list.map(d=>{const nd=effDue(d),st=gS(d),p=pc(d.paid,d.original),dy=dU(nd||d.due),cs=getClarificationStatus(d),ps=getPaymentStatus(d);return`<div class="card clickable" onclick="openDetail(${d.id})" style="padding:18px"><div style="display:flex;align-items:center;gap:16px"><div style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,var(--bgE),var(--bgC));border:1px solid var(--b);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">${d.emoji}</div><div style="flex:1"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><p style="font-size:15px;font-weight:600;margin:0">${d.name}</p>${bdg(st)}</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">${statusBadge(clarificationMeta,cs,"Klärung")}${statusBadge(paymentMeta,ps,"Zahlung")}</div><div style="display:flex;gap:20px;margin-bottom:8px;flex-wrap:wrap"><span style="font-size:13px;color:var(--tm)">Offen: <strong style="color:var(--t)">${fmt(d.original-d.paid)}</strong></span><span style="font-size:13px;color:var(--tm)">Rate: <strong style="color:var(--t)">${fmt(d.rate)}/Mo</strong></span>${d.paid<d.original?`<span style="font-size:13px;color:var(--tm)">Fällig: <strong style="color:${dy<=2?"var(--co)":"var(--t)"}">${fD(nd||d.due)}</strong></span>`:""}</div>${pb(p,5)}</div><span style="color:var(--tf);font-size:22px;flex-shrink:0">›</span></div></div>`}).join("")}${list.length===0?'<div style="text-align:center;padding:48px 0"><p style="font-size:36px;margin:0 0 8px">✨</p><p style="font-size:16px;font-weight:600">Keine Verbindlichkeiten</p></div>':""}</div>`}
+  <div class="flex-col">${list.map(d=>{
+    const nd=effDue(d),st=gS(d),p=pc(d.paid,d.original),dy=dU(nd||d.due),cs=getClarificationStatus(d),ps=getPaymentStatus(d);
+    const isOverdue=dy<0&&d.paid<d.original;
+    const isToday=dy===0&&d.paid<d.original;
+    const borderCol=isOverdue?"var(--co)":isToday?"var(--am)":"transparent";
+    const datumCol=isOverdue?"var(--co)":isToday?"var(--am)":dy<=7?"var(--am)":"var(--t)";
+    return`<div class="card clickable" onclick="openDetail(${d.id})" style="padding:18px;border-left:3px solid ${borderCol}">
+      <div style="display:flex;align-items:center;gap:16px">
+        <div style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,var(--bgE),var(--bgC));border:1px solid var(--b);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">${d.emoji}</div>
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <p style="font-size:15px;font-weight:600;margin:0">${d.name}</p>
+            ${bdg(st)}
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+            ${statusBadge(clarificationMeta,cs,"Klärung")}${statusBadge(paymentMeta,ps,"Zahlung")}
+          </div>
+          <div style="display:flex;gap:20px;margin-bottom:10px;flex-wrap:wrap">
+            <span style="font-size:13px;color:var(--tm)">Offen: <strong style="color:var(--co)">${fmt(d.original-d.paid)}</strong></span>
+            <span style="font-size:13px;color:var(--tm)">Rate: <strong style="color:var(--t)">${fmt(d.rate)}/Mo</strong></span>
+            ${d.paid<d.original?`<span style="font-size:13px;color:var(--tm)">Fällig: <strong style="color:${datumCol}">${isOverdue?"⚠️ ":""}${fD(nd||d.due)}</strong></span>`:""}
+          </div>
+          ${pb(p,5)}
+        </div>
+        <span style="color:var(--tf);font-size:22px;flex-shrink:0">›</span>
+      </div>
+    </div>`;
+  }).join("")}
+  ${list.length===0?`<div style="text-align:center;padding:48px 0"><p style="font-size:36px;margin:0 0 8px">✨</p><p style="font-size:16px;font-weight:600">Keine Verbindlichkeiten</p></div>`:""}
+  </div>`;
+}
 
 function rDet(){const d=debts.find(x=>x.id===selectedDebtId);if(!d)return`<div style="text-align:center;padding:60px"><button class="btn btn-primary" onclick="goTo('debts')">Zurück</button></div>`;const rem=d.original-d.paid,p=pc(d.paid,d.original),done=rem<=0,st=gS(d),mL=d.rate>0?Math.ceil(rem/d.rate):0;const hT=d.history.reduce((s,h)=>s+h.amount,0);
 return`<button onclick="goTo('debts')" style="background:none;border:none;color:var(--tm);font-size:13px;display:flex;align-items:center;gap:6px;margin-bottom:24px;padding:0">← Zurück</button><div class="grid2" style="gap:20px"><div>
