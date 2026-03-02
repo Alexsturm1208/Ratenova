@@ -2059,18 +2059,18 @@ function rDebts(){
     return true;
   });
 
-  // Sortierung: Überfällige zuerst, dann nach Fälligkeitsdatum
+  // Sortierung: immer nach nächstem Fälligkeitsdatum (effDue bevorzugt)
   list.sort((a,b)=>{
-    const sa=gS(a), sb=gS(b);
-    const prio={overdue:0,today:1,soon:2,ok:3,done:4};
-    const pa=prio[sa]??3, pb2=prio[sb]??3;
-    if(pa!==pb2)return pa-pb2;
-    const ad=a.due?new Date(a.due):null;
-    const bd=b.due?new Date(b.due):null;
+    const ad=effDue(a)||a.due||null;
+    const bd=effDue(b)||b.due||null;
+    // Erledigte ans Ende
+    const adone=a.paid>=a.original, bdone=b.paid>=b.original;
+    if(adone&&!bdone)return 1;
+    if(!adone&&bdone)return -1;
     if(!ad&&!bd)return 0;
     if(!ad)return 1;
     if(!bd)return -1;
-    return ad-bd;
+    return new Date(ad)-new Date(bd);
   });
 
   // KPI-Zeile
@@ -2100,7 +2100,14 @@ function rDebts(){
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:12px">
     <h1 style="font-size:24px;font-weight:800;margin:0">Alle Verbindlichkeiten</h1>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button class="btn btn-outline btn-sm" onclick="exportChecklistPDF()">🏦 Überweisungsliste</button>
+      <div style="position:relative;display:inline-block" id="pdfDropWrap">
+        <button class="btn btn-outline btn-sm" onclick="togglePdfDrop(event)">🖨️ PDF Export ▾</button>
+        <div id="pdfDropMenu" style="display:none;position:absolute;right:0;top:calc(100% + 6px);background:var(--bgC);border:1px solid var(--bl);border-radius:12px;padding:6px;min-width:210px;z-index:50;box-shadow:0 12px 32px rgba(0,0,0,0.4)">
+          <button onclick="exportUeberweisungPDF();closePdfDrop()" style="display:flex;align-items:center;gap:10px;width:100%;background:none;border:none;color:var(--t);padding:9px 12px;border-radius:8px;cursor:pointer;font-family:var(--ff-body);font-size:13px;text-align:left" onmouseover="this.style.background='var(--bgH)'" onmouseout="this.style.background='none'">🏦 <span><strong>Überweisungsliste</strong><br><span style="font-size:11px;color:var(--ts)">IBAN, Betrag, Fälligkeit</span></span></button>
+          <button onclick="exportStatusberichtPDF();closePdfDrop()" style="display:flex;align-items:center;gap:10px;width:100%;background:none;border:none;color:var(--t);padding:9px 12px;border-radius:8px;cursor:pointer;font-family:var(--ff-body);font-size:13px;text-align:left" onmouseover="this.style.background='var(--bgH)'" onmouseout="this.style.background='none'">📊 <span><strong>Statusbericht</strong><br><span style="font-size:11px;color:var(--ts)">Alle Verbindlichkeiten mit Fortschritt</span></span></button>
+          <button onclick="exportFaelligkeitPDF();closePdfDrop()" style="display:flex;align-items:center;gap:10px;width:100%;background:none;border:none;color:var(--t);padding:9px 12px;border-radius:8px;cursor:pointer;font-family:var(--ff-body);font-size:13px;text-align:left" onmouseover="this.style.background='var(--bgH)'" onmouseout="this.style.background='none'">📅 <span><strong>Fälligkeitsübersicht</strong><br><span style="font-size:11px;color:var(--ts)">Nächste 90 Tage</span></span></button>
+        </div>
+      </div>
       <button class="btn btn-primary btn-sm" onclick="openAdd()" ${basicLimit?"disabled style=\"opacity:0.5;cursor:not-allowed;\"":""}>＋ Hinzufügen</button>
     </div>
   </div>
@@ -5566,135 +5573,367 @@ ${activeDebts.some(d=>d.bankIban||d.iban_enc||d.iban_hint)?`<div class="section"
   setTimeout(()=>w.print(),400);
 }
 
-function buildMonthlyChecklistData(month=currentBudgetMonth){
-  const monthEnd=`${month}-31`;
-  const rows=[];
-  debts.filter(d=>d.paid<d.original).forEach(d=>{
-    const ps=getPaymentStatus(d);
-    const remaining=Math.max(d.original-d.paid,0);
-    // Use effDue to get the next valid due date, then adjust to current month if needed
-    let effectiveDate=effDue(d)||d.due||"";
-    if(effectiveDate){
-      // If effective date is in future months, backtrack to current month
-      while(effectiveDate>monthEnd){
-        effectiveDate=addMonthsISO(effectiveDate,-1);
-      }
-      // If effective date is way in the past but we want current month for active plan?
-      // Actually, if it's overdue, we want to show the overdue date.
-      // If it's a future installment (ratenplan_aktiv), we want the date in this month.
-      if(ps==="ratenplan_aktiv" && effectiveDate < `${month}-01`){
-         // It's an installment, should be due this month
-         // But wait, if it's overdue, it stays overdue.
-         // If it is 'ok' but previous month?
-         // Let's stick to the heuristic: for active plans, show date in this month.
-         // But use the day from effectiveDate (which comes from effDue -> stable)
-         const day=effectiveDate.split("-")[2];
-         effectiveDate=`${month}-${day}`;
-      }
-    } else {
-       // Fallback
-       const dueDay=((d.due||"").split("-")[2]||"01").padStart(2,"0");
-       effectiveDate=`${month}-${dueDay}`;
-    }
+// ── PDF EXPORT SYSTEM ──────────────────────────────────────────────────────
 
-    const hint=d.iban_hint||"";
-    const iban=d.bankIban||"";
-    const enc=d.iban_enc||"";
-    const common={title:d.name,creditor:d.creditorName||d.bankName||d.name,amount:Math.min(d.rate||0,remaining),remaining:remaining,iban,iban_enc:enc,iban_hint:hint,bic:d.bankBic||"",ref:d.bankRef||"",due:effectiveDate};
-
-    if(ps==="ratenplan_aktiv"&&(d.rate||0)>0)rows.push(common);
-    else if(ps==="faellig_einmalig"&&(d.due||"").startsWith(month))rows.push({...common,amount:remaining}); // Full amount for one-time
-    else if(ps==="ueberfaellig"&&((d.due||"")<=monthEnd))rows.push({...common,amount:remaining});
-    else if(ps==="keine_zahlung_faellig"&&getClarificationStatus(d)==="neu"){
-       if((d.due||"").startsWith(month) || (d.due||"")<=monthEnd) {
-          rows.push({...common, amount: remaining > 0 ? remaining : (d.rate||0)});
-       }
-    }
-  });
-  return rows.sort((a,b)=>new Date(a.due)-new Date(b.due));
-}
-
-function buildChecklistHTML(rows,month){
-  const dt=new Date(month+"-01");
-  const ml=dt.toLocaleDateString("de-DE",{month:"long",year:"numeric"});
-  const head=`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Monatliche Zahlungs‑Checkliste</title><style>
-  *{box-sizing:border-box}body{font-family:Segoe UI,Arial,sans-serif;color:#0f172a;margin:0;background:#fff}
-  .page{max-width:880px;margin:24px auto;padding:8px 24px}
-  h1{font-size:22px;margin:8px 0 4px}
-  .sub{color:#64748b;font-size:12px;margin:0 0 18px}
-  table{width:100%;border-collapse:separate;border-spacing:0 8px;font-size:12px}
-  thead th{font-size:11px;text-transform:uppercase;letter-spacing:0.9px;color:#334155;text-align:left;padding:0 10px}
-  tbody tr{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px}
-  tbody td{padding:10px;border-bottom:none;vertical-align:middle}
-  tbody td:first-child{border-radius:12px 0 0 12px}
-  tbody td:last-child{border-radius:0 12px 12px 0}
-  .right{text-align:right}
+// Gemeinsame CSS-Basis für alle PDFs (Querformat, professionell)
+function pdfBaseCSS(){
+  return `
+  *{box-sizing:border-box;margin:0;padding:0}
+  @page{size:A4 landscape;margin:14mm 16mm}
+  body{font-family:'Segoe UI',system-ui,Arial,sans-serif;color:#0f172a;background:#fff;font-size:11px}
+  .page{width:100%;padding:0}
+  /* Header */
+  .pdf-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;padding-bottom:14px;border-bottom:2px solid #052e16}
+  .pdf-brand{display:flex;align-items:center;gap:10px}
+  .pdf-brand-dot{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#166534,#4ade80);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:14px}
+  .pdf-brand-name{font-size:18px;font-weight:800;color:#052e16;letter-spacing:-0.3px}
+  .pdf-brand-sub{font-size:10px;color:#64748b;margin-top:1px}
+  .pdf-title-block{text-align:right}
+  .pdf-doc-type{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#16a34a;margin-bottom:4px}
+  .pdf-doc-title{font-size:20px;font-weight:800;color:#0f172a}
+  .pdf-doc-date{font-size:10px;color:#64748b;margin-top:2px}
+  /* KPI Bar */
+  .kpi-bar{display:grid;gap:12px;margin-bottom:18px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px 16px}
+  .kpi-item{text-align:center}
+  .kpi-label{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#64748b;font-weight:700;margin-bottom:3px}
+  .kpi-val{font-size:17px;font-weight:800;color:#0f172a}
+  .kpi-val.red{color:#dc2626}
+  .kpi-val.green{color:#16a34a}
+  .kpi-val.amber{color:#d97706}
+  /* Table */
+  table{width:100%;border-collapse:collapse;font-size:10.5px}
+  thead tr{background:#052e16}
+  thead th{color:#fff;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:9px 10px;text-align:left}
+  thead th.right{text-align:right}
+  thead th.center{text-align:center}
+  tbody tr{border-bottom:1px solid #f1f5f9}
+  tbody tr:nth-child(even){background:#f8fafc}
+  tbody tr:hover{background:#f0fdf4}
+  tbody td{padding:8px 10px;vertical-align:middle}
+  tbody td.right{text-align:right}
+  tbody td.center{text-align:center}
   .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:0.3px}
-  .check{width:28px;text-align:center}
-  .chip{display:inline-block;padding:3px 8px;border-radius:10px;background:#e2e8f0;color:#0f172a;font-weight:700;font-size:10px}
-  .chip.date{background:#dcfce7;color:#065f46}
-  .chip.iban{background:#eef2ff;color:#3730a3}
-  .purpose{color:#64748b;font-size:11px;margin-top:2px;max-width:420px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .footer{display:flex;justify-content:space-between;color:#64748b;font-size:10px;margin-top:14px}
-  @media print{.page{padding:0}}
-  </style></head><body><div class="page"><h1>Monatliche Zahlungs‑Checkliste</h1><p class="sub">${ml}</p><table><thead><tr><th class="check"></th><th>Empfänger</th><th>Fällig</th><th class="right">Rate</th><th class="right">Offen</th><th>IBAN</th><th>Verwendungszweck</th></tr></thead><tbody>`;
-  const rowsHtml=rows.map(r=>{const ibanShown=r.iban?formatIbanSpaced(r.iban):(r.iban_hint?maskFromHint(r.iban_hint):"–");return `<tr>
-    <td class="check">☐</td>
-    <td><strong>${r.creditor}</strong><div class="purpose">${r.title}</div></td>
-    <td><span class="chip date">${fD(r.due)}</span></td>
-    <td class="right mono">${fmt(r.amount)}</td>
-    <td class="right mono" style="color:#64748b">${fmt(r.remaining)}</td>
-    <td class="mono"><span class="chip iban">${ibanShown}</span></td>
-    <td>${r.ref||"–"}</td>
-  </tr>`}).join("");
-  const foot=`</tbody></table><div class="footer"><span>${rows.length} Zahlung${rows.length!==1?"en":""}</span><span>Erstellt am ${new Date().toLocaleDateString("de-DE")}</span></div></div></body></html>`;
-  return head+rowsHtml+foot;
+  .bold{font-weight:700}
+  .muted{color:#94a3b8}
+  .sub-text{font-size:9px;color:#94a3b8;margin-top:1px}
+  /* Badges */
+  .badge{display:inline-block;padding:2px 7px;border-radius:6px;font-size:9px;font-weight:700;letter-spacing:0.3px}
+  .badge-green{background:#dcfce7;color:#166534}
+  .badge-red{background:#fee2e2;color:#991b1b}
+  .badge-amber{background:#fef3c7;color:#92400e}
+  .badge-blue{background:#dbeafe;color:#1e40af}
+  .badge-gray{background:#f1f5f9;color:#475569}
+  /* Progress bar */
+  .prog-wrap{display:flex;align-items:center;gap:6px}
+  .prog-bar{flex:1;height:6px;background:#e2e8f0;border-radius:3px;overflow:hidden;min-width:60px}
+  .prog-fill{height:100%;border-radius:3px}
+  .prog-pct{font-size:10px;font-weight:700;min-width:30px;text-align:right}
+  /* Checkbox */
+  .cb{width:14px;height:14px;border:2px solid #cbd5e1;border-radius:3px;display:inline-block}
+  /* Footer */
+  .pdf-footer{display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding-top:10px;border-top:1px solid #e2e8f0;font-size:9px;color:#94a3b8}
+  .pdf-footer strong{color:#475569}
+  @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+  `;
 }
 
-async function exportChecklistPDF(){
-  const month=currentBudgetMonth;
-  const rows=buildMonthlyChecklistData(month);
-  if(rows.length===0){flash("Keine fälligen Zahlungen für diesen Monat");return;}
-  const dt=new Date(month+"-01");
-  const ml=dt.toLocaleDateString("de-DE",{month:"long",year:"numeric"});
-  // Resolve IBANs: prefer Klartext; wenn verschlüsselt, entschlüsseln
-  const resolvedRows=await Promise.all(rows.map(async r=>{
+function pdfHeader(docType, docTitle, subtitle){
+  const now = new Date().toLocaleDateString("de-DE",{day:"2-digit",month:"long",year:"numeric"});
+  return `
+  <div class="pdf-header">
+    <div class="pdf-brand">
+      <div class="pdf-brand-dot">P</div>
+      <div><div class="pdf-brand-name">Planavo</div><div class="pdf-brand-sub">Deine Finanzen im Blick</div></div>
+    </div>
+    <div class="pdf-title-block">
+      <div class="pdf-doc-type">${docType}</div>
+      <div class="pdf-doc-title">${docTitle}</div>
+      <div class="pdf-doc-date">${subtitle} · Erstellt am ${now}</div>
+    </div>
+  </div>`;
+}
+
+function openPDF(html){
+  const w = window.open("about:blank","_blank");
+  if(!w){flash("Bitte Pop‑ups erlauben ⚠️");return;}
+  w.document.write(html);
+  w.document.close();
+  setTimeout(()=>w.print(), 400);
+}
+
+// ── 1. ÜBERWEISUNGSLISTE ───────────────────────────────────────────────────
+function buildUeberweisungData(){
+  // Direkt effDue(d) || d.due – keine Datum-Manipulation, exakt wie die App zeigt
+  return debts
+    .filter(d=>d.paid<d.original)
+    .map(d=>{
+      const remaining = Math.max(d.original - d.paid, 0);
+      const due = effDue(d) || d.due || "";
+      const ps = getPaymentStatus(d);
+      const amount = ps==="ratenplan_aktiv" ? Math.min(d.rate||0, remaining) : remaining;
+      return {
+        name: d.name, emoji: d.emoji,
+        creditor: d.creditorName||d.bankName||d.name,
+        due, amount, remaining,
+        rate: d.rate||0,
+        iban: d.bankIban||"", iban_enc: d.iban_enc||"", iban_hint: d.iban_hint||"",
+        bic: d.bankBic||"", ref: d.bankRef||"",
+        ps, status: gS(d)
+      };
+    })
+    .filter(r=>r.amount>0)
+    .sort((a,b)=>new Date(a.due||"9999")-new Date(b.due||"9999"));
+}
+
+async function exportUeberweisungPDF(){
+  let rows = buildUeberweisungData();
+  if(!rows.length){flash("Keine offenen Verbindlichkeiten");return;}
+  // IBAN entschlüsseln
+  rows = await Promise.all(rows.map(async r=>{
     if(r.iban&&r.iban.trim()) return r;
     if(r.iban_enc&&r.iban_enc.startsWith("v1:")){
-      const plain=await decryptText(r.iban_enc);
-      return {...r,iban:plain};
+      try{const plain=await decryptText(r.iban_enc);return{...r,iban:plain};}catch(e){}
     }
     return r;
   }));
-  if(window.supabaseClient&&window.supabaseClient.functions&&typeof window.supabaseClient.functions.invoke==="function"){
-    try{
-      const payload={month,monthLabel:ml,user:{name:user.name||""},rows:resolvedRows};
-      const {data,error}=await window.supabaseClient.functions.invoke("checklist-pdf",{body:payload});
-      if(error)throw error;
-      const blob=data instanceof Blob?data:new Blob([data],{type:"application/pdf"});
-      const url=URL.createObjectURL(blob);
-      const w=window.open(url,"_blank");
-      if(!w)flash("PDF konnte nicht geöffnet werden");
-      return;
-    }catch(e){
-      const html=buildChecklistHTML(resolvedRows,month);
-      const w=window.open("about:blank","_blank");
-      if(!w){flash("Bitte Pop‑ups erlauben");return;}
-      w.document.write(html);
-      w.document.close();
-      setTimeout(()=>w.print(),300);
-      return;
-    }
-  }else{
-    const html=buildChecklistHTML(resolvedRows,month);
-    const w=window.open("about:blank","_blank");
-    if(!w){flash("Bitte Pop‑ups erlauben");return;}
-    w.document.write(html);
-    w.document.close();
-    setTimeout(()=>w.print(),300);
-  }
+  const today = new Date().toISOString().slice(0,10);
+  const gesamtRate = rows.reduce((s,r)=>s+r.amount,0);
+  const ueberfaellig = rows.filter(r=>r.due&&r.due<today).length;
+  const kpiCols = `grid-template-columns:repeat(4,1fr)`;
+  const html = `<!doctype html><html><head><meta charset="utf-8"><title>Überweisungsliste</title><style>${pdfBaseCSS()}</style></head><body><div class="page">
+  ${pdfHeader("Verbindlichkeiten","Überweisungsliste",`${rows.length} Positionen`)}
+  <div class="kpi-bar" style="${kpiCols}">
+    <div class="kpi-item"><div class="kpi-label">Positionen</div><div class="kpi-val">${rows.length}</div></div>
+    <div class="kpi-item"><div class="kpi-label">Gesamt fällig</div><div class="kpi-val red">€ ${rows.reduce((s,r)=>s+r.amount,0).toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})}</div></div>
+    <div class="kpi-item"><div class="kpi-label">Überfällig</div><div class="kpi-val ${ueberfaellig>0?"red":"green"}">${ueberfaellig}</div></div>
+    <div class="kpi-item"><div class="kpi-label">Gesamt offen</div><div class="kpi-val">${rows.reduce((s,r)=>s+r.remaining,0).toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})} €</div></div>
+  </div>
+  <table>
+    <thead><tr>
+      <th class="center" style="width:32px">✓</th>
+      <th>Empfänger / Bezeichnung</th>
+      <th>Fälligkeit</th>
+      <th>Status</th>
+      <th class="right">Rate / Betrag</th>
+      <th class="right">Noch offen</th>
+      <th>IBAN</th>
+      <th>BIC</th>
+      <th>Verwendungszweck</th>
+    </tr></thead>
+    <tbody>${rows.map(r=>{
+      const ibanShown = r.iban ? formatIbanSpaced(r.iban) : (r.iban_hint ? maskFromHint(r.iban_hint) : "–");
+      const isOver = r.due && r.due < today;
+      const isToday = r.due && r.due === today;
+      const dateBadge = isOver ? `<span class="badge badge-red">${fD(r.due)} ⚠</span>`
+        : isToday ? `<span class="badge badge-amber">${fD(r.due)}</span>`
+        : r.due ? `<span class="badge badge-green">${fD(r.due)}</span>` : `<span class="muted">–</span>`;
+      const stMap={overdue:"badge-red",today:"badge-amber",soon:"badge-amber",ok:"badge-green",done:"badge-green"};
+      const stLabel={overdue:"Überfällig",today:"Heute fällig",soon:"Bald fällig",ok:"Aktuell",done:"Erledigt"};
+      return `<tr>
+        <td class="center"><span class="cb"></span></td>
+        <td><span class="bold">${r.creditor}</span><div class="sub-text">${r.emoji} ${r.name}</div></td>
+        <td>${dateBadge}</td>
+        <td><span class="badge ${stMap[r.status]||'badge-gray'}">${stLabel[r.status]||r.status}</span></td>
+        <td class="right bold mono">€ ${r.amount.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+        <td class="right mono muted">€ ${r.remaining.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+        <td class="mono" style="font-size:9.5px">${ibanShown}</td>
+        <td class="mono muted">${r.bic||"–"}</td>
+        <td style="font-size:9.5px">${r.ref||"–"}</td>
+      </tr>`;
+    }).join("")}</tbody>
+    <tfoot><tr style="background:#f8fafc;border-top:2px solid #052e16">
+      <td colspan="4" class="bold" style="padding:8px 10px">Gesamt</td>
+      <td class="right bold mono" style="padding:8px 10px;color:#dc2626">€ ${rows.reduce((s,r)=>s+r.amount,0).toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+      <td colspan="4"></td>
+    </tr></tfoot>
+  </table>
+  <div class="pdf-footer">
+    <span>Planavo – Vertraulich · Nur für internen Gebrauch</span>
+    <span><strong>${user.name||user.email||""}</strong> · ${new Date().toLocaleDateString("de-DE")}</span>
+  </div>
+</div></body></html>`;
+  openPDF(html);
 }
 
+// ── 2. STATUSBERICHT ──────────────────────────────────────────────────────
+async function exportStatusberichtPDF(){
+  const all = [...debts].sort((a,b)=>{
+    const prio={overdue:0,today:1,soon:2,ok:3,done:4};
+    return (prio[gS(a)]??3)-(prio[gS(b)]??3);
+  });
+  if(!all.length){flash("Keine Verbindlichkeiten vorhanden");return;}
+  const gesamtOriginal = all.reduce((s,d)=>s+d.original,0);
+  const gesamtPaid = all.reduce((s,d)=>s+d.paid,0);
+  const gesamtOffen = gesamtOriginal - gesamtPaid;
+  const pctGes = gesamtOriginal>0 ? Math.round(gesamtPaid/gesamtOriginal*100) : 0;
+  const aktiv = all.filter(d=>d.paid<d.original);
+  const erledigt = all.filter(d=>d.paid>=d.original);
+  const stMap={overdue:"badge-red",today:"badge-amber",soon:"badge-amber",ok:"badge-green",done:"badge-green"};
+  const stLabel={overdue:"Überfällig",today:"Heute fällig",soon:"Bald fällig",ok:"Aktuell",done:"Erledigt"};
+  const progColor=(p)=>p>=80?"#16a34a":p>=50?"#d97706":"#dc2626";
+  const html = `<!doctype html><html><head><meta charset="utf-8"><title>Statusbericht Verbindlichkeiten</title><style>${pdfBaseCSS()}</style></head><body><div class="page">
+  ${pdfHeader("Verbindlichkeiten","Statusbericht",`${all.length} Positionen gesamt`)}
+  <div class="kpi-bar" style="grid-template-columns:repeat(5,1fr)">
+    <div class="kpi-item"><div class="kpi-label">Gesamt Schulden</div><div class="kpi-val">€ ${gesamtOriginal.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})}</div></div>
+    <div class="kpi-item"><div class="kpi-label">Bereits bezahlt</div><div class="kpi-val green">€ ${gesamtPaid.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})}</div></div>
+    <div class="kpi-item"><div class="kpi-label">Noch offen</div><div class="kpi-val red">€ ${gesamtOffen.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})}</div></div>
+    <div class="kpi-item"><div class="kpi-label">Ø Tilgung</div><div class="kpi-val ${pctGes>=50?"green":"amber"}">${pctGes} %</div></div>
+    <div class="kpi-item"><div class="kpi-label">Erledigt</div><div class="kpi-val green">${erledigt.length} / ${all.length}</div></div>
+  </div>
+  <table>
+    <thead><tr>
+      <th>Bezeichnung</th>
+      <th>Klärungsstatus</th>
+      <th>Zahlungsstatus</th>
+      <th>Fälligkeit</th>
+      <th class="right">Gesamt</th>
+      <th class="right">Bezahlt</th>
+      <th class="right">Offen</th>
+      <th style="width:140px">Fortschritt</th>
+      <th class="right">Rate/Mo</th>
+    </tr></thead>
+    <tbody>${all.map(d=>{
+      const rem = Math.max(d.original-d.paid,0);
+      const pct = d.original>0?Math.round(d.paid/d.original*100):0;
+      const due = effDue(d)||d.due||"";
+      const st = gS(d);
+      const cs = getClarificationStatus(d);
+      const csMeta = clarificationMeta[cs]||{l:cs};
+      const psMeta = paymentMeta[getPaymentStatus(d)]||{l:getPaymentStatus(d)};
+      const today2 = new Date().toISOString().slice(0,10);
+      const isOver = due && due < today2 && d.paid<d.original;
+      return `<tr>
+        <td><span class="bold">${d.emoji} ${d.name}</span>${d.creditorName?`<div class="sub-text">${d.creditorName}</div>`:""}</td>
+        <td><span class="badge badge-gray">${csMeta.l}</span></td>
+        <td><span class="badge ${stMap[st]||'badge-gray'}">${psMeta.l}</span></td>
+        <td>${due?`<span class="badge ${isOver?"badge-red":"badge-green"}">${fD(due)}</span>`:`<span class="muted">–</span>`}</td>
+        <td class="right mono">€ ${d.original.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+        <td class="right mono" style="color:#16a34a">€ ${d.paid.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+        <td class="right mono ${rem>0?"":"muted"}" style="${rem>0?"color:#dc2626":""}">€ ${rem.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+        <td>
+          <div class="prog-wrap">
+            <div class="prog-bar"><div class="prog-fill" style="width:${pct}%;background:${progColor(pct)}"></div></div>
+            <span class="prog-pct" style="color:${progColor(pct)}">${pct}%</span>
+          </div>
+        </td>
+        <td class="right mono muted">${d.rate>0?`€ ${d.rate.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})}`:"–"}</td>
+      </tr>`;
+    }).join("")}</tbody>
+    <tfoot><tr style="background:#f8fafc;border-top:2px solid #052e16">
+      <td colspan="4" class="bold" style="padding:8px 10px">Gesamt</td>
+      <td class="right bold mono" style="padding:8px 10px">€ ${gesamtOriginal.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+      <td class="right bold mono" style="padding:8px 10px;color:#16a34a">€ ${gesamtPaid.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+      <td class="right bold mono" style="padding:8px 10px;color:#dc2626">€ ${gesamtOffen.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+      <td colspan="2"></td>
+    </tr></tfoot>
+  </table>
+  <div class="pdf-footer">
+    <span>Planavo – Vertraulich · Nur für internen Gebrauch</span>
+    <span><strong>${user.name||user.email||""}</strong> · ${new Date().toLocaleDateString("de-DE")}</span>
+  </div>
+</div></body></html>`;
+  openPDF(html);
+}
+
+// ── 3. FÄLLIGKEITSÜBERSICHT (nächste 90 Tage) ─────────────────────────────
+async function exportFaelligkeitPDF(){
+  const today = new Date();
+  const todayStr = today.toISOString().slice(0,10);
+  const in90 = new Date(today); in90.setDate(today.getDate()+90);
+  const in90Str = in90.toISOString().slice(0,10);
+
+  // Alle aktiven Verbindlichkeiten mit effDue
+  const rows = debts
+    .filter(d=>d.paid<d.original)
+    .map(d=>{
+      const due = effDue(d)||d.due||"";
+      return {d, due, dy: due ? Math.ceil((new Date(due)-today)/86400000) : 9999};
+    })
+    .filter(r=>r.due <= in90Str) // nur nächste 90 Tage + überfällige
+    .sort((a,b)=>new Date(a.due||"9999")-new Date(b.due||"9999"));
+
+  if(!rows.length){flash("Keine Fälligkeiten in den nächsten 90 Tagen");return;}
+
+  // In Zeitfenster gruppieren
+  const overdue = rows.filter(r=>r.dy<0);
+  const thisWeek = rows.filter(r=>r.dy>=0&&r.dy<=7);
+  const thisMonth = rows.filter(r=>r.dy>7&&r.dy<=30);
+  const later = rows.filter(r=>r.dy>30);
+  const gesamtFaellig = rows.reduce((s,r)=>s+(r.d.rate>0?Math.min(r.d.rate,r.d.original-r.d.paid):r.d.original-r.d.paid),0);
+
+  const renderGroup=(title, color, items)=>{
+    if(!items.length) return "";
+    return `
+    <tr><td colspan="7" style="padding:10px 10px 4px;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:${color};background:#fff">${title} (${items.length})</td></tr>
+    ${items.map(({d,due,dy})=>{
+      const rem = Math.max(d.original-d.paid,0);
+      const amt = d.rate>0?Math.min(d.rate,rem):rem;
+      const pct = d.original>0?Math.round(d.paid/d.original*100):0;
+      const urgColor = dy<0?"#dc2626":dy<=7?"#d97706":dy<=30?"#0284c7":"#16a34a";
+      const daysLabel = dy<0?`${Math.abs(dy)} Tage überfällig`:dy===0?"Heute":dy===1?"Morgen":`In ${dy} Tagen`;
+      return `<tr>
+        <td><span class="bold">${d.emoji} ${d.name}</span>${d.creditorName?`<div class="sub-text">${d.creditorName}</div>`:""}</td>
+        <td><span class="badge" style="background:${urgColor}22;color:${urgColor}">${fD(due)}</span></td>
+        <td><span style="font-size:10px;font-weight:700;color:${urgColor}">${daysLabel}</span></td>
+        <td class="right bold mono" style="color:${urgColor}">€ ${amt.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+        <td class="right mono muted">€ ${rem.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+        <td>
+          <div class="prog-wrap">
+            <div class="prog-bar"><div class="prog-fill" style="width:${pct}%;background:${pct>=80?"#16a34a":pct>=50?"#d97706":"#dc2626"}"></div></div>
+            <span class="prog-pct">${pct}%</span>
+          </div>
+        </td>
+        <td class="mono muted" style="font-size:9px">${d.bankIban?formatIbanSpaced(d.bankIban):(d.iban_hint?maskFromHint(d.iban_hint):"–")}</td>
+      </tr>`;
+    }).join("")}`;
+  };
+
+  const html = `<!doctype html><html><head><meta charset="utf-8"><title>Fälligkeitsübersicht</title><style>${pdfBaseCSS()}</style></head><body><div class="page">
+  ${pdfHeader("Verbindlichkeiten","Fälligkeitsübersicht – Nächste 90 Tage",`${todayStr} bis ${in90Str}`)}
+  <div class="kpi-bar" style="grid-template-columns:repeat(5,1fr)">
+    <div class="kpi-item"><div class="kpi-label">Überfällig</div><div class="kpi-val ${overdue.length>0?"red":"green"}">${overdue.length}</div></div>
+    <div class="kpi-item"><div class="kpi-label">Diese Woche</div><div class="kpi-val amber">${thisWeek.length}</div></div>
+    <div class="kpi-item"><div class="kpi-label">Diesen Monat</div><div class="kpi-val">${thisMonth.length}</div></div>
+    <div class="kpi-item"><div class="kpi-label">Später (90 Tage)</div><div class="kpi-val">${later.length}</div></div>
+    <div class="kpi-item"><div class="kpi-label">Gesamt fällig</div><div class="kpi-val red">€ ${gesamtFaellig.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})}</div></div>
+  </div>
+  <table>
+    <thead><tr>
+      <th>Bezeichnung</th>
+      <th>Fälligkeitsdatum</th>
+      <th>Zeitraum</th>
+      <th class="right">Zu zahlen</th>
+      <th class="right">Gesamt offen</th>
+      <th style="width:130px">Tilgungsstand</th>
+      <th>IBAN</th>
+    </tr></thead>
+    <tbody>
+      ${renderGroup("⚠ Überfällig","#dc2626",overdue)}
+      ${renderGroup("⚡ Diese Woche (0–7 Tage)","#d97706",thisWeek)}
+      ${renderGroup("📅 Diesen Monat (8–30 Tage)","#0284c7",thisMonth)}
+      ${renderGroup("🗓 Nächste 90 Tage","#16a34a",later)}
+    </tbody>
+    <tfoot><tr style="background:#f8fafc;border-top:2px solid #052e16">
+      <td colspan="3" class="bold" style="padding:8px 10px">Gesamt fällig (90 Tage)</td>
+      <td class="right bold mono" style="padding:8px 10px;color:#dc2626">€ ${gesamtFaellig.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+      <td colspan="3"></td>
+    </tr></tfoot>
+  </table>
+  <div class="pdf-footer">
+    <span>Planavo – Vertraulich · Nur für internen Gebrauch</span>
+    <span><strong>${user.name||user.email||""}</strong> · ${new Date().toLocaleDateString("de-DE")}</span>
+  </div>
+</div></body></html>`;
+  openPDF(html);
+}
+
+// Legacy-Wrapper für alten Button
+async function exportChecklistPDF(){ await exportUeberweisungPDF(); }
+
+
+function togglePdfDrop(e){e.stopPropagation();const m=document.getElementById("pdfDropMenu");m.style.display=m.style.display==="none"?"block":"none"}
+function closePdfDrop(){const m=document.getElementById("pdfDropMenu");if(m)m.style.display="none"}
+document.addEventListener("click",closePdfDrop);
 
 function toggleDebtTracking(id){
   const d=debts.find(x=>x.id===id);
