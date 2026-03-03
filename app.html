@@ -184,7 +184,33 @@ select option{background:var(--bgC);color:var(--t)}
 .master-login{max-width:440px;margin:10vh auto 0}
 
 /* ── Responsive ── */
-@media(max-width:899px){.sidebar{display:none}.main{margin-left:0;padding:20px 16px 80px}.mobile-nav{display:flex}.grid2{grid-template-columns:1fr}.hero{padding:20px}}
+@media(max-width:899px){
+  .sidebar{display:none}
+  .main{margin-left:0;padding:16px 14px 90px}
+  .mobile-nav{display:flex}
+  .grid2{grid-template-columns:1fr}
+  .hero{padding:18px 16px}
+  .hero h1{font-size:28px !important}
+  .card{border-radius:14px;padding:16px}
+  /* Hero Dashboard auf Mobile verkleinern */
+  .hero>div>div:last-child{display:none} /* Ring ausblenden auf kleinen Screens */
+  /* KPI Zahlen kleiner */
+  h1[style*="font-size:32px"]{font-size:24px !important}
+  /* Mobile Nav Label kürzen */
+  .mobile-nav-btn{padding:6px 10px;min-width:0}
+  /* Karten-Grid auf Mobile */
+  [style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr !important}
+  [style*="grid-template-columns:repeat(3"]{grid-template-columns:1fr !important}
+  /* Settings Grid */
+  [style*="grid-template-columns:120px"]{grid-template-columns:1fr !important}
+  /* KPI Bar im Dashboard */
+  [style*="display:grid;grid-template-columns:repeat(3,1fr)"]{grid-template-columns:1fr 1fr !important}
+}
+@media(max-width:400px){
+  .main{padding:12px 10px 90px}
+  .mobile-nav-btn{padding:6px 6px;font-size:9px}
+  .card{padding:14px}
+}
 @media(max-width:920px){.auth-wrap{max-width:360px}.auth-logo img{max-width:280px}}
 @media(max-width:980px){.master-grid{grid-template-columns:1fr}}
 
@@ -1500,75 +1526,138 @@ function rPricing(){
 
 function rSettings(){
   if(!user.loggedIn){
-    return `<div class="card" style="text-align:center;padding:28px"><p style="font-size:18px;font-weight:700;margin:0 0 8px">Einstellungen</p><p style="font-size:13px;color:var(--tm);margin:0 0 14px">Bitte logge dich ein, um deine Benutzerdaten zu verwalten.</p><button class="btn btn-primary btn-sm" onclick="openLogin()">Anmelden</button></div>`;
+    return `<div style="text-align:center;padding:60px 20px">
+      <div style="font-size:48px;margin-bottom:16px">🔒</div>
+      <h2 style="font-size:20px;font-weight:800;margin:0 0 8px">Anmeldung erforderlich</h2>
+      <p style="font-size:14px;color:var(--tm);margin:0 0 20px">Bitte logge dich ein, um deine Einstellungen zu verwalten.</p>
+      <button class="btn btn-primary" onclick="openLogin()">Jetzt anmelden</button>
+    </div>`;
   }
   const trial=isTrialActive(),daysLeft=trialDaysLeft(),pro=isProPlan();
-  const manageSubBtn=pro&&!trial?`<div style="margin-bottom:14px"><button class="btn btn-outline btn-sm" onclick="if(window.Paddle&&paddleReady){Paddle.Retain&&Paddle.Retain.initCancellationFlow?Paddle.Retain.initCancellationFlow():window.open('https://customer.paddle.com','_blank')}else{window.open('https://customer.paddle.com','_blank')}">⚙ Abo verwalten / kündigen</button></div>`:"";
-  const planBanner=trial?`<div style="background:var(--amG);border:1px solid rgba(251,191,36,0.3);border-radius:14px;padding:14px 18px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:12px"><div style="display:flex;align-items:center;gap:10px"><span style="font-size:20px">⏰</span><div><p style="font-size:13px;font-weight:700;color:var(--am);margin:0">Pro-Testphase – noch ${daysLeft} Tage</p><p style="font-size:12px;color:var(--tm);margin:0">Danach wechselst du automatisch auf Basic.</p></div></div><button class="btn btn-sm" style="background:var(--am);color:#000;font-weight:700;white-space:nowrap" onclick="goTo('pricing')">Upgraden</button></div>`:!pro?`<div style="background:var(--bgE);border:1px solid var(--b);border-radius:14px;padding:14px 18px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:12px"><div style="display:flex;align-items:center;gap:10px"><span style="font-size:20px">🔓</span><div><p style="font-size:13px;font-weight:700;margin:0">Du nutzt den Basic-Plan</p><p style="font-size:12px;color:var(--tm);margin:0">Upgrade für unbegrenzte Features ab 4,99 €/Monat.</p></div></div><button class="btn btn-ghost btn-sm" onclick="openPaddleCheckout()">⭐ Upgrade auf Pro</button></div>`:"";
   const proSub=pro&&!trial;
-  return `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:12px"><h1 style="font-size:24px;font-weight:800;margin:0">Einstellungen</h1><span class="badge" style="background:var(--emG);color:var(--em)"><span class="badge-dot" style="background:var(--em)"></span>Konto</span></div>${planBanner}
+  const planBanner=trial
+    ?`<div style="background:var(--amG);border:1px solid rgba(251,191,36,0.3);border-radius:14px;padding:16px 18px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="width:40px;height:40px;border-radius:12px;background:rgba(251,191,36,0.15);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">⏰</div>
+          <div><p style="font-size:13px;font-weight:700;color:var(--am);margin:0">Pro-Testphase – noch ${daysLeft} Tag${daysLeft!==1?"e":""}</p><p style="font-size:12px;color:var(--tm);margin:2px 0 0">Danach wechselst du automatisch auf Basic.</p></div>
+        </div>
+        <button class="btn btn-sm" style="background:var(--am);color:#000;font-weight:700;white-space:nowrap" onclick="goTo('pricing')">Jetzt upgraden →</button>
+      </div>`
+    :!pro
+    ?`<div style="background:var(--bgC);border:1px solid var(--b);border-radius:14px;padding:16px 18px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="width:40px;height:40px;border-radius:12px;background:var(--emG);border:1px solid var(--ba);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🚀</div>
+          <div><p style="font-size:13px;font-weight:700;margin:0">Du nutzt den Basic-Plan</p><p style="font-size:12px;color:var(--tm);margin:2px 0 0">Upgrade für unbegrenzte Features · ab € 4,90/Monat</p></div>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="openPaddleCheckout()">⭐ Upgrade auf Pro</button>
+      </div>`
+    :"";
 
-  <div class="card" style="margin-bottom:14px;padding:14px 16px;background:var(--bgE)"><p style="font-size:12px;font-weight:700;color:var(--ts);margin:0 0 8px;text-transform:uppercase;letter-spacing:0.8px">Benutzerdaten</p><p style="font-size:13px;color:var(--tm);margin:0;line-height:1.6">Hier verwaltest du deine persönlichen Einstellungen wie Adresse und Kontaktdaten.</p></div>
-  <div class="card" style="padding:18px;margin-bottom:14px">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-      <div class="field"><label>Vorname</label><div class="input-wrap"><input id="setFirstName" value="${(user.firstName||"").replace(/"/g,'&quot;')}" placeholder="Max"></div></div>
-      <div class="field"><label>Nachname</label><div class="input-wrap"><input id="setLastName" value="${(user.lastName||"").replace(/"/g,'&quot;')}" placeholder="Mustermann"></div></div>
+  return `
+  <!-- Header -->
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px">
+    <h1 style="font-size:24px;font-weight:800;margin:0">Einstellungen</h1>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span style="font-size:12px;color:var(--ts)">${user.email||""}</span>
+      <span class="badge" style="background:${pro?"var(--emG)":"var(--bgE)"};color:${pro?"var(--em)":"var(--ts)"}">
+        <span class="badge-dot" style="background:${pro?"var(--em)":"var(--ts)"}"></span>${pro?"Pro":"Basic"}
+      </span>
     </div>
-    <div class="field"><label>E-Mail</label><div class="input-wrap"><input id="setEmail" value="${(user.email||"").replace(/"/g,'&quot;')}" readonly></div></div>
-    <div class="field"><label>Adresse</label><div class="input-wrap"><input id="setStreet" value="${(user.addressStreet||"").replace(/"/g,'&quot;')}" placeholder="Straße und Hausnummer"></div></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-      <div class="field"><label>PLZ</label><div class="input-wrap"><input id="setZip" value="${(user.addressZip||"").replace(/"/g,'&quot;')}" placeholder="12345"></div></div>
-      <div class="field"><label>Ort</label><div class="input-wrap"><input id="setCity" value="${(user.addressCity||"").replace(/"/g,'&quot;')}" placeholder="München"></div></div>
-    </div>
-    <div class="field"><label>Telefon</label><div class="input-wrap"><input id="setPhone" value="${(user.phone||"").replace(/"/g,'&quot;')}" placeholder="+49 ..."></div></div>
-    <button class="btn btn-primary" onclick="saveSettings()">✓ Einstellungen speichern</button>
   </div>
 
-  <div class="card" style="padding:18px;margin-bottom:14px">
-    <p style="font-size:12px;font-weight:700;color:var(--ts);margin:0 0 12px;text-transform:uppercase;letter-spacing:1px">Daten-Backup & Wiederherstellung</p>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
-      <button class="btn btn-primary btn-sm" onclick="downloadBackup()">Backup herunterladen</button>
-      <label class="btn btn-outline btn-sm" style="cursor:pointer">Backup wiederherstellen<input id="backupFileInput" type="file" accept="application/json" style="display:none" onchange="handleBackupFileChange(event)"></label>
-    </div>
-    <div id="snapshotList"><p style="font-size:12px;color:var(--tm);margin:0">Sicherungspunkte werden geladen…</p></div>
-  </div>
+  ${planBanner}
 
-  ${proSub?`
-  <div class="card" style="margin-bottom:14px;padding:0;overflow:hidden">
-    <div style="padding:14px 18px;background:var(--bgE);border-bottom:1px solid var(--b)">
-      <p style="font-size:12px;font-weight:700;color:var(--ts);margin:0;text-transform:uppercase;letter-spacing:0.8px">⭐ Aboverwaltung</p>
+  <!-- Profil -->
+  <div class="card" style="margin-bottom:16px;overflow:hidden;padding:0">
+    <div style="padding:14px 18px;background:var(--bgE);border-bottom:1px solid var(--b);display:flex;align-items:center;gap:8px">
+      <span style="font-size:16px">👤</span>
+      <p style="font-size:12px;font-weight:700;color:var(--ts);margin:0;text-transform:uppercase;letter-spacing:0.8px">Benutzerprofil</p>
     </div>
     <div style="padding:18px">
-      <div style="display:flex;align-items:center;gap:14px;padding:14px;border-radius:12px;background:var(--emG2);border:1px solid var(--ba);margin-bottom:16px">
-        <div style="width:40px;height:40px;border-radius:12px;background:var(--emG);border:1px solid var(--ba);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">⭐</div>
-        <div style="flex:1">
-          <p style="font-size:14px;font-weight:700;color:var(--em);margin:0">Ratenova Pro – Aktiv</p>
-          <p style="font-size:12px;color:var(--tm);margin:2px 0 0">Unbegrenzte Verbindlichkeiten · alle Features · PDF-Export</p>
-        </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+        <div class="field"><label>Vorname</label><div class="input-wrap"><input id="setFirstName" value="${(user.firstName||"").replace(/"/g,'&quot;')}" placeholder="Max"></div></div>
+        <div class="field"><label>Nachname</label><div class="input-wrap"><input id="setLastName" value="${(user.lastName||"").replace(/"/g,'&quot;')}" placeholder="Mustermann"></div></div>
       </div>
-      <p style="font-size:13px;color:var(--tm);margin:0 0 14px;line-height:1.6">Dein Abonnement läuft über Paddle. Du kannst es jederzeit kündigen – du behältst den Zugang bis zum Ende des aktuellen Abrechnungszeitraums.</p>
+      <div class="field" style="margin-bottom:12px">
+        <label>E-Mail <span style="color:var(--tm);font-size:11px">(nicht änderbar)</span></label>
+        <div class="input-wrap"><input value="${(user.email||"").replace(/"/g,'&quot;')}" readonly style="opacity:0.6;cursor:not-allowed"></div>
+      </div>
+      <div class="field" style="margin-bottom:12px">
+        <label>Adresse</label>
+        <div class="input-wrap"><input id="setStreet" value="${(user.addressStreet||"").replace(/"/g,'&quot;')}" placeholder="Straße und Hausnummer"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:120px 1fr;gap:12px;margin-bottom:12px">
+        <div class="field"><label>PLZ</label><div class="input-wrap"><input id="setZip" value="${(user.addressZip||"").replace(/"/g,'&quot;')}" placeholder="12345"></div></div>
+        <div class="field"><label>Ort</label><div class="input-wrap"><input id="setCity" value="${(user.addressCity||"").replace(/"/g,'&quot;')}" placeholder="München"></div></div>
+      </div>
+      <div class="field" style="margin-bottom:18px">
+        <label>Telefon</label>
+        <div class="input-wrap"><input id="setPhone" value="${(user.phone||"").replace(/"/g,'&quot;')}" placeholder="+49 ..."></div>
+      </div>
+      <button class="btn btn-primary" onclick="saveSettings()">✓ Profil speichern</button>
+    </div>
+  </div>
+
+  <!-- Backup & Sicherung -->
+  <div class="card" style="margin-bottom:16px;overflow:hidden;padding:0">
+    <div style="padding:14px 18px;background:var(--bgE);border-bottom:1px solid var(--b);display:flex;align-items:center;gap:8px">
+      <span style="font-size:16px">🔐</span>
+      <p style="font-size:12px;font-weight:700;color:var(--ts);margin:0;text-transform:uppercase;letter-spacing:0.8px">Backup & Sicherungspunkte</p>
+    </div>
+    <div style="padding:18px">
+      <p style="font-size:13px;color:var(--tm);margin:0 0 14px;line-height:1.6">Lade deine Daten als JSON herunter oder stelle einen automatischen Sicherungspunkt wieder her.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+        <button class="btn btn-primary btn-sm" onclick="downloadBackup()">⬇ Backup herunterladen</button>
+        <label class="btn btn-outline btn-sm" style="cursor:pointer">↑ Backup einspielen<input id="backupFileInput" type="file" accept="application/json" style="display:none" onchange="handleBackupFileChange(event)"></label>
+      </div>
+      <div id="snapshotList"><p style="font-size:12px;color:var(--tm);margin:0">Sicherungspunkte werden geladen…</p></div>
+    </div>
+  </div>
+
+  <!-- Abo (nur Pro) -->
+  ${proSub?`
+  <div class="card" style="margin-bottom:16px;overflow:hidden;padding:0;border-color:var(--ba)">
+    <div style="padding:14px 18px;background:var(--emG);border-bottom:1px solid var(--ba);display:flex;align-items:center;gap:8px">
+      <span style="font-size:16px">⭐</span>
+      <p style="font-size:12px;font-weight:700;color:var(--em);margin:0;text-transform:uppercase;letter-spacing:0.8px">Planavo Pro – Aktiv</p>
+    </div>
+    <div style="padding:18px">
+      <div style="display:flex;align-items:center;gap:14px;padding:14px;border-radius:12px;background:var(--emG);border:1px solid var(--ba);margin-bottom:16px">
+        <div style="width:40px;height:40px;border-radius:12px;background:var(--ba);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">⭐</div>
+        <div style="flex:1">
+          <p style="font-size:14px;font-weight:700;color:var(--em);margin:0">Planavo Pro</p>
+          <p style="font-size:12px;color:var(--ts);margin:2px 0 0">Unbegrenzte Einträge · alle Features · Überweisungsliste</p>
+        </div>
+        <span class="badge" style="background:var(--ba);color:var(--em);flex-shrink:0">Aktiv</span>
+      </div>
+      <p style="font-size:13px;color:var(--tm);margin:0 0 14px;line-height:1.6">Dein Abo läuft über Paddle. Du kannst es jederzeit kündigen – du behältst den Zugang bis Periodenende.</p>
       <button class="btn btn-outline btn-sm" onclick="openCancelSubModal()">Abo kündigen</button>
     </div>
   </div>`:""}
 
-  <div class="card" style="margin-bottom:14px;padding:0;overflow:hidden;border-color:rgba(239,68,68,0.25)">
-    <div style="padding:14px 18px;background:rgba(239,68,68,0.06);border-bottom:1px solid rgba(239,68,68,0.2)">
-      <p style="font-size:12px;font-weight:700;color:#ef4444;margin:0;text-transform:uppercase;letter-spacing:0.8px">⚠ Gefahrenzone</p>
+  <!-- Gefahrenzone -->
+  <div class="card" style="margin-bottom:16px;overflow:hidden;padding:0;border-color:rgba(248,113,113,0.25)">
+    <div style="padding:14px 18px;background:rgba(248,113,113,0.06);border-bottom:1px solid rgba(248,113,113,0.2);display:flex;align-items:center;gap:8px">
+      <span style="font-size:16px">⚠️</span>
+      <p style="font-size:12px;font-weight:700;color:var(--co);margin:0;text-transform:uppercase;letter-spacing:0.8px">Gefahrenzone</p>
     </div>
-    <div style="padding:18px">
-      <div style="margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--b)">
-        <p style="font-size:14px;font-weight:700;margin:0 0 4px;color:#ef4444">Alle Daten löschen</p>
-        <p style="font-size:13px;color:var(--tm);margin:0 0 12px;line-height:1.6">Löscht alle Verbindlichkeiten, Zahlungshistorien, Budget‑Einträge und Verträge unwiderruflich. Diese Aktion kann nicht rückgängig gemacht werden.</p>
-        <button class="btn btn-danger btn-sm" onclick="openDeleteDataModal()">🗑 Alle Daten löschen</button>
+    <div style="padding:18px;display:flex;flex-direction:column;gap:16px">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap">
+        <div>
+          <p style="font-size:14px;font-weight:700;margin:0 0 4px;color:var(--co)">Alle Daten löschen</p>
+          <p style="font-size:13px;color:var(--tm);margin:0;max-width:400px;line-height:1.5">Löscht alle Verbindlichkeiten, Budgeteinträge und Verträge. Nicht rückgängig machbar.</p>
+        </div>
+        <button class="btn btn-danger btn-sm" style="white-space:nowrap;flex-shrink:0" onclick="openDeleteDataModal()">🗑 Daten löschen</button>
       </div>
-      <div>
-        <p style="font-size:14px;font-weight:700;margin:0 0 4px;color:#ef4444">Account dauerhaft löschen</p>
-        <p style="font-size:13px;color:var(--tm);margin:0 0 12px;line-height:1.6">Löscht deinen Account und alle damit verbundenen Daten unwiderruflich. Diese Aktion kann nicht rückgängig gemacht werden.</p>
-        <button class="btn btn-sm" style="background:rgba(239,68,68,0.12);color:#ef4444;border:1px solid rgba(239,68,68,0.3)" onclick="openDeleteAccountModal()">🗑 Account löschen</button>
+      <div style="border-top:1px solid rgba(248,113,113,0.15);padding-top:16px;display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap">
+        <div>
+          <p style="font-size:14px;font-weight:700;margin:0 0 4px;color:var(--co)">Account dauerhaft löschen</p>
+          <p style="font-size:13px;color:var(--tm);margin:0;max-width:400px;line-height:1.5">Löscht deinen Account und alle Daten unwiderruflich.</p>
+        </div>
+        <button class="btn btn-sm" style="background:rgba(248,113,113,0.12);color:var(--co);border:1px solid rgba(248,113,113,0.3);white-space:nowrap;flex-shrink:0" onclick="openDeleteAccountModal()">🗑 Account löschen</button>
       </div>
     </div>
-  </div>
-  `;
+  </div>`;
 }
 
 function saveSettings(){
@@ -2031,7 +2120,7 @@ function setReminder(id){
 }
 function rDash(){const T=gT(),enc=encs[Math.floor(Date.now()/864e5)%encs.length],B=calcBudgetStats();const nd=T.next?(effDue(T.next)||T.next.due):null;const nxt=T.next?`<div class="card clickable" onclick="openDetail(${T.next.id})" style="border-left:3px solid ${dU(nd)<=2?"var(--co)":"var(--am)"}"><div style="display:flex;align-items:center;gap:14px"><div style="width:44px;height:44px;border-radius:12px;background:${dU(nd)<=2?"var(--coG)":"var(--amG)"};display:flex;align-items:center;justify-content:center;font-size:20px">${T.next.emoji}</div><div style="flex:1"><p style="font-size:14px;font-weight:600;margin:0">${dU(nd)===0?"Heute fällig":dU(nd)<0?"Handlungsbedarf":`In ${dU(nd)} Tagen fällig`}</p><p style="font-size:13px;color:var(--tm);margin:2px 0 0">${T.next.name} · ${fmt(T.next.rate)}</p></div><span style="color:var(--tm);font-size:20px">›</span></div></div>`:"";
 return`<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px;flex-wrap:wrap;gap:12px"><div><p style="font-size:13px;color:var(--tm);margin:0 0 4px">${new Date().toLocaleDateString("de-DE",{day:"numeric",month:"long",year:"numeric"})}</p><h1 style="font-size:32px;font-weight:800;margin:0 0 6px">Guten Tag, ${user.firstName||user.name.split(" ")[0]||"dort"}</h1><p style="font-size:14px;color:var(--tm);margin:0">${enc}</p></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-ghost btn-sm" onclick="toggleDashboardCompact()" style="margin-top:6px">${dashboardCompact?"Kompakt ✓":"Kompakt"}</button><button class="btn btn-ghost btn-sm" onclick="printOverview()" style="margin-top:6px">🖨️ Übersicht drucken</button></div></div>${dashboardCompact?"":dashManagementOverviewWidget()}
-<div class="hero"><div class="hero-orb1"></div><div class="hero-orb2"></div><div style="display:flex;gap:24px;align-items:center;flex-wrap:wrap;position:relative"><div style="flex:1;min-width:220px"><p style="font-size:12px;color:var(--tm);margin:0 0 6px;text-transform:uppercase;letter-spacing:1.5px;font-weight:600">Saldo ${B.monthLabel}</p><p style="font-size:48px;font-weight:800;font-family:\'Bricolage Grotesque\',sans-serif;margin:0 0 2px;line-height:1;letter-spacing:-1px;color:${B.bal>=0?'var(--em)':'var(--co)'}">${fmt(B.bal)}</p><p style="font-size:13px;color:var(--tm);margin:0 0 20px">${B.bal>=0?'Positiver Monatsabschluss':'Ausgaben übersteigen Einnahmen'}</p><div style="display:flex;gap:28px;flex-wrap:wrap"><div><p style="font-size:11px;color:var(--tm);margin:0;text-transform:uppercase;letter-spacing:1px">Einnahmen</p><p style="font-size:17px;font-weight:700;margin:3px 0 0;color:var(--em)">${fmt(B.inc)}</p></div><div><p style="font-size:11px;color:var(--tm);margin:0;text-transform:uppercase;letter-spacing:1px">Ausgaben</p><p style="font-size:17px;font-weight:700;margin:3px 0 0;color:var(--co)">${fmt(B.exp)}</p></div>${T.r>0?`<div><p style="font-size:11px;color:var(--tm);margin:0;text-transform:uppercase;letter-spacing:1px">Verpflichtungen</p><p style="font-size:17px;font-weight:700;margin:3px 0 0">${fmt(T.r)}</p></div>`:''}</div></div><div style="position:relative;flex-shrink:0"><svg width="150" height="150" viewBox="0 0 150 150"><circle cx="75" cy="75" r="65" fill="none" stroke="var(--bgE)" stroke-width="9"/><circle cx="75" cy="75" r="65" fill="none" stroke="${B.bal>=0?'var(--em)':'var(--co)'}" stroke-width="9" stroke-linecap="round" stroke-dasharray="${2*Math.PI*65}" stroke-dashoffset="${B.inc>0?2*Math.PI*65*(1-Math.min(1,B.exp/B.inc)):2*Math.PI*65}" transform="rotate(-90 75 75)" style="transition:stroke-dashoffset 0.6s ease"/></svg><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center"><p style="font-size:22px;font-weight:800;font-family:\'Bricolage Grotesque\',sans-serif;margin:0;color:${B.bal>=0?'var(--em)':'var(--co)'}">${B.inc>0?Math.round((1-B.exp/B.inc)*100)+'%':'–'}</p><p style="font-size:10px;color:var(--tm);margin:2px 0 0">gespart</p></div></div></div></div>
+<div class="hero"><div class="hero-orb1"></div><div class="hero-orb2"></div><div style="display:flex;gap:24px;align-items:center;flex-wrap:wrap;position:relative"><div style="flex:1;min-width:220px"><p style="font-size:12px;color:var(--tm);margin:0 0 6px;text-transform:uppercase;letter-spacing:1.5px;font-weight:600">Saldo ${B.monthLabel}</p><p style="font-size:48px;font-weight:800;font-family:\'Bricolage Grotesque\',sans-serif;margin:0 0 2px;line-height:1;letter-spacing:-1px;color:${B.bal>=0?'var(--em)':'var(--co)'}">${fmt(B.bal)}</p><p style="font-size:13px;color:var(--tm);margin:0 0 20px">${B.bal>=0?'Positiver Monatsabschluss':'Ausgaben übersteigen Einnahmen'}</p><div style="display:flex;gap:28px;flex-wrap:wrap"><div><p style="font-size:11px;color:var(--tm);margin:0;text-transform:uppercase;letter-spacing:1px">Einnahmen</p><p style="font-size:17px;font-weight:700;margin:3px 0 0;color:var(--em)">${fmt(B.inc)}</p></div><div><p style="font-size:11px;color:var(--tm);margin:0;text-transform:uppercase;letter-spacing:1px">Ausgaben</p><p style="font-size:17px;font-weight:700;margin:3px 0 0;color:var(--co)">${fmt(B.exp)}</p></div>${T.r>0?`<div><p style="font-size:11px;color:var(--tm);margin:0;text-transform:uppercase;letter-spacing:1px">Verpflichtungen</p><p style="font-size:17px;font-weight:700;margin:3px 0 0">${fmt(T.r)}</p></div>`:''}</div></div><div style="position:relative;flex-shrink:0;display:var(--ring-display,block)" id="dashRing"><svg width="150" height="150" viewBox="0 0 150 150"><circle cx="75" cy="75" r="65" fill="none" stroke="var(--bgE)" stroke-width="9"/><circle cx="75" cy="75" r="65" fill="none" stroke="${B.bal>=0?'var(--em)':'var(--co)'}" stroke-width="9" stroke-linecap="round" stroke-dasharray="${2*Math.PI*65}" stroke-dashoffset="${B.inc>0?2*Math.PI*65*(1-Math.min(1,B.exp/B.inc)):2*Math.PI*65}" transform="rotate(-90 75 75)" style="transition:stroke-dashoffset 0.6s ease"/></svg><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center"><p style="font-size:22px;font-weight:800;font-family:\'Bricolage Grotesque\',sans-serif;margin:0;color:${B.bal>=0?'var(--em)':'var(--co)'}">${B.inc>0?Math.round((1-B.exp/B.inc)*100)+'%':'–'}</p><p style="font-size:10px;color:var(--tm);margin:2px 0 0">gespart</p></div></div></div></div>
 <div class="grid2" style="margin-bottom:20px">${nxt}<div class="card"><div style="display:flex;align-items:center;gap:14px"><div style="width:44px;height:44px;border-radius:12px;background:var(--emG);display:flex;align-items:center;justify-content:center;font-size:20px">🎯</div><div><p style="font-size:14px;font-weight:600;color:var(--em);margin:0">Entlastet in ~${Math.ceil(T.r/T.m)} Monaten</p><p style="font-size:13px;color:var(--tm);margin:2px 0 0">Weiter so!</p></div></div></div></div>
 <div class="card" style="margin-bottom:16px;padding:16px 18px;border-color:${B.bal>=0?'var(--ba)':'rgba(248,113,113,0.3)'}"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px"><div style="display:flex;align-items:center;gap:8px"><span style="font-size:18px">💶</span><p style="font-size:13px;font-weight:700;color:var(--t);margin:0">Ein & Ausgaben</p><span style="font-size:12px;color:var(--tm)">${B.monthLabel}</span></div><button style="background:none;border:none;color:var(--em);font-size:13px;font-weight:600;cursor:pointer" onclick="goTo('budget')">Details →</button></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px"><div style="padding:12px;border-radius:12px;background:var(--bgE);border:1px solid var(--b)"><p style="font-size:11px;color:var(--tm);margin:0">Einnahmen</p><p style="font-size:22px;font-weight:800;font-family:\'Bricolage Grotesque\',sans-serif;margin:5px 0 0;color:var(--em)">${fmt(B.inc)}</p></div><div style="padding:12px;border-radius:12px;background:var(--bgE);border:1px solid var(--b)"><p style="font-size:11px;color:var(--tm);margin:0">Ausgaben</p><p style="font-size:22px;font-weight:800;font-family:\'Bricolage Grotesque\',sans-serif;margin:5px 0 0;color:var(--co)">${fmt(B.exp)}</p></div><div style="padding:12px;border-radius:12px;background:${B.bal>=0?'var(--emG)':'rgba(248,113,113,0.08)'};border:1px solid ${B.bal>=0?'var(--ba)':'rgba(248,113,113,0.3)'}"><p style="font-size:11px;color:var(--tm);margin:0">Saldo</p><p style="font-size:22px;font-weight:800;font-family:\'Bricolage Grotesque\',sans-serif;margin:5px 0 0;color:${B.bal>=0?'var(--em)':'var(--co)'}">${fmt(B.bal)}</p></div></div></div>
 ${dashboardCompact?dashMonthlyLoadInline():dashMonthlyLoadWidget()}
@@ -2141,7 +2230,7 @@ function rDebts(){
       </div>
     </div>`;
   }).join("")}
-  ${list.length===0?`<div style="text-align:center;padding:48px 0"><p style="font-size:36px;margin:0 0 8px">✨</p><p style="font-size:16px;font-weight:600">Keine Verbindlichkeiten</p></div>`:""}
+  ${list.length===0?`<div style="text-align:center;padding:60px 20px"><div style="font-size:56px;margin-bottom:16px">🎉</div><h3 style="font-family:'Bricolage Grotesque',sans-serif;font-size:20px;font-weight:800;margin:0 0 8px">Alles im grünen Bereich!</h3><p style="font-size:14px;color:var(--ts);margin:0 0 20px;max-width:280px;margin-left:auto;margin-right:auto;line-height:1.6">Du hast keine offenen Verbindlichkeiten. Füge eine hinzu wenn du etwas im Blick behalten möchtest.</p><button class="btn btn-primary btn-sm" onclick="openAdd()">＋ Erste Verbindlichkeit hinzufügen</button></div>`:""}
   </div>`;
 }
 
@@ -5303,39 +5392,204 @@ function printBudget(){
 }
 
 function closeModal(){document.getElementById("modalContainer").innerHTML=""}
-function openAdd(){if(!canAddDebt()){openUpgradeModal('Mehr als 3 Verbindlichkeiten');return;}document.getElementById("modalContainer").innerHTML=`<div class="overlay" onclick="closeModal()"><div class="modal wide" onclick="event.stopPropagation()" style="max-width:620px">
-<div class="modal-head"><h3>Neue Position</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
-<p style="font-size:13px;color:var(--tm);margin:0 0 20px">Name, Betrag und Rate sind Pflicht – alles andere optional.</p>
+function openAdd(){
+  if(!canAddDebt()){openUpgradeModal('Mehr als 3 Verbindlichkeiten');return;}
+  // Autofill-Vorschläge aus vorherigen Einträgen sammeln
+  const prevCreditors=[...new Set(debts.map(d=>d.creditorName||d.name).filter(Boolean))];
+  const datalistHtml=prevCreditors.length?`<datalist id="creditorList">${prevCreditors.map(c=>`<option value="${c.replace(/"/g,'&quot;')}">`).join('')}</datalist>`:'';
+  document.getElementById("modalContainer").innerHTML=`<div class="overlay" onclick="closeModal()"><div class="modal wide" onclick="event.stopPropagation()" style="max-width:640px">
+<div class="modal-head"><h3>Neue Verbindlichkeit</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
+${datalistHtml}
 
-<div style="margin-bottom:16px"><label style="display:block;font-size:12px;font-weight:600;color:var(--ts);margin-bottom:8px">Symbol</label><div style="display:flex;gap:6px;flex-wrap:wrap" id="ep">${["📄","⚡","🏠","🚗","🏥","🦷","🪑","📱","🎓","💳","🏦","👕","🛒","💡","🌊","🎵","✈️","🏋️","🍕","🐕","👶","💊","🔧","📦","🎮","🚿","📚","🌱","🏫","⚖️","🔑"].map((e,i)=>`<button class="emoji-btn ${i===0?"active":""}" onclick="pE(this,'${e}')">${e}</button>`).join("")}</div></div>
+<!-- PFLICHTFELDER -->
+<p style="font-size:12px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:1px;margin:0 0 12px">💰 Grunddaten <span style="color:var(--co);font-size:10px">* Pflichtfelder</span></p>
 
-<p style="font-size:12px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:1px;margin:0 0 12px;padding-top:8px;border-top:1px solid var(--b)">Statusdefinition</p>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-<div class="field"><label>Klärungsstatus</label><input id="aCS" type="hidden" value="neu"><div style="display:flex;flex-wrap:wrap;gap:6px">${clarificationOptions.map(([v,l])=>`<button type="button" data-status="aCS" data-value="${v}" class="btn btn-sm ${v==="neu"?"btn-ghost":"btn-outline"}" style="padding:7px 10px" onclick="setStatus('a','CS','${v}')">${l}</button>`).join("")}</div></div>
-<div class="field"><label>Zahlungsstatus</label><input id="aPS" type="hidden" value="keine_zahlung_faellig"><div style="display:flex;flex-wrap:wrap;gap:6px">${paymentOptions.map(([v,l])=>`<button type="button" data-status="aPS" data-value="${v}" class="btn btn-sm ${v==="keine_zahlung_faellig"?"btn-ghost":"btn-outline"}" style="padding:7px 10px" onclick="setStatus('a','PS','${v}')">${l}</button>`).join("")}</div></div>
+<div style="margin-bottom:14px">
+  <label style="display:block;font-size:12px;font-weight:600;color:var(--ts);margin-bottom:8px">Symbol</label>
+  <div style="display:flex;gap:6px;flex-wrap:wrap" id="ep">${["📄","⚡","🏠","🚗","🏥","🦷","🪑","📱","🎓","💳","🏦","👕","🛒","💡","🌊","🎵","✈️","🏋️","🍕","🐕","👶","💊","🔧","📦","🎮","🚿","📚","🌱","🏫","⚖️","🔑"].map((e,i)=>`<button class="emoji-btn ${i===0?"active":""}" onclick="pE(this,'${e}')">${e}</button>`).join("")}</div>
 </div>
 
-<p style="font-size:12px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:1px;margin:0 0 12px;padding-top:8px;border-top:1px solid var(--b)">💰 Grunddaten</p>
-<div class="field"><label>Bezeichnung / Gläubiger</label><div class="input-wrap"><input id="aN" placeholder="z.B. Stadtwerke"></div></div>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><div class="field"><label>Gesamtbetrag</label><div class="input-wrap"><input id="aA" placeholder="0,00" onblur="fmtEurField(this)"><span class="suffix">€</span></div></div><div class="field"><label>Rate/Monat</label><div class="input-wrap"><input id="aR" placeholder="0,00" onblur="fmtEurField(this)"><span class="suffix">€</span></div></div></div>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><div class="field"><label>Fälligkeit</label><div class="input-wrap"><input id="aD" type="date"></div></div><div class="field"><label>Notizen</label><div class="input-wrap"><input id="aNt" placeholder="Optional..."></div></div></div>
+<div class="field">
+  <label>Bezeichnung / Gläubiger <span style="color:var(--co)">*</span></label>
+  <div class="input-wrap" style="position:relative">
+    <input id="aN" placeholder="z.B. Stadtwerke München" list="creditorList"
+      oninput="onAddNameInput(this.value)" autocomplete="off">
+  </div>
+  <div id="creditorSuggestions" style="display:none;position:absolute;z-index:200;background:var(--bgC);border:1px solid var(--bl);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.4);overflow:hidden;min-width:280px"></div>
+</div>
 
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+  <div class="field">
+    <label>Gesamtbetrag <span style="color:var(--co)">*</span></label>
+    <div class="input-wrap"><input id="aA" placeholder="0,00" inputmode="decimal"
+      oninput="onAddAmountInput()" onblur="fmtEurField(this)"><span class="suffix">€</span></div>
+  </div>
+  <div class="field">
+    <label>Laufzeit (Monate)</label>
+    <div class="input-wrap"><input id="aLZ" type="number" placeholder="z.B. 24" min="1" max="360"
+      oninput="onAddAmountInput()"><span class="suffix">Mo</span></div>
+  </div>
+  <div class="field">
+    <label>Rate/Monat</label>
+    <div class="input-wrap"><input id="aR" placeholder="Auto" inputmode="decimal"
+      oninput="fmtEurField(this)" onblur="fmtEurField(this)"><span class="suffix">€</span></div>
+  </div>
+</div>
+<div id="rateHint" style="display:none;font-size:12px;color:var(--em);margin:-8px 0 12px;padding:6px 10px;background:var(--emG);border-radius:8px;border:1px solid var(--ba)"></div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+  <div class="field"><label>Fälligkeit <span style="color:var(--co)">*</span></label><div class="input-wrap"><input id="aD" type="date"></div></div>
+  <div class="field"><label>Notizen</label><div class="input-wrap"><input id="aNt" placeholder="Optional..."></div></div>
+</div>
+
+<!-- STATUS -->
+<p style="font-size:12px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:1px;margin:0 0 12px;padding-top:12px;border-top:1px solid var(--b)">Statusdefinition</p>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+  <div class="field"><label>Klärungsstatus</label><input id="aCS" type="hidden" value="neu"><div style="display:flex;flex-wrap:wrap;gap:6px">${clarificationOptions.map(([v,l])=>`<button type="button" data-status="aCS" data-value="${v}" class="btn btn-sm ${v==="neu"?"btn-ghost":"btn-outline"}" style="padding:7px 10px" onclick="setStatus('a','CS','${v}')">${l}</button>`).join("")}</div></div>
+  <div class="field"><label>Zahlungsstatus</label><input id="aPS" type="hidden" value="keine_zahlung_faellig"><div style="display:flex;flex-wrap:wrap;gap:6px">${paymentOptions.map(([v,l])=>`<button type="button" data-status="aPS" data-value="${v}" class="btn btn-sm ${v==="keine_zahlung_faellig"?"btn-ghost":"btn-outline"}" style="padding:7px 10px" onclick="setStatus('a','PS','${v}')">${l}</button>`).join("")}</div></div>
+</div>
+
+<!-- GLÄUBIGER -->
 <p style="font-size:12px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:1px;margin:0 0 12px;padding-top:12px;border-top:1px solid var(--b)">🏢 Gläubiger-Kontakt <span style="font-weight:400;color:var(--tf)">(optional)</span></p>
-<div class="field"><label>Gläubiger‑Typ</label><div class="input-wrap"><select id="aCTY"><option value="firma" selected>Firma</option><option value="privat">Privatperson</option></select></div></div>
-<div class="field"><label>Firmenname / vollständiger Name</label><div class="input-wrap"><input id="aCN" placeholder="z.B. Stadtwerke München GmbH"></div></div>
-  <div class="field"><label>Adresse</label><div class="input-wrap"><input id="aCA" placeholder="Straße Nr., PLZ Ort"></div></div>
-  <div style="display:grid;grid-template-columns:120px 1fr;gap:12px"><div class="field"><label>PLZ</label><div class="input-wrap"><input id="aCZip" placeholder="12345" maxlength="5"></div></div><div class="field"><label>Ort</label><div class="input-wrap"><input id="aCCity" placeholder="Berlin"></div></div></div>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><div class="field"><label>Telefon</label><div class="input-wrap"><input id="aCT" placeholder="089 1234-0"></div></div><div class="field"><label>E-Mail</label><div class="input-wrap"><input id="aCE" placeholder="info@firma.de"></div></div></div>
+<div class="field"><label>Gläubiger-Typ</label><div class="input-wrap"><select id="aCTY"><option value="firma" selected>Firma</option><option value="privat">Privatperson</option></select></div></div>
+<div class="field">
+  <label>Firmenname / vollständiger Name <span style="font-size:11px;color:var(--ts)">(wird aus Bezeichnung übernommen)</span></label>
+  <div class="input-wrap"><input id="aCN" placeholder="z.B. Stadtwerke München GmbH"></div>
+</div>
+<div class="field"><label>Adresse</label><div class="input-wrap"><input id="aCA" placeholder="Straße Nr., PLZ Ort"></div></div>
+<div style="display:grid;grid-template-columns:120px 1fr;gap:12px">
+  <div class="field"><label>PLZ</label><div class="input-wrap"><input id="aCZip" placeholder="12345" maxlength="5"></div></div>
+  <div class="field"><label>Ort</label><div class="input-wrap"><input id="aCCity" placeholder="Berlin"></div></div>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+  <div class="field"><label>Telefon</label><div class="input-wrap"><input id="aCT" placeholder="089 1234-0"></div></div>
+  <div class="field"><label>E-Mail</label><div class="input-wrap"><input id="aCE" placeholder="info@firma.de"></div></div>
+</div>
 
+<!-- BANK -->
 <p style="font-size:12px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:1px;margin:0 0 12px;padding-top:12px;border-top:1px solid var(--b)">🏦 Bankverbindung <span style="font-weight:400;color:var(--tf)">(optional)</span></p>
-<div class="field"><label>Kontoinhaber / Bank</label><div class="input-wrap"><input id="aBN" placeholder="z.B. Stadtwerke München"></div></div>
-<div style="display:grid;grid-template-columns:2fr 1fr;gap:12px"><div class="field"><label>IBAN</label><div class="input-wrap"><input id="aBI" placeholder="DE00 0000 0000 0000 0000 00"></div></div><div class="field"><label>BIC</label><div class="input-wrap"><input id="aBB" placeholder="ABCDDEFFXXX"></div></div></div>
+<div class="field">
+  <label>Kontoinhaber <span style="font-size:11px;color:var(--ts)">(wird aus Gläubiger übernommen)</span></label>
+  <div class="input-wrap"><input id="aBN" placeholder="z.B. Stadtwerke München"></div>
+</div>
+<div style="display:grid;grid-template-columns:2fr 1fr;gap:12px">
+  <div class="field">
+    <label>IBAN</label>
+    <div class="input-wrap"><input id="aBI" placeholder="DE00 0000 0000 0000 0000 00"
+      oninput="onIbanInput(this)" onblur="validateIban(this)"></div>
+    <div id="ibanError" style="display:none;font-size:12px;color:var(--co);margin-top:4px">⚠ Ungültige IBAN</div>
+  </div>
+  <div class="field"><label>BIC</label><div class="input-wrap"><input id="aBB" placeholder="ABCDDEFFXXX"></div></div>
+</div>
 <div class="field"><label>Verwendungszweck</label><div class="input-wrap"><input id="aBR" placeholder="Kd-Nr. / Vertrags-Nr. / Rechnungs-Nr."></div></div>
 
-<div style="display:flex;gap:12px;margin-top:16px"><button class="btn btn-outline" style="flex:1" onclick="closeModal()">Abbrechen</button><button class="btn btn-primary" style="flex:1" onclick="sAdd()">Hinzufügen</button></div>
-</div></div>`}
+<div style="display:flex;gap:12px;margin-top:20px">
+  <button class="btn btn-outline" style="flex:1" onclick="closeModal()">Abbrechen</button>
+  <button class="btn btn-primary" style="flex:1" onclick="sAdd()">＋ Hinzufügen</button>
+</div>
+</div></div>`;
+  // Gläubiger-Name → Kontaktname + Kontoinhaber übertragen
+  setTimeout(()=>{
+    const nEl=document.getElementById('aN');
+    if(nEl) nEl.addEventListener('input',()=>onAddNameInput(nEl.value));
+  },50);
+}
+
+// ── Gläubiger Name → Autofill Kontakt + Kontoinhaber ──
+function onAddNameInput(val){
+  const cn=document.getElementById('aCN');
+  const bn=document.getElementById('aBN');
+  if(cn&&!cn._touched) cn.value=val;
+  if(bn&&!bn._touched) bn.value=val;
+  // Einmal manuell geändert → nicht mehr auto-überschreiben
+  [document.getElementById('aCN'),document.getElementById('aBN')].forEach(el=>{
+    if(el&&!el._listenerSet){
+      el.addEventListener('input',()=>{el._touched=true;});
+      el._listenerSet=true;
+    }
+  });
+  // Vorschläge aus bisherigen Einträgen
+  if(val.length>=2){
+    const matches=debts.map(d=>d.creditorName||d.name).filter(Boolean)
+      .filter((v,i,a)=>a.indexOf(v)===i&&v.toLowerCase().includes(val.toLowerCase())&&v!==val);
+    const box=document.getElementById('creditorSuggestions');
+    if(box&&matches.length){
+      box.style.display='block';
+      box.innerHTML=matches.slice(0,5).map(m=>`<div onclick="fillCreditorFromSuggestion('${m.replace(/'/g,"\'")}','${m.replace(/'/g,"\'")}');" style="padding:10px 14px;cursor:pointer;font-size:13px;border-bottom:1px solid var(--b)" onmouseover="this.style.background='var(--bgH)'" onmouseout="this.style.background=''">${m}</div>`).join('');
+    } else if(box){ box.style.display='none'; }
+  } else {
+    const box=document.getElementById('creditorSuggestions');
+    if(box) box.style.display='none';
+  }
+}
+
+function fillCreditorFromSuggestion(name, creditor){
+  const nEl=document.getElementById('aN'); if(nEl) nEl.value=name;
+  const cn=document.getElementById('aCN'); if(cn){cn.value=creditor;cn._touched=true;}
+  const bn=document.getElementById('aBN'); if(bn){bn.value=creditor;bn._touched=true;}
+  // Auch IBAN + BIC aus letztem passenden Eintrag befüllen
+  const prev=debts.filter(d=>(d.creditorName||d.name)===creditor).pop();
+  if(prev){
+    const bi=document.getElementById('aBI'); if(bi&&prev.bankIban) bi.value=formatIbanSpaced(prev.bankIban);
+    const bb=document.getElementById('aBB'); if(bb&&prev.bankBic) bb.value=prev.bankBic;
+    const br=document.getElementById('aBR'); if(br&&prev.bankRef) br.value=prev.bankRef;
+    const ct=document.getElementById('aCT'); if(ct&&prev.creditorPhone) ct.value=prev.creditorPhone;
+    const ce=document.getElementById('aCE'); if(ce&&prev.creditorEmail) ce.value=prev.creditorEmail;
+    const ca=document.getElementById('aCA'); if(ca&&prev.creditorAddress) ca.value=prev.creditorAddress;
+  }
+  const box=document.getElementById('creditorSuggestions'); if(box) box.style.display='none';
+}
+
+// ── Rate aus Betrag + Laufzeit berechnen ──
+function onAddAmountInput(){
+  const a=toNum(document.getElementById('aA')?.value||'');
+  const lz=parseInt(document.getElementById('aLZ')?.value||'0');
+  const rEl=document.getElementById('aR');
+  const hint=document.getElementById('rateHint');
+  if(a>0&&lz>0&&rEl){
+    const rate=Math.ceil(a/lz*100)/100;
+    rEl.value=rate.toFixed(2).replace('.',',');
+    if(hint){hint.style.display='block';hint.textContent=`💡 Vorgeschlagene Rate: ${fmt(rate)} / Monat (${lz} Monate)`;}
+  } else {
+    if(hint) hint.style.display='none';
+  }
+}
+
+// ── IBAN live formatieren + Prüfziffer validieren ──
+function onIbanInput(el){
+  let v=el.value.replace(/[^A-Za-z0-9]/g,'').toUpperCase();
+  // Gruppen à 4 formatieren
+  let out=''; for(let i=0;i<v.length;i++){if(i>0&&i%4===0)out+=' ';out+=v[i];}
+  const pos=el.selectionStart; el.value=out;
+  document.getElementById('ibanError').style.display='none';
+}
+
+function validateIban(el){
+  const raw=el.value.replace(/\s/g,'').toUpperCase();
+  if(!raw){document.getElementById('ibanError').style.display='none';return true;}
+  if(raw.length<15){document.getElementById('ibanError').style.display='block';return false;}
+  // Prüfziffer-Validierung (ISO 7064 MOD97-10)
+  const rearranged=raw.slice(4)+raw.slice(0,4);
+  const numeric=rearranged.split('').map(c=>{const n=c.charCodeAt(0);return n>=65?String(n-55):c;}).join('');
+  let remainder=0;
+  for(let i=0;i<numeric.length;i++){remainder=(remainder*10+parseInt(numeric[i]))%97;}
+  const valid=remainder===1;
+  document.getElementById('ibanError').style.display=valid?'none':'block';
+  return valid;
+}
 function pE(b,e){selectedEmoji=e;document.querySelectorAll("#ep .emoji-btn").forEach(x=>x.classList.remove("active"));b.classList.add("active")}
-async function sAdd(){const n=document.getElementById("aN").value,a=toNum(document.getElementById("aA").value),r=toNum(document.getElementById("aR").value),d=document.getElementById("aD").value,nt=document.getElementById("aNt").value;if(!n||!a||a<=0)return;await autoSnapshot("debt_create",true);const ct=(document.getElementById("aCTY")?.value)||"firma";const rawIban=document.getElementById("aBI").value||"";const norm=normIban(rawIban);let bankIban=norm,iban_enc="",iban_hint="";if(ct==="privat"&&norm){const head=norm.slice(0,4),last=norm.slice(-4);iban_hint=`${head}:${last}`;iban_enc=await encryptText(norm);bankIban=""}const item={id:Date.now(),name:n,emoji:selectedEmoji,original:a,paid:0,rate:r||0,due:d||"2026-03-01",notes:nt,clarificationStatus:document.getElementById("aCS").value||"neu",paymentStatus:document.getElementById("aPS").value||"keine_zahlung_faellig",creditorType:ct,creditorName:document.getElementById("aCN").value,creditorAddress:document.getElementById("aCA").value,creditorZip:document.getElementById("aCZip").value||"",creditorCity:document.getElementById("aCCity").value||"",creditorPhone:document.getElementById("aCT").value,creditorEmail:document.getElementById("aCE").value,bankName:document.getElementById("aBN").value,bankIban,iban_enc,iban_hint,bankBic:document.getElementById("aBB").value,bankRef:document.getElementById("aBR").value,history:[]};autoUpdateDebtStatuses(item,{respectManual:true});debts.push(item);scheduleCloudSave();selectedEmoji="📄";closeModal();flash("Hinzugefügt");renderPage()}
+async function sAdd(){
+  const n=document.getElementById("aN").value.trim();
+  const a=toNum(document.getElementById("aA").value);
+  const r=toNum(document.getElementById("aR").value);
+  const d=document.getElementById("aD").value;
+  const nt=document.getElementById("aNt").value;
+  if(!n){flash("Bitte Bezeichnung eingeben");return;}
+  if(!a||a<=0){flash("Bitte einen gültigen Betrag eingeben");return;}
+  if(!d){flash("Bitte ein Fälligkeitsdatum eingeben");return;}
+  // IBAN validieren falls eingegeben
+  const ibanEl=document.getElementById("aBI");
+  if(ibanEl&&ibanEl.value.trim()&&!validateIban(ibanEl)){flash("⚠ Bitte eine gültige IBAN eingeben");return;}await autoSnapshot("debt_create",true);const ct=(document.getElementById("aCTY")?.value)||"firma";const rawIban=document.getElementById("aBI").value||"";const norm=normIban(rawIban);let bankIban=norm,iban_enc="",iban_hint="";if(ct==="privat"&&norm){const head=norm.slice(0,4),last=norm.slice(-4);iban_hint=`${head}:${last}`;iban_enc=await encryptText(norm);bankIban=""}const item={id:Date.now(),name:n,emoji:selectedEmoji,original:a,paid:0,rate:r||0,due:d||"2026-03-01",notes:nt,clarificationStatus:document.getElementById("aCS").value||"neu",paymentStatus:document.getElementById("aPS").value||"keine_zahlung_faellig",creditorType:ct,creditorName:document.getElementById("aCN").value,creditorAddress:document.getElementById("aCA").value,creditorZip:document.getElementById("aCZip").value||"",creditorCity:document.getElementById("aCCity").value||"",creditorPhone:document.getElementById("aCT").value,creditorEmail:document.getElementById("aCE").value,bankName:document.getElementById("aBN").value,bankIban,iban_enc,iban_hint,bankBic:document.getElementById("aBB").value,bankRef:document.getElementById("aBR").value,history:[]};autoUpdateDebtStatuses(item,{respectManual:true});debts.push(item);scheduleCloudSave();selectedEmoji="📄";closeModal();flash("Hinzugefügt");renderPage()}
 function openPay(id){const d=debts.find(x=>x.id===id);if(!d)return;const rem=d.original-d.paid,pr=[{l:"Rate",v:d.rate}];if(Math.round(rem/2)!==d.rate&&rem/2>0)pr.push({l:"Hälfte",v:Math.round(rem/2)});if(rem!==d.rate&&rem>0)pr.push({l:"Alles",v:rem});
 document.getElementById("modalContainer").innerHTML=`<div class="overlay" onclick="closeModal()"><div class="modal" onclick="event.stopPropagation()"><div class="modal-head"><h3>Zahlung verbuchen</h3><button class="modal-close" onclick="closeModal()">✕</button></div><div style="display:flex;align-items:center;gap:14px;padding:16px;margin-bottom:20px;background:var(--bgE);border-radius:14px;border:1px solid var(--b)"><div style="width:46px;height:46px;border-radius:13px;background:var(--bgC);border:1px solid var(--b);display:flex;align-items:center;justify-content:center;font-size:22px">${d.emoji}</div><div><p style="font-size:15px;font-weight:700;margin:0">${d.name}</p><p style="font-size:13px;color:var(--tm);margin:2px 0 0">Offen: <strong style="color:var(--co)">${fmt(rem)}</strong> · Rate: ${fmt(d.rate)}/Mo</p></div></div><div class="field"><label>Betrag</label><div class="input-wrap"><input id="pA" type="number" placeholder="0" value="${d.rate}" oninput="uPB(${id})"><span class="suffix">€</span></div></div><div style="display:flex;gap:6px;margin-top:-8px;margin-bottom:16px;flex-wrap:wrap">${pr.filter(p=>p.v>0).map(p=>`<button class="preset-btn" onclick="document.getElementById('pA').value=${p.v};uPB(${id})">${p.l}: ${fmt(p.v)}</button>`).join("")}</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><div class="field"><label>Datum</label><div class="input-wrap"><input id="pD" type="date" value="${tdy()}"></div></div><div class="field"><label>Notiz</label><div class="input-wrap"><input id="pN" placeholder="Optional..."></div></div></div><div id="pW"></div><div style="display:flex;gap:12px;margin-top:8px"><button class="btn btn-outline" style="flex:1" onclick="closeModal()">Abbrechen</button><button class="btn btn-primary" style="flex:1" id="pB" onclick="sPay(${id})">✓ ${fmt(d.rate)} verbuchen</button></div></div></div>`}
 function uPB(id){const d=debts.find(x=>x.id===id);if(!d)return;const a=parseFloat(document.getElementById("pA").value)||0,rem=d.original-d.paid;document.getElementById("pB").textContent=`✓ ${fmt(a)} verbuchen`;document.getElementById("pW").innerHTML=a>rem?`<div style="padding:10px 14px;background:var(--amG);border:1px solid rgba(251,191,36,0.2);border-radius:10px;margin-bottom:14px;display:flex;align-items:center;gap:8px"><span>⚠️</span><p style="font-size:13px;color:var(--am);margin:0">Übersteigt offenen Betrag – es wird maximal ${fmt(rem)} verbucht.</p></div>`:"";}
