@@ -172,17 +172,6 @@ select option{background:var(--bgC);color:var(--t)}
 .auth-hidden{display:none}
 .auth-logo{display:flex;justify-content:center;align-items:center;margin:0 0 36px}
 .auth-logo img{max-width:420px;height:auto}
-
-/* ── Master ── */
-.master-root{display:none;min-height:100vh;background:var(--bg);padding:24px}
-.master-shell{max-width:1400px;margin:0 auto}
-.master-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}
-.master-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
-.master-grid{display:grid;grid-template-columns:1.15fr 1fr;gap:12px}
-.master-card{background:linear-gradient(155deg,var(--bgC),var(--bgS));border:1px solid var(--b);border-radius:16px;padding:16px}
-.master-list{display:flex;flex-direction:column;gap:10px;max-height:55vh;overflow:auto}
-.master-login{max-width:440px;margin:10vh auto 0}
-
 /* ── Responsive ── */
 @media(max-width:899px){
   .sidebar{display:none}
@@ -262,7 +251,6 @@ select option{background:var(--bgC);color:var(--t)}
     </div>
   </div>
 </div>
-<div id="masterRoot" class="master-root"></div>
 <div class="layout">
   <div class="sidebar"><div class="sidebar-logo"><img id="sidebarLogo" alt="Planavo"></div><div class="sidebar-nav" id="sidebarNav"></div><div class="sidebar-tools" id="sidebarTools"></div><div class="sidebar-settings" id="sidebarSettings"></div><div class="sidebar-bottom" id="sidebarBottom"></div></div>
   <div class="main" id="mainContent"></div>
@@ -280,7 +268,6 @@ let debts=[];
 let currentPage="dashboard",selectedDebtId=null,currentFilter="all",selectedEmoji="📄";window._contractDetail=null;window._contractFilter="all";
 let selectedDebts=new Set();
 let selectionMode=false;
-const isMasterMode=new URLSearchParams(window.location.search).get("master")==="1";
 const fmt=n=>new Intl.NumberFormat("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2}).format(n)+" €";
 const fmt2=n=>new Intl.NumberFormat("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2}).format(n)+" €";
 const fD=d=>{try{return new Date(d+"T00:00:00").toLocaleDateString("de-DE",{day:"numeric",month:"short"})}catch(e){return d}};
@@ -381,7 +368,8 @@ function effDue(d){
 function rng(pct,sz=140,sw=8){const r=(sz-sw*2)/2,ci=2*Math.PI*r;return`<svg width="${sz}" height="${sz}"><defs><linearGradient id="rg${sz}" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="var(--em)"/><stop offset="100%" stop-color="var(--sk)"/></linearGradient><filter id="gl${sz}"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><circle cx="${sz/2}" cy="${sz/2}" r="${r}" fill="none" stroke="var(--b)" stroke-width="${sw}"/><circle cx="${sz/2}" cy="${sz/2}" r="${r}" fill="none" stroke="url(#rg${sz})" stroke-width="${sw}" stroke-linecap="round" stroke-dasharray="${ci}" stroke-dashoffset="${ci-(pct/100)*ci}" transform="rotate(-90 ${sz/2} ${sz/2})" filter="url(#gl${sz})" style="transition:stroke-dashoffset 1.2s cubic-bezier(0.16,1,0.3,1)"/></svg>`}
 function flash(m){const c=document.getElementById("toastContainer");c.innerHTML=`<div class="toast"><span class="toast-dot"></span>${m}</div>`;setTimeout(()=>c.innerHTML="",2800)}
 function showConfetti(){const c=document.getElementById("confettiContainer");c.style.display="block";const cols=["var(--em)","#38BDF8","#FBBF24","var(--co)","#A78BFA","#FB7185"];let h="";for(let i=0;i<40;i++)h+=`<div class="confetti-piece" style="left:${Math.random()*100}%;width:${5+Math.random()*7}px;height:${5+Math.random()*4}px;background:${cols[i%6]};animation:confettiFall ${1.5+Math.random()*1.5}s ease-in ${Math.random()*0.5}s forwards"></div>`;c.innerHTML=h;setTimeout(()=>{c.style.display="none";c.innerHTML=""},3500)}
-const navI=[{id:"dashboard",l:"Überblick",i:"◉"},{id:"budget",l:"Ein & Ausgaben",i:"💶"},{id:"contracts",l:"Verträge",i:"📄"},{id:"debts",l:"Verpflichtungen",i:"☰"},{id:"timeline",l:"Verlauf",i:"◔"}];
+function getNavI(){const base=[{id:"dashboard",l:"Überblick",i:"◉"},{id:"budget",l:"Ein & Ausgaben",i:"💶"},{id:"contracts",l:"Verträge",i:"📄"},{id:"debts",l:"Verpflichtungen",i:"☰"},{id:"timeline",l:"Verlauf",i:"◔"}];if(isBetaUser())base.push({id:"assistant",l:"Assistent",i:"🤖",beta:true});return base;}
+const navI=[];
 // ═══ PLAN-SYSTEM ═══
 const PRO_PRICE="4,90 €";
 const BASIC_DEBT_LIMIT=3;
@@ -392,6 +380,8 @@ function isTrialActive(){const t=user.trialEnd||null;return!!(t&&new Date()<new 
 function trialDaysLeft(){const t=user.trialEnd||null;if(!t)return 0;return Math.max(0,Math.ceil((new Date(t)-new Date())/864e5));}
 function isProPlan(){const p=(user.plan||"").trim().toLowerCase();if(p==="pro"||p==="business"||p==="enterprise")return true;if(isTrialActive())return true;return false;}
 function isBasicPlan(){return!isProPlan();}
+function isBetaUser(){return !!(user.isBeta);}
+function isBetaOrPro(){return isBetaUser()||isProPlan();}
 function isProFeaturePage(p){return proPages.has(p);}
 function canAddDebt(){return isProPlan()||debts.length<BASIC_DEBT_LIMIT;}
 function canAddBudgetEntry(){if(isProPlan())return true;const now=new Date();const m=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}`;return(entries||[]).filter(e=>(e.date||"").startsWith(m)).length<BASIC_BUDGET_LIMIT;}
@@ -419,15 +409,15 @@ function renderNav(){
   const trial=isTrialActive();
   const daysLeft=trialDaysLeft();
   const sidebarNav=document.getElementById("sidebarNav");
-  if(sidebarNav)sidebarNav.innerHTML=navI.map(n=>{
+  if(sidebarNav)sidebarNav.innerHTML=getNavI().map(n=>{
     const locked=isProFeaturePage(n.id)&&!pro;
-    return `<button class="nav-btn ${currentPage===n.id||(currentPage==="detail"&&n.id==="debts")?"active":""}" onclick="goTo('${n.id}')"><span class="icon">${n.i}</span>${n.l}${locked?'<span style="margin-left:auto;font-size:10px;opacity:0.5">🔒</span>':''}</button>`;
+    return `<button class="nav-btn ${currentPage===n.id||(currentPage==="detail"&&n.id==="debts")?"active":""}" onclick="goTo('${n.id}')"><span class="icon">${n.i}</span>${n.l}${n.beta?'<span style="font-size:7px;background:#86E8C0;color:#052e16;padding:1px 5px;border-radius:6px;margin-left:4px;font-weight:800;vertical-align:middle">BETA</span>':""}\${locked?'<span style="margin-left:auto;font-size:10px;opacity:0.5">🔒</span>':''}</button>`;
   }).join("");
   const t=document.getElementById("sidebarTools");
   if(t)t.innerHTML=`<p style="font-size:10px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:1px;margin:0 0 6px;padding:0 10px">Tools</p><button class="nav-btn ${currentPage==="agree"?"active":""}" onclick="goTo('agree')" style="width:100%"><span class="icon">✎</span>Vereinbarungen${!pro?'<span style="margin-left:auto;font-size:10px;opacity:0.5">🔒</span>':''}</button><button class="nav-btn ${currentPage==="cancelAssist"?"active":""}" onclick="goTo('cancelAssist')" style="width:100%"><span class="icon">✉</span>Kündigung${!pro?'<span style="margin-left:auto;font-size:10px;opacity:0.5">🔒</span>':''}</button>`;
   const s=document.getElementById("sidebarSettings");
   if(s)s.innerHTML=`<button class="nav-btn ${currentPage==="settings"?"active":""}" onclick="goTo('settings')" style="width:100%;border-radius:10px"><span class="icon">⚙</span>Einstellungen</button><button class="nav-btn ${currentPage==="pricing"?"active":""}" onclick="goTo('pricing')" style="width:100%;border-radius:10px"><span class="icon">⭐</span>Pläne & Preise</button><button class="nav-btn ${currentPage==="agb"?"active":""}" onclick="goTo('agb')" style="width:100%;border-radius:10px"><span class="icon">📋</span>AGB</button>${trial&&daysLeft<=7?`<div style="margin:6px 0 0;padding:8px 10px;border-radius:10px;background:var(--amG);border:1px solid rgba(251,191,36,0.3);font-size:11px;color:var(--am);font-weight:600">⏰ Noch ${daysLeft} Tage Testphase</div>`:""}`;
-  document.getElementById("mobileNav").innerHTML=navI.map(n=>`<button class="mobile-nav-btn ${currentPage===n.id||(currentPage==="detail"&&n.id==="debts")?"active":""}" onclick="goTo('${n.id}')"><span style="font-size:20px">${n.i}</span>${n.l}</button>`).join("")+`<button class="mobile-nav-btn ${currentPage==="settings"?"active":""}" onclick="goTo('settings')"><span style="font-size:20px">⚙</span>Einst.</button><button class="mobile-fab" onclick="openAdd()">＋</button>`;
+  document.getElementById("mobileNav").innerHTML=getNavI().map(n=>`<button class="mobile-nav-btn ${currentPage===n.id||(currentPage==="detail"&&n.id==="debts")?"active":""}" onclick="goTo('${n.id}')"><span style="font-size:20px">${n.i}</span>${n.l}</button>`).join("")+`<button class="mobile-nav-btn ${currentPage==="settings"?"active":""}" onclick="goTo('settings')"><span style="font-size:20px">⚙</span>Einst.</button><button class="mobile-fab" onclick="openAdd()">＋</button>`;
   renderUser();
 }
 function goTo(p){if(isProFeaturePage(p)&&!isProPlan()){openUpgradeModal(p==="agree"?"Vereinbarungen":p==="contracts"?"Vertragsverwaltung":"Kündigungsassistent");return;}currentPage=p;if(p!=="detail")selectedDebtId=null;renderNav();renderPage();}
@@ -447,7 +437,7 @@ function renderPage(){
   } else if(existingBanner){
     existingBanner.remove();
   }
-if(isProFeaturePage(currentPage)&&!isProPlan()){openUpgradeModal();currentPage="dashboard";}const m=document.getElementById("mainContent");if(currentPage==="dashboard")m.innerHTML=rDash();else if(currentPage==="debts")m.innerHTML=rDebts();else if(currentPage==="detail")m.innerHTML=rDet();else if(currentPage==="budget")m.innerHTML=rBudget();else if(currentPage==="contracts")m.innerHTML=rContracts();else if(currentPage==="cancelAssist")m.innerHTML=rCancelAssistant();else if(currentPage==="agree")m.innerHTML=rAgree();else if(currentPage==="timeline")m.innerHTML=rTime();else if(currentPage==="settings"){m.innerHTML=rSettings();setTimeout(()=>{try{renderSnapshotList()}catch(e){}},0)}else if(currentPage==="pricing")m.innerHTML=rPricing();else if(currentPage==="agb")m.innerHTML=rAgbPage();else if(currentPage==="master")m.innerHTML=rMasterPanel();setTimeout(()=>{document.querySelectorAll("[data-ring]").forEach(el=>{const p=el.dataset.ring,s=el.dataset.size||140,w=el.dataset.sw||8;el.innerHTML=rng(0,+s,+w);setTimeout(()=>el.innerHTML=rng(+p,+s,+w),50)})},10)}
+if(isProFeaturePage(currentPage)&&!isProPlan()){openUpgradeModal();currentPage="dashboard";}const m=document.getElementById("mainContent");if(currentPage==="dashboard")m.innerHTML=rDash();else if(currentPage==="debts")m.innerHTML=rDebts();else if(currentPage==="detail")m.innerHTML=rDet();else if(currentPage==="budget")m.innerHTML=rBudget();else if(currentPage==="contracts")m.innerHTML=rContracts();else if(currentPage==="cancelAssist")m.innerHTML=rCancelAssistant();else if(currentPage==="agree")m.innerHTML=rAgree();else if(currentPage==="timeline")m.innerHTML=rTime();else if(currentPage==="settings"){m.innerHTML=rSettings();setTimeout(()=>{try{renderSnapshotList()}catch(e){}},0)}else if(currentPage==="pricing")m.innerHTML=rPricing();else if(currentPage==="agb")m.innerHTML=rAgbPage();else if(currentPage==="assistant")m.innerHTML=rAssistant();setTimeout(()=>{document.querySelectorAll("[data-ring]").forEach(el=>{const p=el.dataset.ring,s=el.dataset.size||140,w=el.dataset.sw||8;el.innerHTML=rng(0,+s,+w);setTimeout(()=>el.innerHTML=rng(+p,+s,+w),50)})},10)}
 
 let user={loggedIn:false,name:"",firstName:"",lastName:"",plan:"Basis",trialEnd:null,email:"",addressStreet:"",addressZip:"",addressCity:"",phone:""};
 const STORAGE_USER="sfUser";
@@ -851,100 +841,8 @@ function openLogin(){showAuthPage("login")}
 function saveLogin(){openLogin()}
 async function logoutUser(){try{if(supabaseClient)await supabaseClient.auth.signOut()}catch(e){}currentUserId=null;user={loggedIn:false,name:"",firstName:"",lastName:"",plan:"Basis",email:"",addressStreet:"",addressZip:"",addressCity:"",phone:""};saveUser();showAuthPage("login")}
 
-const MASTER_USERNAME="master";
-const MASTER_AUTH_EMAIL="master@planavo.local";
-let masterState={loggedIn:false,tab:"users",users:[],states:[],selectedUserId:null,impersonating:false,original:null,error:"",query:"",deleteConfirm:null};
-function openMasterPanel(){window.location.href=`${window.location.pathname}?master=1`}
-function exitMasterPanel(){window.location.href=window.location.pathname}
-function renderMasterView(){if(isMasterMode)renderMasterStandalone();else renderPage()}
-async function masterLogin(){
-  const u=(document.getElementById("mUser")?.value||"").trim().toLowerCase();
-  const p=(document.getElementById("mPass")?.value||"").trim();
-  if(!supabaseClient){masterState.error="Supabase nicht verbunden";renderMasterView();return;}
-  if(u!==MASTER_USERNAME||!p){masterState.error="Login fehlgeschlagen";renderMasterView();return;}
-  const {data,error}=await supabaseClient.auth.signInWithPassword({email:MASTER_AUTH_EMAIL,password:p});
-  if(error||!data?.user){masterState.error="Login fehlgeschlagen";renderMasterView();return;}
-  const userEmail=(data.user.email||"").trim().toLowerCase();
-  const {data:profile}=await supabaseClient.from("user_profiles").select("role").eq("id",data.user.id).maybeSingle();
-  const roleOk=(profile?.role||"")==="master";
-  const emailOk=userEmail===MASTER_AUTH_EMAIL.toLowerCase();
-  if(!roleOk&&!emailOk){
-    try{await supabaseClient.auth.signOut()}catch(e){}
-    masterState.error="Keine Berechtigung für Master-Panel";
-    renderMasterView();
-    return;
-  }
-  masterState.loggedIn=true;masterState.error="";masterState.tab="stats";
-  await loadMasterData();
-  renderMasterView();
-}
-async function masterLogout(){try{if(supabaseClient)await supabaseClient.auth.signOut()}catch(e){}masterState={loggedIn:false,tab:"users",users:[],states:[],selectedUserId:null,impersonating:false,original:null,error:"",query:"",deleteConfirm:null};exitMasterPanel()}
-async function loadMasterData(){
-  if(!supabaseClient){masterState.error="Supabase nicht verbunden";return;}
-  const [{data:users,error:uErr},{data:states,error:sErr}]=await Promise.all([
-    supabaseClient.from("user_profiles").select("id,email,first_name,last_name,plan,trial_end,address_street,address_zip,address_city,phone,updated_at,is_blocked,admin_note"),
-    supabaseClient.from("app_state").select("user_id,debts,budget_items,contracts,updated_at")
-  ]);
-  if(uErr||sErr){
-    const fmt=(e,table)=>e?`${table}: ${e.message||"Fehler"}${e.code?` [${e.code}]`:""}`:"";
-    masterState.error=`Master-Panel Lesefehler. ${fmt(uErr,"user_profiles")} ${fmt(sErr,"app_state")}`.trim();
-    return;
-  }
-  masterState.users=users||[];
-  masterState.states=states||[];
-  if(!masterState.selectedUserId&&masterState.users.length)masterState.selectedUserId=masterState.users[0].id;
-  if(masterState.selectedUserId&&!masterState.users.some(u=>u.id===masterState.selectedUserId))masterState.selectedUserId=masterState.users[0]?.id||null;
-  masterState.error="";
-}
 const mNum=v=>{const n=Number(v);return Number.isFinite(n)?n:0};
 const mEsc=v=>String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-function masterStateMap(){const map={};masterState.states.forEach(s=>{if(s&&s.user_id)map[s.user_id]=s});return map}
-function masterUserMetrics(u,stateMap){
-  const s=stateMap[u.id]||{};
-  const debtList=Array.isArray(s.debts)?s.debts:[];
-  const budgetList=Array.isArray(s.budget_items)?s.budget_items:[];
-  const contractList=Array.isArray(s.contracts)?s.contracts:[];
-  let income=0,expense=0,sales=0,debtOpen=0,debtMonthly=0,contractMonthly=0,contractYearly=0,entries=0;
-  budgetList.forEach(b=>{
-    const amount=mNum(b?.amount);
-    if(!amount)return;
-    entries++;
-    if(b.type==="income"){
-      income+=amount;
-      const sig=`${b.category||""} ${b.note||""}`.toLowerCase();
-      if(/verkauf|umsatz|rechnung|auftrag|shop|sale/.test(sig))sales+=amount;
-    }else if(b.type==="expense"){
-      expense+=amount;
-    }
-  });
-  debtList.forEach(d=>{
-    const original=mNum(d?.original),paid=mNum(d?.paid),rate=mNum(d?.rate),open=Math.max(0,original-paid);
-    debtOpen+=open;
-    if(open>0)debtMonthly+=Math.max(0,rate);
-  });
-  contractList.forEach(c=>{
-    contractMonthly+=Math.max(0,mNum(c?.monthlyCost));
-    contractYearly+=Math.max(0,mNum(contractAnnualCost(c||{})));
-  });
-  return{user:u,state:s,income,expense,sales,balance:income-expense,debtOpen,debtMonthly,contractMonthly,contractYearly,entries,debtCount:debtList.length,contractCount:contractList.length,updatedAt:s?.updated_at||u?.updated_at||null};
-}
-function masterMetricsList(){
-  const map=masterStateMap();
-  return masterState.users.map(u=>masterUserMetrics(u,map));
-}
-function masterStats(){
-  const metrics=masterMetricsList();
-  const total=masterState.users.length;
-  const withState=metrics.filter(m=>m.entries+m.debtCount+m.contractCount>0).length;
-  const totalDebts=metrics.reduce((a,m)=>a+m.debtCount,0);
-  const totalContracts=metrics.reduce((a,m)=>a+m.contractCount,0);
-  const totalIncome=metrics.reduce((a,m)=>a+m.income,0);
-  const totalExpense=metrics.reduce((a,m)=>a+m.expense,0);
-  const totalSales=metrics.reduce((a,m)=>a+m.sales,0);
-  const debtExposure=metrics.reduce((a,m)=>a+m.debtOpen,0);
-  const monthlyObligation=metrics.reduce((a,m)=>a+m.debtMonthly+m.contractMonthly,0);
-  return{total,withState,totalDebts,totalContracts,totalIncome,totalExpense,totalSales,debtExposure,monthlyObligation,metrics};
-}
 
 // ─── Custom Confirm Modal ──────────────────────────────────────────────────
 const confirmModal = {
@@ -968,496 +866,10 @@ const confirmModal = {
     this._resolve = null;
   }
 };
-document.addEventListener("DOMContentLoaded", () => {
-  });
 
-async function masterResetUserState(id){
-  if(!supabaseClient)return;
-  if(!await confirmModal.show("Alle Nutzerdaten (Verbindlichkeiten, Ein-/Ausgaben, Verträge) für diesen Kunden zurücksetzen?",{title:"Nutzerdaten zurücksetzen",okText:"Zurücksetzen",okColor:"#f59e0b",icon:"⚠️"}))return;
-  const {error}=await supabaseClient.from("app_state").upsert({user_id:id,debts:[],budget_items:[],contracts:[],updated_at:new Date().toISOString()});
-  if(error){flash("Reset fehlgeschlagen");return;}
-  flash("Nutzerdaten zurückgesetzt ✓");
-  await loadMasterData();
-  renderMasterView();
-}
-async function masterSyncUserProfileToState(id){
-  if(!supabaseClient)return;
-  const userData=masterState.users.find(u=>u.id===id);
-  if(!userData){flash("Nutzer nicht gefunden");return;}
-  const {error}=await supabaseClient.from("user_profiles").upsert({id,email:userData.email||null,first_name:userData.first_name||null,last_name:userData.last_name||null,plan:userData.plan||"Basis",address_street:userData.address_street||null,address_zip:userData.address_zip||null,address_city:userData.address_city||null,phone:userData.phone||null,updated_at:new Date().toISOString()});
-  if(error){flash("Profil-Sync fehlgeschlagen");return;}
-  flash("Profil synchronisiert ✓");
-  await loadMasterData();
-  renderMasterView();
-}
-async function masterCreateCustomer(){
-  if(!supabaseClient){flash("Supabase nicht verbunden");return;}
-  const firstName=(document.getElementById("mcFirst")?.value||"").trim();
-  const lastName=(document.getElementById("mcLast")?.value||"").trim();
-  const email=(document.getElementById("mcEmail")?.value||"").trim().toLowerCase();
-  const password=(document.getElementById("mcPass")?.value||"").trim();
-  const plan=(document.getElementById("mcPlan")?.value||"Basic").trim()||"Basic";
-  if(!email||!password){flash("E-Mail und Passwort sind Pflicht");return;}
-  if(password.length<6){flash("Passwort muss mindestens 6 Zeichen haben");return;}
-  const {data:sessionData}=await supabaseClient.auth.getSession();
-  const masterSession=sessionData?.session||null;
-  const {data,error}=await supabaseClient.auth.signUp({email,password,options:{data:{first_name:firstName,last_name:lastName,full_name:[firstName,lastName].join(" ").trim(),plan}}});
-  if(error){flash(`Anlage fehlgeschlagen: ${error.message||"Fehler"}`);if(masterSession?.access_token&&masterSession?.refresh_token){try{await supabaseClient.auth.setSession({access_token:masterSession.access_token,refresh_token:masterSession.refresh_token})}catch(e){}}return;}
-  const newUserId=data?.user?.id;
-  if(!newUserId){
-    flash("Kunde angelegt, aber ohne User-ID (E-Mail-Bestätigung prüfen)");
-    if(masterSession?.access_token&&masterSession?.refresh_token){try{await supabaseClient.auth.setSession({access_token:masterSession.access_token,refresh_token:masterSession.refresh_token})}catch(e){}}
-    return;
-  }
-  const trialEndDate=new Date();trialEndDate.setDate(trialEndDate.getDate()+30);const profilePayload={id:newUserId,email,first_name:firstName||null,last_name:lastName||null,plan,trial_end:trialEndDate.toISOString(),updated_at:new Date().toISOString()};
-  const statePayload={user_id:newUserId,debts:[],budget_items:[],contracts:[],budget_month:new Date().toISOString().slice(0,7),updated_at:new Date().toISOString()};
-  const [{error:pErr},{error:sErr}]=await Promise.all([
-    supabaseClient.from("user_profiles").upsert(profilePayload),
-    supabaseClient.from("app_state").upsert(statePayload)
-  ]);
-  if(masterSession?.access_token&&masterSession?.refresh_token){
-    try{await supabaseClient.auth.setSession({access_token:masterSession.access_token,refresh_token:masterSession.refresh_token})}catch(e){}
-  }
-  if(pErr||sErr){flash(`Sync fehlgeschlagen: ${pErr?.message||sErr?.message||"Fehler"}`);return;}
-  ["mcFirst","mcLast","mcEmail","mcPass","mcPlan"].forEach(id=>{const el=document.getElementById(id);if(el)el.value=id==="mcPlan"?"Basis":"";});
-  await loadMasterData();
-  renderMasterView();
-  flash("Kunde in Supabase angelegt und synchronisiert ✓");
-}
-async function masterApplyPlanPreset(id,plan){
-  const input=document.getElementById(`muPlan-${id}`);
-  if(input)input.value=plan;
-  await masterSaveUser(id);
-}
-function rMasterUsersPanel(st){
-  const q=(masterState.query||"").trim().toLowerCase();
-  const filtered=masterState.users.filter(u=>!q||`${u.first_name||""} ${u.last_name||""} ${u.email||""} ${u.plan||""}`.toLowerCase().includes(q));
-  const selected=masterState.users.find(x=>x.id===masterState.selectedUserId)||null;
-  const selectedMetric=selected?(st.metrics.find(x=>x.user.id===selected.id)||masterUserMetrics(selected,masterStateMap())):null;
 
-  const planOptions=["Basis","Pro","Business","Enterprise"].map(p=>`<option value="${p}">${p}</option>`).join("");
 
-  const usersList=filtered.map(u=>{
-    const isSelected=masterState.selectedUserId===u.id;
-    const isBlocked=!!(u.is_blocked);
-    const name=([u.first_name||"",u.last_name||""].join(" ").trim()||u.email||"Nutzer");
-    return `<div onclick="masterState.selectedUserId='${u.id}';renderMasterView()" style="cursor:pointer;padding:10px 12px;border-radius:10px;border:1px solid ${isSelected?'var(--ba)':'var(--b)'};background:${isSelected?'var(--emG2)':'transparent'};margin-bottom:6px;display:flex;align-items:center;gap:10px;transition:all 0.15s">
-      <div style="width:34px;height:34px;border-radius:10px;background:${isBlocked?'var(--coG)':'linear-gradient(135deg,var(--emD),var(--em))'};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:${isBlocked?'var(--co)':'#fff'};flex-shrink:0">${isBlocked?'🔒':name.slice(0,1).toUpperCase()}</div>
-      <div style="flex:1;min-width:0">
-        <p style="font-size:13px;font-weight:700;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:${isBlocked?'var(--ts)':'var(--t)'}">${mEsc(name)}${isBlocked?' <span style="font-size:10px;color:var(--co)">[GESPERRT]</span>':''}</p>
-        <p style="font-size:11px;color:var(--tm);margin:2px 0 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${mEsc(u.email||"-")} · <span style="color:var(--sk)">${mEsc(u.plan||"Basis")}</span></p>
-      </div>
-      ${isSelected?'<span style="color:var(--em);font-size:16px">›</span>':''}
-    </div>`;
-  }).join("")||`<p style="font-size:13px;color:var(--tm);padding:16px 0">Keine Nutzer gefunden.</p>`;
 
-  let manageCard=`<div class="master-card" style="text-align:center;padding:32px"><p style="font-size:24px;margin:0 0 8px">👈</p><p style="font-size:13px;color:var(--tm)">Kunden links auswählen</p></div>`;
-  if(selected){
-    const isBlocked=!!(selected.is_blocked);
-    const isDeleteConfirm=masterState.deleteConfirm===selected.id;
-    manageCard=`<div class="master-card">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;padding-bottom:16px;border-bottom:1px solid var(--b)">
-        <div style="width:46px;height:46px;border-radius:14px;background:${isBlocked?'var(--coG)':'linear-gradient(135deg,var(--emD),var(--em))'};display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:${isBlocked?'var(--co)':'#fff'};flex-shrink:0">${isBlocked?'🔒':mEsc(([selected.first_name||"",selected.last_name||""].join(" ").trim()||selected.email||"?").slice(0,1).toUpperCase())}</div>
-        <div style="flex:1">
-          <h3 style="font-size:16px;font-weight:800;margin:0">${mEsc(([selected.first_name||"",selected.last_name||""].join(" ").trim()||selected.email||"Nutzer"))}</h3>
-          <p style="font-size:12px;color:var(--tm);margin:2px 0 0">${mEsc(selected.email||"-")}</p>
-        </div>
-        ${isBlocked?'<span class="badge" style="color:var(--co);background:var(--coG)">🔒 GESPERRT</span>':'<span class="badge" style="color:var(--em);background:var(--emG)">● Aktiv</span>'}
-      </div>
-
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:18px">
-        <div style="background:var(--bgE);border-radius:10px;padding:10px;border:1px solid var(--b)"><p style="font-size:11px;color:var(--tm);margin:0">Einnahmen</p><p style="font-size:18px;font-weight:800;margin:4px 0 0;color:var(--em)">${fmt(selectedMetric?.income||0)}</p></div>
-        <div style="background:var(--bgE);border-radius:10px;padding:10px;border:1px solid var(--b)"><p style="font-size:11px;color:var(--tm);margin:0">Ausgaben</p><p style="font-size:18px;font-weight:800;margin:4px 0 0;color:var(--co)">${fmt(selectedMetric?.expense||0)}</p></div>
-        <div style="background:var(--bgE);border-radius:10px;padding:10px;border:1px solid var(--b)"><p style="font-size:11px;color:var(--tm);margin:0">Offen</p><p style="font-size:18px;font-weight:800;margin:4px 0 0;color:var(--am)">${fmt(selectedMetric?.debtOpen||0)}</p></div>
-      </div>
-
-      <p style="font-size:11px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:0.6px;margin:0 0 10px">Persönliche Daten</p>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
-        <div class="field" style="margin-bottom:0"><label>Vorname</label><div class="input-wrap"><input id="muFirst-${selected.id}" value="${mEsc(selected.first_name||"")}"></div></div>
-        <div class="field" style="margin-bottom:0"><label>Nachname</label><div class="input-wrap"><input id="muLast-${selected.id}" value="${mEsc(selected.last_name||"")}"></div></div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 120px 1fr;gap:10px;margin-bottom:12px">
-        <div class="field" style="margin-bottom:0"><label>Straße</label><div class="input-wrap"><input id="muStreet-${selected.id}" value="${mEsc(selected.address_street||"")}"></div></div>
-        <div class="field" style="margin-bottom:0"><label>PLZ</label><div class="input-wrap"><input id="muZip-${selected.id}" value="${mEsc(selected.address_zip||"")}"></div></div>
-        <div class="field" style="margin-bottom:0"><label>Ort</label><div class="input-wrap"><input id="muCity-${selected.id}" value="${mEsc(selected.address_city||"")}"></div></div>
-      </div>
-      <div class="field" style="margin-bottom:12px"><label>Telefon</label><div class="input-wrap"><input id="muPhone-${selected.id}" value="${mEsc(selected.phone||"")}"></div></div><div class="field" style="margin-bottom:12px"><label>Testphase bis (trial_end)</label><div class="input-wrap"><input id="muTrial-${selected.id}" type="date" value="${selected.trial_end?new Date(selected.trial_end).toISOString().split('T')[0]:''}"></div></div>
-
-      <p style="font-size:11px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:0.6px;margin:12px 0 10px;padding-top:12px;border-top:1px solid var(--b)">Abo-Plan</p>
-      <div class="field" style="margin-bottom:8px"><div class="input-wrap" style="padding:0 14px">
-        <select id="muPlan-${selected.id}" style="appearance:none;-webkit-appearance:none;border:none;background:transparent;color:var(--t);padding:13px 28px 13px 0;font-size:15px;width:100%;outline:none;cursor:pointer">
-          ${["Basic","Pro"].map(p=>`<option value="${p}" ${(selected.plan||"Basic")===p?"selected":""}>${p}</option>`).join("")}
-        </select>
-        <span style="color:var(--tm);pointer-events:none;font-size:12px">▾</span>
-      </div></div>
-      <div style="display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap">
-        ${["Basic","Pro"].map(p=>`<button class="chip ${(selected.plan||"Basic")===p?"active":""}" onclick="document.getElementById('muPlan-${selected.id}').value='${p}';renderMasterView()" style="font-size:11px;padding:5px 12px">${p}</button>`).join("")}
-      </div>
-
-      <p style="font-size:11px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:0.6px;margin:0 0 10px;padding-top:12px;border-top:1px solid var(--b)">Admin-Notiz (intern)</p>
-      <div class="field" style="margin-bottom:16px"><div class="input-wrap"><input id="muNote-${selected.id}" value="${mEsc(selected.admin_note||"")}" placeholder="Interne Notizen für diesen Nutzer..."></div></div>
-
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
-        <button class="btn btn-primary btn-sm" onclick="masterSaveUser('${selected.id}')">💾 Änderungen speichern</button>
-        <button class="btn btn-outline btn-sm" onclick="masterOpenUserSurface('${selected.id}')">👁 Oberfläche öffnen</button>
-        <button class="btn btn-outline btn-sm" onclick="masterSyncUserProfileToState('${selected.id}')">🔄 Profil-Sync</button>
-        <button class="btn btn-outline btn-sm" onclick="masterResetUserState('${selected.id}')">🗑 Daten zurücksetzen</button>
-      </div>
-
-      <div style="border-top:1px solid var(--b);padding-top:14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-        <button class="btn btn-sm" style="${isBlocked?'background:var(--emG);color:var(--em);border:1px solid var(--ba)':'background:var(--amG);color:var(--am);border:1px solid rgba(251,191,36,0.3)'}" onclick="masterBlockUser('${selected.id}')">${isBlocked?'🔓 Nutzer entsperren':'🔒 Nutzer sperren'}</button>
-        <button class="btn btn-danger btn-sm" onclick="masterDeleteUser('${selected.id}')" style="${isDeleteConfirm?'background:var(--co);color:#fff;':''}">⚠️ ${isDeleteConfirm?'BESTÄTIGEN – Endgültig löschen':'Nutzer löschen'}</button>
-        ${isDeleteConfirm?`<button class="btn btn-outline btn-sm" onclick="masterState.deleteConfirm=null;renderMasterView()">Abbrechen</button>`:''}
-      </div>
-    </div>`;
-  }
-
-  return `<div style="display:grid;grid-template-columns:300px 1fr;gap:14px;align-items:start">
-    <div>
-      <div class="master-card" style="margin-bottom:12px">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-          <h3 style="font-size:15px;font-weight:700;margin:0">Kunden (${masterState.users.length})</h3>
-          <button class="btn btn-ghost btn-sm" onclick="masterState.tab='create';renderMasterView()">＋ Neu</button>
-        </div>
-        <div class="input-wrap" style="margin-bottom:12px"><input placeholder="Suchen..." value="${mEsc(masterState.query)}" oninput="masterState.query=this.value;renderMasterView()" style="flex:1;border:none;outline:none;padding:10px 0;font-size:14px;color:var(--t);background:transparent"></div>
-        <div style="max-height:60vh;overflow-y:auto;padding-right:2px">${usersList}</div>
-      </div>
-    </div>
-    <div>${manageCard}</div>
-  </div>`;
-}
-async function masterSaveUser(id){
-  const get=(k)=>document.getElementById(`${k}-${id}`)?.value?.trim()||"";
-  const first=get("muFirst"),last=get("muLast"),plan=get("muPlan"),street=get("muStreet"),zip=get("muZip"),city=get("muCity"),phone=get("muPhone");
-  const adminNote=document.getElementById(`muNote-${id}`)?.value?.trim()||"";
-  const trialRaw=document.getElementById(`muTrial-${id}`)?.value||"";
-  const trialEnd=trialRaw?new Date(trialRaw).toISOString():null;
-  if(!supabaseClient)return;
-  const {error}=await supabaseClient.from("user_profiles").upsert({id,first_name:first,last_name:last,plan:plan||"Basic",trial_end:trialEnd,address_street:street,address_zip:zip,address_city:city,phone,admin_note:adminNote||null,updated_at:new Date().toISOString()});
-  if(error){flash("Speichern fehlgeschlagen");return;}
-  flash("Nutzerdaten gespeichert ✓");
-  await loadMasterData();
-  renderMasterView();
-}
-async function masterBlockUser(id){
-  if(!supabaseClient)return;
-  const u=masterState.users.find(x=>x.id===id);
-  const isBlocked=!!(u?.is_blocked);
-  const action=isBlocked?"entsperren":"sperren";
-  if(!await confirmModal.show(`Nutzer wirklich ${action}?`,{title:"Aktion bestätigen",okText:"Bestätigen",okColor:"#f59e0b",icon:"⚠️"}))return;
-  const {error}=await supabaseClient.from("user_profiles").update({is_blocked:!isBlocked,updated_at:new Date().toISOString()}).eq("id",id);
-  if(error){flash("Aktion fehlgeschlagen: "+error.message);return;}
-  flash(isBlocked?"Nutzer entsperrt ✓":"Nutzer gesperrt 🔒");
-  await loadMasterData();
-  renderMasterView();
-}
-async function masterDeleteUser(id){
-  if(masterState.deleteConfirm!==id){
-    masterState.deleteConfirm=id;
-    renderMasterView();
-    flash("⚠️ Nochmals klicken zum endgültigen Löschen");
-    return;
-  }
-  if(!supabaseClient)return;
-  masterState.deleteConfirm=null;
-  // Delete app_state and profile (Auth user requires service key, we delete profile data)
-  await Promise.all([
-    supabaseClient.from("app_state").delete().eq("user_id",id),
-    supabaseClient.from("user_profiles").delete().eq("id",id)
-  ]);
-  if(masterState.selectedUserId===id)masterState.selectedUserId=null;
-  flash("Nutzerdaten gelöscht ✓");
-  await loadMasterData();
-  renderMasterView();
-}
-async function masterSetUserPlan(id,plan){
-  const u=masterState.users.find(x=>x.id===id);
-  if(!u)return;
-  u.plan=plan||"Basis";
-  await masterSaveUser(id);
-}
-async function masterOpenUserSurface(id){
-  if(!supabaseClient)return;
-  const profile=masterState.users.find(u=>u.id===id);
-  const state=masterState.states.find(s=>s.user_id===id);
-  if(!profile||!state){flash("Keine Daten für Nutzer");return;}
-  if(!masterState.impersonating){
-    masterState.original={user:JSON.parse(JSON.stringify(user)),debts:JSON.parse(JSON.stringify(debts)),budgetItems:JSON.parse(JSON.stringify(budgetItems)),contracts:JSON.parse(JSON.stringify(contracts)),month:currentBudgetMonth};
-  }
-  masterState.impersonating=true;
-  user.loggedIn=true;user.email=profile.email||"";user.firstName=profile.first_name||"";user.lastName=profile.last_name||"";user.name=[user.firstName,user.lastName].join(" ").trim()||profile.email||"Nutzer";user.plan=profile.plan||"Basis";user.addressStreet=profile.address_street||"";user.addressZip=profile.address_zip||"";user.addressCity=profile.address_city||"";user.phone=profile.phone||"";
-  debts=Array.isArray(state.debts)?state.debts:[];
-  budgetItems=Array.isArray(state.budget_items)?state.budget_items:[];
-  contracts=Array.isArray(state.contracts)?state.contracts:[];
-  normalizeDebtStatuses();
-  if(isMasterMode){
-    const mr=document.getElementById("masterRoot");if(mr)mr.style.display="none";
-    const ly=document.querySelector(".layout");if(ly)ly.style.display="flex";
-    const mn=document.getElementById("mobileNav");if(mn)mn.style.display="";
-  }
-  currentPage="dashboard";
-  renderNav();
-  renderPage();
-  flash(`Kundenoberfläche geöffnet: ${user.name}`);
-}
-function masterStopImpersonation(){
-  if(!masterState.impersonating||!masterState.original)return;
-  user=masterState.original.user;
-  debts=masterState.original.debts;
-  budgetItems=masterState.original.budgetItems;
-  contracts=masterState.original.contracts;
-  currentBudgetMonth=masterState.original.month;
-  masterState.impersonating=false;
-  masterState.original=null;
-  if(isMasterMode){
-    const ly=document.querySelector(".layout");if(ly)ly.style.display="none";
-    const mn=document.getElementById("mobileNav");if(mn)mn.style.display="none";
-    const mr=document.getElementById("masterRoot");if(mr)mr.style.display="block";
-    renderMasterStandalone();
-  }else{
-    currentPage="master";
-    renderNav();
-    renderPage();
-  }
-  flash("Zurück im Master-Panel");
-}
-function rMasterCreatePanel(){
-  return `<div class="master-card" style="max-width:560px">
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px">
-      <button onclick="masterState.tab='users';renderMasterView()" style="background:none;border:none;color:var(--tm);cursor:pointer;font-size:22px;line-height:1">←</button>
-      <h3 style="font-size:18px;font-weight:800;margin:0">Neuen Kunden anlegen</h3>
-    </div>
-    <p style="font-size:12px;color:var(--tm);margin:0 0 16px;line-height:1.6">Legt einen Auth-Nutzer an und synchronisiert Profil + App-State direkt in Supabase.</p>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      <div class="field"><label>Vorname</label><div class="input-wrap"><input id="mcFirst" placeholder="Max"></div></div>
-      <div class="field"><label>Nachname</label><div class="input-wrap"><input id="mcLast" placeholder="Mustermann"></div></div>
-    </div>
-    <div class="field"><label>E-Mail *</label><div class="input-wrap"><input id="mcEmail" type="email" placeholder="kunde@domain.de"></div></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      <div class="field"><label>Passwort * (min. 6 Zeichen)</label><div class="input-wrap"><input id="mcPass" type="password" placeholder="••••••••"></div></div>
-      <div class="field"><label>Startplan</label>
-        <div class="input-wrap" style="padding:0 14px">
-          <select id="mcPlan" style="appearance:none;-webkit-appearance:none;border:none;background:transparent;color:var(--t);padding:13px 28px 13px 0;font-size:15px;width:100%;outline:none;cursor:pointer">
-            <option value="Basic">Basic (kostenlos)</option>
-            <option value="Pro">Pro (4,90 €/Monat)</option>
-          </select>
-          <span style="color:var(--tm);pointer-events:none;font-size:12px">▾</span>
-        </div>
-      </div>
-    </div>
-    <div style="display:flex;gap:10px;margin-top:6px">
-      <button class="btn btn-outline" style="flex:1" onclick="masterState.tab='users';renderMasterView()">Abbrechen</button>
-      <button class="btn btn-primary" style="flex:1" onclick="masterCreateCustomer()">✓ Kundenkonto anlegen</button>
-    </div>
-  </div>`;
-}
-
-function rMasterPanel(){
-  if(!masterState.loggedIn){
-    return `<div class="master-login"><div class="master-card" style="background:linear-gradient(160deg,var(--bgS),var(--bgC))">
-      <p style="font-size:11px;font-weight:700;letter-spacing:.8px;color:#86E8C0;margin:0 0 6px">RATENOVA ADMIN</p>
-      <h1 style="font-size:26px;font-weight:800;margin:0 0 6px">Master Login</h1>
-      <p style="font-size:13px;color:var(--tm);margin:0 0 20px">Separater Zugang für interne Verwaltung.</p>
-      <div class="field"><label>Benutzername</label><div class="input-wrap"><input id="mUser" placeholder="master" onkeydown="if(event.key==='Enter')masterLogin()"></div></div>
-      <div class="field"><label>Passwort</label><div class="input-wrap"><input id="mPass" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')masterLogin()"></div></div>
-      ${masterState.error?`<p style="font-size:12px;color:var(--co);margin:0 0 12px;padding:10px;background:var(--coG);border-radius:8px;border:1px solid rgba(248,113,113,0.3)">${masterState.error}</p>`:""}
-      <div style="display:flex;gap:10px"><button class="btn btn-outline" style="flex:1" onclick="exitMasterPanel()">← Zur App</button><button class="btn btn-primary" style="flex:1" onclick="masterLogin()">Einloggen</button></div>
-    </div></div>`;
-  }
-
-  const st=masterStats();
-  const tab=masterState.tab;
-
-  const navItems=[
-    {id:"stats",icon:"◉",label:"Übersicht"},
-    {id:"users",icon:"👥",label:"Kunden"},
-    {id:"create",icon:"＋",label:"Neu anlegen"},
-    {id:"finance",icon:"€",label:"Finanzen"},
-    {id:"plans",icon:"⭐",label:"Abo-Pläne"},
-    {id:"system",icon:"⚙",label:"System"},
-  ];
-
-  const sidebar=`<div style="width:200px;flex-shrink:0;background:var(--bgS);border-radius:16px;border:1px solid var(--b);padding:16px 0;display:flex;flex-direction:column;min-height:70vh">
-    <div style="padding:0 16px 16px;border-bottom:1px solid var(--b);margin-bottom:8px">
-      <p style="font-size:10px;font-weight:700;letter-spacing:.8px;color:#86E8C0;margin:0 0 2px">ADMIN PANEL</p>
-      <p style="font-size:13px;font-weight:800;margin:0;color:var(--t)">Master</p>
-    </div>
-    ${navItems.map(n=>`<button onclick="masterState.tab='${n.id}';renderMasterView()" style="display:flex;align-items:center;gap:9px;width:100%;padding:10px 16px;border:none;border-right:2px solid ${tab===n.id?'var(--em)':'transparent'};background:${tab===n.id?'var(--emG2)':'transparent'};color:${tab===n.id?'var(--em)':'var(--tm)'};font-size:13px;font-weight:${tab===n.id?'700':'400'};cursor:pointer;text-align:left;transition:all 0.15s">
-      <span style="font-size:15px;width:20px;text-align:center">${n.icon}</span>${n.label}
-    </button>`).join("")}
-    <div style="flex:1"></div>
-    <div style="padding:12px 16px;border-top:1px solid var(--b);margin-top:8px;display:flex;flex-direction:column;gap:6px">
-      ${masterState.impersonating?`<button class="btn btn-ghost btn-sm btn-full" onclick="masterStopImpersonation()">← Ansicht schließen</button>`:""}
-      <button class="btn btn-outline btn-sm btn-full" onclick="loadMasterData().then(()=>renderMasterView())">🔄 Aktualisieren</button>
-      <button class="btn btn-danger btn-sm btn-full" onclick="masterLogout()">Logout</button>
-    </div>
-  </div>`;
-
-  const statsView=`<div>
-    <h2 style="font-size:20px;font-weight:800;margin:0 0 16px">Systemübersicht</h2>
-    <div class="master-kpis" style="margin-bottom:12px">
-      <div class="master-card"><p style="font-size:11px;color:var(--tm);margin:0">Kunden gesamt</p><p style="font-size:30px;font-weight:800;margin:6px 0 0">${st.total}</p></div>
-      <div class="master-card"><p style="font-size:11px;color:var(--tm);margin:0">Aktive Datensätze</p><p style="font-size:30px;font-weight:800;margin:6px 0 0">${st.withState}</p></div>
-      <div class="master-card"><p style="font-size:11px;color:var(--tm);margin:0">Einnahmen gesamt</p><p style="font-size:30px;font-weight:800;margin:6px 0 0;color:var(--em)">${fmt(st.totalIncome)}</p></div>
-      <div class="master-card"><p style="font-size:11px;color:var(--tm);margin:0">Ausgaben gesamt</p><p style="font-size:30px;font-weight:800;margin:6px 0 0;color:var(--co)">${fmt(st.totalExpense)}</p></div>
-    </div>
-    <div class="master-kpis">
-      <div class="master-card"><p style="font-size:11px;color:var(--tm);margin:0">Verkaufs-Einnahmen</p><p style="font-size:30px;font-weight:800;margin:6px 0 0;color:#7DE6BE">${fmt(st.totalSales)}</p></div>
-      <div class="master-card"><p style="font-size:11px;color:var(--tm);margin:0">Offene Verbindlichkeiten</p><p style="font-size:30px;font-weight:800;margin:6px 0 0;color:var(--am)">${fmt(st.debtExposure)}</p></div>
-      <div class="master-card"><p style="font-size:11px;color:var(--tm);margin:0">Monatl. Verpflichtung</p><p style="font-size:30px;font-weight:800;margin:6px 0 0">${fmt(st.monthlyObligation)}</p></div>
-      <div class="master-card"><p style="font-size:11px;color:var(--tm);margin:0">Verträge / Schulden</p><p style="font-size:30px;font-weight:800;margin:6px 0 0">${st.totalContracts} / ${st.totalDebts}</p></div>
-    </div>
-    <div class="master-card" style="margin-top:12px">
-      <h3 style="font-size:15px;font-weight:700;margin:0 0 12px">Alle Kunden auf einen Blick</h3>
-      <div style="overflow:auto"><table style="width:100%;border-collapse:collapse;min-width:700px">
-        <thead><tr>
-          <th style="text-align:left;padding:8px 10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">Name / E-Mail</th>
-          <th style="text-align:left;padding:8px 10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">Plan</th>
-          <th style="text-align:right;padding:8px 10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">Einnahmen</th>
-          <th style="text-align:right;padding:8px 10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">Ausgaben</th>
-          <th style="text-align:right;padding:8px 10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">Offen</th>
-          <th style="text-align:center;padding:8px 10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">Status</th>
-        </tr></thead>
-        <tbody>${st.metrics.map(m=>{const isBlocked=!!(m.user.is_blocked);return`<tr style="opacity:${isBlocked?'0.6':'1'}">
-          <td style="padding:8px 10px;border-bottom:1px solid var(--b)">
-            <p style="font-size:13px;font-weight:700;margin:0">${mEsc(([m.user.first_name||"",m.user.last_name||""].join(" ").trim()||m.user.email||"Nutzer"))}</p>
-            <p style="font-size:11px;color:var(--tm);margin:0">${mEsc(m.user.email||"-")}</p>
-          </td>
-          <td style="padding:8px 10px;border-bottom:1px solid var(--b)"><span style="font-size:12px;font-weight:700;color:var(--sk)">${mEsc(m.user.plan||"Basic")}${m.user.trial_end&&new Date(m.user.trial_end)>new Date()?'<span style="color:var(--am);font-size:9px;margin-left:4px">TRIAL</span>':'' }</span></td>
-          <td style="padding:8px 10px;border-bottom:1px solid var(--b);text-align:right;color:var(--em);font-weight:700">${fmt(m.income)}</td>
-          <td style="padding:8px 10px;border-bottom:1px solid var(--b);text-align:right;color:var(--co);font-weight:700">${fmt(m.expense)}</td>
-          <td style="padding:8px 10px;border-bottom:1px solid var(--b);text-align:right;color:var(--am);font-weight:700">${fmt(m.debtOpen)}</td>
-          <td style="padding:8px 10px;border-bottom:1px solid var(--b);text-align:center">
-            ${isBlocked?'<span style="font-size:11px;font-weight:700;color:var(--co);background:var(--coG);padding:3px 8px;border-radius:20px">🔒 Gesperrt</span>':'<span style="font-size:11px;font-weight:700;color:var(--em);background:var(--emG);padding:3px 8px;border-radius:20px">● Aktiv</span>'}
-          </td>
-        </tr>`}).join("")||`<tr><td colspan="6" style="padding:20px;text-align:center;color:var(--tm)">Keine Kunden.</td></tr>`}</tbody>
-      </table></div>
-    </div>
-  </div>`;
-
-  const q=(masterState.query||"").trim().toLowerCase();
-  const filtered=st.metrics.filter(m=>!q||`${m.user.first_name||""} ${m.user.last_name||""} ${m.user.email||""} ${m.user.plan||""}`.toLowerCase().includes(q));
-  const financeView=`<div>
-    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px">
-      <h2 style="font-size:20px;font-weight:800;margin:0">Finanzübersicht</h2>
-      <div class="input-wrap" style="max-width:280px"><input placeholder="Suche Kunde / E-Mail / Plan" value="${mEsc(masterState.query)}" oninput="masterState.query=this.value;renderMasterView()" style="flex:1;border:none;outline:none;padding:10px 0;font-size:14px;color:var(--t);background:transparent"></div>
-    </div>
-    <div class="master-card"><div style="overflow:auto"><table style="width:100%;border-collapse:collapse;min-width:900px">
-      <thead><tr>
-        <th style="text-align:left;padding:10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">Kunde</th>
-        <th style="text-align:right;padding:10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">Einnahmen</th>
-        <th style="text-align:right;padding:10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">Verkäufe</th>
-        <th style="text-align:right;padding:10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">Ausgaben</th>
-        <th style="text-align:right;padding:10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">Saldo</th>
-        <th style="text-align:right;padding:10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">Offen</th>
-        <th style="text-align:right;padding:10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">Monatl. Last</th>
-        <th style="text-align:right;padding:10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">Verträge/Jahr</th>
-      </tr></thead>
-      <tbody>${filtered.map(m=>`<tr>
-        <td style="padding:10px;border-bottom:1px solid var(--b)">
-          <div style="font-size:13px;font-weight:700">${mEsc(([m.user.first_name||"",m.user.last_name||""].join(" ").trim()||m.user.email||"Nutzer"))}</div>
-          <div style="font-size:11px;color:var(--tm)">${mEsc(m.user.email||"-")} · <span style="color:var(--sk)">${mEsc(m.user.plan||"Basis")}</span></div>
-        </td>
-        <td style="padding:10px;border-bottom:1px solid var(--b);text-align:right;color:var(--em);font-weight:700">${fmt(m.income)}</td>
-        <td style="padding:10px;border-bottom:1px solid var(--b);text-align:right;color:#7DE6BE;font-weight:700">${fmt(m.sales)}</td>
-        <td style="padding:10px;border-bottom:1px solid var(--b);text-align:right;color:var(--co);font-weight:700">${fmt(m.expense)}</td>
-        <td style="padding:10px;border-bottom:1px solid var(--b);text-align:right;font-weight:700;color:${m.balance>=0?'var(--em)':'var(--co)'}">${fmt(m.balance)}</td>
-        <td style="padding:10px;border-bottom:1px solid var(--b);text-align:right">${fmt(m.debtOpen)}</td>
-        <td style="padding:10px;border-bottom:1px solid var(--b);text-align:right">${fmt(m.debtMonthly+m.contractMonthly)}</td>
-        <td style="padding:10px;border-bottom:1px solid var(--b);text-align:right">${fmt(m.contractYearly)}</td>
-      </tr>`).join("")||`<tr><td colspan="8" style="padding:18px;text-align:center;color:var(--tm)">Keine passenden Kunden.</td></tr>`}</tbody>
-    </table></div></div>
-  </div>`;
-
-  const usersView=rMasterUsersPanel(st);
-
-  const plansMap={};masterState.users.forEach(u=>{const p=u.plan||"Basis";plansMap[p]=(plansMap[p]||0)+1;});
-  const plansView=`<div>
-    <h2 style="font-size:20px;font-weight:800;margin:0 0 16px">Abo-Plan Verwaltung</h2>
-    <div style="display:grid;grid-template-columns:220px 1fr;gap:14px;align-items:start">
-      <div class="master-card">
-        <h3 style="font-size:14px;font-weight:700;margin:0 0 12px">Verteilung</h3>
-        ${Object.keys(plansMap).length?Object.entries(plansMap).map(([k,v])=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--b)">
-          <span style="font-size:13px;color:var(--sk);font-weight:600">${mEsc(k)}</span>
-          <strong style="font-size:15px">${v}</strong>
-        </div>`).join(""):`<p style="font-size:13px;color:var(--tm)">Keine Daten.</p>`}
-      </div>
-      <div class="master-card">
-        <h3 style="font-size:14px;font-weight:700;margin:0 0 12px">Plan pro Nutzer ändern</h3>
-        <div style="overflow:auto"><table style="width:100%;border-collapse:collapse;min-width:500px">
-          <thead><tr>
-            <th style="text-align:left;padding:8px 10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">Name</th>
-            <th style="text-align:left;padding:8px 10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">E-Mail</th>
-            <th style="text-align:left;padding:8px 10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">Plan</th>
-            <th style="text-align:right;padding:8px 10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">Aktion</th>
-          </tr></thead>
-          <tbody>${masterState.users.map(u=>`<tr>
-            <td style="padding:8px 10px;border-bottom:1px solid var(--b);font-size:13px;font-weight:600">${mEsc(([u.first_name||"",u.last_name||""].join(" ").trim()||"Nutzer"))}</td>
-            <td style="padding:8px 10px;border-bottom:1px solid var(--b);font-size:12px;color:var(--tm)">${mEsc(u.email||"-")}</td>
-            <td style="padding:8px 10px;border-bottom:1px solid var(--b);width:180px">
-              <div class="input-wrap" style="padding:0 12px">
-                <select id="muPlan-${u.id}" style="appearance:none;-webkit-appearance:none;border:none;background:transparent;color:var(--t);padding:8px 24px 8px 0;font-size:13px;width:100%;outline:none;cursor:pointer">
-                  ${["Basic","Pro"].map(p=>`<option value="${p}" ${(u.plan||"Basic")===p?"selected":""}>${p}</option>`).join("")}
-                </select>
-                <span style="color:var(--tm);pointer-events:none;font-size:11px">▾</span>
-              </div>
-            </td>
-            <td style="padding:8px 10px;border-bottom:1px solid var(--b);text-align:right"><button class="btn btn-primary btn-sm" onclick="masterSaveUser('${u.id}')">Speichern</button></td>
-          </tr>`).join("")||`<tr><td colspan="4" style="padding:16px;text-align:center;color:var(--tm)">Keine Nutzer.</td></tr>`}</tbody>
-        </table></div>
-      </div>
-    </div>
-  </div>`;
-
-  const systemView=`<div>
-    <h2 style="font-size:20px;font-weight:800;margin:0 0 16px">System</h2>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-      <div class="master-card">
-        <h3 style="font-size:14px;font-weight:700;margin:0 0 12px">Systemstatus</h3>
-        <div style="display:flex;flex-direction:column;gap:10px">
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:10px;background:var(--bgE);border:1px solid var(--b)">
-            <span style="font-size:13px;color:var(--tm)">Supabase Client</span>
-            <span style="font-size:14px;font-weight:700;color:${supabaseClient?'var(--em)':'var(--co)'}">${supabaseClient?'✓ Verbunden':'✕ Fehler'}</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:10px;background:var(--bgE);border:1px solid var(--b)">
-            <span style="font-size:13px;color:var(--tm)">Master Session</span>
-            <span style="font-size:14px;font-weight:700;color:${masterState.loggedIn?'var(--em)':'var(--co)'}">${masterState.loggedIn?'✓ Aktiv':'✕ Inaktiv'}</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:10px;background:var(--bgE);border:1px solid var(--b)">
-            <span style="font-size:13px;color:var(--tm)">Datensätze geladen</span>
-            <span style="font-size:14px;font-weight:700">${masterState.states.length}</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:10px;background:var(--bgE);border:1px solid var(--b)">
-            <span style="font-size:13px;color:var(--tm)">Letztes Update</span>
-            <span style="font-size:13px;font-weight:600">${new Date().toLocaleString("de-DE")}</span>
-          </div>
-        </div>
-      </div>
-      <div class="master-card">
-        <h3 style="font-size:14px;font-weight:700;margin:0 0 12px">Admin Aktionen</h3>
-        <div style="display:flex;flex-direction:column;gap:8px">
-          <button class="btn btn-outline btn-sm btn-full" onclick="loadMasterData().then(()=>renderMasterView())">🔄 Daten neu laden</button>
-          <button class="btn btn-outline btn-sm btn-full" onclick="masterState.tab='finance';renderMasterView()">💰 Zu Finanzen</button>
-          <button class="btn btn-outline btn-sm btn-full" onclick="masterState.tab='users';renderMasterView()">👥 Zu Kunden</button>
-          <button class="btn btn-ghost btn-sm btn-full" onclick="openVerificationEmailPreview()">📧 E-Mail Vorlage anzeigen</button>
-          <button class="btn btn-danger btn-sm btn-full" style="margin-top:8px" onclick="masterLogout()">Logout</button>
-        </div>
-      </div>
-    </div>
-  </div>`;
-
-  const contentMap={stats:statsView,users:usersView,create:rMasterCreatePanel(),finance:financeView,plans:plansView,system:systemView};
-  const content=contentMap[tab]||usersView;
-
-  return `<div style="display:flex;gap:16px;align-items:flex-start">
-    ${sidebar}
-    <div style="flex:1;min-width:0">
-      ${masterState.error?`<div class="master-card" style="border-color:rgba(248,113,113,0.35);margin-bottom:12px;padding:12px 16px"><p style="font-size:13px;color:var(--co);margin:0">⚠️ ${masterState.error}</p></div>`:""}
-      ${content}
-    </div>
-  </div>`;
-}
-function renderMasterStandalone(){const root=document.getElementById("masterRoot");if(!root)return;root.innerHTML=`<div class="master-shell">${rMasterPanel()}</div>`}
 
 
 
@@ -6578,17 +5990,10 @@ normalizeDebtStatuses();
 loadLocalState();
 loadBudget();
 loadUser();
-if(!isMasterMode){
   initAuthUI();
   renderNav();
   renderUser();
   renderPage();
-}else{
-  const ar=document.getElementById("authRoot");if(ar)ar.style.display="none";
-  const ly=document.querySelector(".layout");if(ly)ly.style.display="none";
-  const mn=document.getElementById("mobileNav");if(mn)mn.style.display="none";
-  const mr=document.getElementById("masterRoot");if(mr)mr.style.display="block";
-}
 // Dynamisch Paddle laden
 function loadPaddleScript(){
   return new Promise((resolve,reject)=>{
@@ -6613,17 +6018,6 @@ if(document.readyState==="loading"){
 (async()=>{
   const sbReady=await initSupabaseClient();
   if(!sbReady){
-    if(isMasterMode){
-      const mr=document.getElementById("masterRoot");
-      if(mr)mr.innerHTML=`<div class="master-shell"><div class="master-login"><div class="master-card"><h1 style="font-size:24px;font-weight:800;margin:0 0 8px">Admin Master Panel</h1><p style="font-size:13px;color:var(--co);margin:0">Supabase ist nicht konfiguriert. Bitte URL und Publishable Key setzen.</p></div></div></div>`;
-    }else{
-      showAuthPage("login");
-      authShowNotice("Supabase ist nicht konfiguriert. Bitte URL und Anon Key im Code setzen.","err");
-    }
-    return;
-  }
-  if(isMasterMode){
-    renderMasterStandalone();
     return;
   }
   const authed=await ensureAppAuth();
@@ -6645,5 +6039,440 @@ if(document.readyState==="loading"){
     </div>
   </div>
 </div>
+
+// ── SCHULDEN-ASSISTENT ──────────────────────────────────────────────────────
+let assistantTab = "strategie";
+let assistantChat = [];
+let scenarioExtra = 0;
+let scenarioTarget = null;
+let chatLoading = false;
+
+function rAssistant(){
+  if(!isBetaUser()){
+    return `<div style="text-align:center;padding:80px 20px">
+      <div style="font-size:56px;margin-bottom:16px">🔒</div>
+      <h2 style="font-size:22px;font-weight:800;margin:0 0 8px">Beta-Feature</h2>
+      <p style="font-size:14px;color:var(--tm);margin:0">Der Schulden-Assistent ist aktuell nur für Beta-Nutzer verfügbar.</p>
+    </div>`;
+  }
+
+  const tabs=[
+    {id:"strategie",icon:"🎯",label:"Strategie"},
+    {id:"szenarien",icon:"📊",label:"Szenarien"},
+    {id:"briefe",icon:"✉️",label:"Briefe"},
+    {id:"chat",icon:"🤖",label:"KI-Chat"},
+  ];
+
+  const tabBar=`<div style="display:flex;gap:6px;margin-bottom:24px;flex-wrap:wrap">
+    ${tabs.map(t=>`<button class="chip ${assistantTab===t.id?"active":""}" onclick="assistantTab='${t.id}';renderPage()">${t.icon} ${t.label}</button>`).join("")}
+    <span style="margin-left:auto;font-size:10px;background:rgba(134,232,192,0.15);color:#86E8C0;padding:4px 10px;border-radius:20px;border:1px solid rgba(134,232,192,0.3);font-weight:700;display:flex;align-items:center">🧪 BETA</span>
+  </div>`;
+
+  let content = "";
+
+  if(assistantTab==="strategie") content = rAssistantStrategie();
+  else if(assistantTab==="szenarien") content = rAssistantSzenarien();
+  else if(assistantTab==="briefe") content = rAssistantBriefe();
+  else if(assistantTab==="chat") content = rAssistantChat();
+
+  return `<div style="max-width:900px">
+    <div style="margin-bottom:20px">
+      <h1 style="font-size:26px;font-weight:800;margin:0 0 4px">🤖 Schulden-Assistent</h1>
+      <p style="font-size:13px;color:var(--tm);margin:0">Dein intelligenter Finanzberater – analysiert deine echten Daten.</p>
+    </div>
+    ${tabBar}
+    ${content}
+  </div>`;
+}
+
+// ── TAB 1: STRATEGIE ────────────────────────────────────────────────────────
+function rAssistantStrategie(){
+  const aktiv = debts.filter(d=>d.paid<d.original && d.original>0);
+  if(!aktiv.length) return `<div class="card" style="text-align:center;padding:48px"><p style="font-size:32px">🎉</p><p style="font-weight:700;margin:8px 0">Keine aktiven Verbindlichkeiten!</p></div>`;
+
+  const totalOffen = aktiv.reduce((s,d)=>s+d.original-d.paid,0);
+  const totalRate  = aktiv.reduce((s,d)=>s+d.rate,0);
+
+  // Avalanche (höchste Rate/Offen-Ratio zuerst = teuerste)
+  const avalanche = [...aktiv].sort((a,b)=>{
+    const ra=(a.rate||0)/Math.max(a.original-a.paid,1);
+    const rb=(b.rate||0)/Math.max(b.original-b.paid,1);
+    return rb-ra;
+  });
+  // Snowball (kleinste offene Summe zuerst)
+  const snowball = [...aktiv].sort((a,b)=>(a.original-a.paid)-(b.original-b.paid));
+
+  const debtCard=(d,rank,method)=>{
+    const offen=d.original-d.paid;
+    const monate=d.rate>0?Math.ceil(offen/d.rate):null;
+    const pct=pc(d.paid,d.original);
+    const isFirst=rank===0;
+    return `<div class="card" style="padding:16px;border-left:3px solid ${isFirst?"var(--em)":"var(--b)"}">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="width:32px;height:32px;border-radius:10px;background:${isFirst?"var(--emG)":"var(--bgE)"};border:1px solid ${isFirst?"var(--ba)":"var(--b)"};display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:${isFirst?"var(--em)":"var(--ts)"};flex-shrink:0">${rank+1}</div>
+        <div style="flex:1">
+          <p style="font-size:14px;font-weight:700;margin:0">${d.emoji} ${d.name}</p>
+          <p style="font-size:12px;color:var(--tm);margin:2px 0 0">Offen: <strong style="color:var(--co)">${fmt(offen)}</strong> · Rate: ${fmt(d.rate)}/Mo${monate?` · ~${monate} Monate`:""}</p>
+        </div>
+        ${isFirst?`<span style="font-size:10px;background:var(--emG);color:var(--em);padding:3px 10px;border-radius:20px;font-weight:700;border:1px solid var(--ba)">JETZT FOKUS</span>`:""}
+      </div>
+      <div style="margin-top:8px">${pb(pct,4)}</div>
+    </div>`;
+  };
+
+  return `
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+    <div class="card" style="padding:16px">
+      <p style="font-size:11px;color:var(--ts);text-transform:uppercase;letter-spacing:1px;margin:0 0 4px">Gesamt offen</p>
+      <p style="font-size:24px;font-weight:800;margin:0;color:var(--co)">${fmt(totalOffen)}</p>
+    </div>
+    <div class="card" style="padding:16px">
+      <p style="font-size:11px;color:var(--ts);text-transform:uppercase;letter-spacing:1px;margin:0 0 4px">Monatliche Gesamtrate</p>
+      <p style="font-size:24px;font-weight:800;margin:0;color:var(--am)">${fmt(totalRate)}</p>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+    <div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+        <span style="font-size:18px">⚡</span>
+        <div>
+          <p style="font-size:14px;font-weight:700;margin:0">Avalanche-Methode</p>
+          <p style="font-size:11px;color:var(--tm);margin:0">Teuerste Schuld zuerst – spart am meisten Zinsen</p>
+        </div>
+      </div>
+      <div class="flex-col">${avalanche.map((d,i)=>debtCard(d,i,"avalanche")).join("")}</div>
+    </div>
+    <div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+        <span style="font-size:18px">❄️</span>
+        <div>
+          <p style="font-size:14px;font-weight:700;margin:0">Snowball-Methode</p>
+          <p style="font-size:11px;color:var(--tm);margin:0">Kleinste Schuld zuerst – schnelle Erfolgserlebnisse</p>
+        </div>
+      </div>
+      <div class="flex-col">${snowball.map((d,i)=>debtCard(d,i,"snowball")).join("")}</div>
+    </div>
+  </div>`;
+}
+
+// ── TAB 2: SZENARIEN ────────────────────────────────────────────────────────
+function rAssistantSzenarien(){
+  const aktiv = debts.filter(d=>d.paid<d.original && d.original>0 && d.rate>0);
+  const totalOffen = aktiv.reduce((s,d)=>s+d.original-d.paid,0);
+  const totalRate  = aktiv.reduce((s,d)=>s+d.rate,0);
+
+  const extra = scenarioExtra||0;
+  const newRate = totalRate + extra;
+  const monate_basis = totalRate>0 ? Math.ceil(totalOffen/totalRate) : null;
+  const monate_neu   = newRate>0   ? Math.ceil(totalOffen/newRate)   : null;
+  const diff = monate_basis&&monate_neu ? monate_basis-monate_neu : null;
+
+  const abloeseDebt = scenarioTarget ? debts.find(d=>d.id===scenarioTarget) : null;
+  const abloeseRest = abloeseDebt ? Math.max(abloeseDebt.original-abloeseDebt.paid,0) : 0;
+  const newRateAfterAbloesung = abloeseDebt ? totalRate - (abloeseDebt.rate||0) : null;
+  const monate_abloese = newRateAfterAbloesung&&newRateAfterAbloesung>0 ? Math.ceil((totalOffen-abloeseRest)/newRateAfterAbloesung) : null;
+
+  return `
+  <div class="card" style="padding:20px;margin-bottom:16px">
+    <h3 style="font-size:15px;font-weight:700;margin:0 0 16px">📈 Was wenn ich mehr zahle?</h3>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+      <label style="font-size:13px;color:var(--tm);flex-shrink:0">Zusatzbetrag pro Monat:</label>
+      <div class="input-wrap" style="width:160px"><input type="number" id="scenExtra" value="${extra}" min="0" step="50" placeholder="z.B. 200" oninput="scenarioExtra=+this.value||0;renderPage()"><span class="suffix">€</span></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+      <div style="padding:14px;border-radius:12px;background:var(--bgE);border:1px solid var(--b)">
+        <p style="font-size:11px;color:var(--tm);margin:0 0 4px">Aktuelle Rate</p>
+        <p style="font-size:20px;font-weight:800;margin:0">${fmt(totalRate)}/Mo</p>
+        <p style="font-size:11px;color:var(--tm);margin:4px 0 0">~${monate_basis||"?"} Monate</p>
+      </div>
+      <div style="padding:14px;border-radius:12px;background:${extra>0?"var(--emG)":"var(--bgE)"};border:1px solid ${extra>0?"var(--ba)":"var(--b)"}">
+        <p style="font-size:11px;color:var(--tm);margin:0 0 4px">Mit Zusatzbetrag</p>
+        <p style="font-size:20px;font-weight:800;margin:0;color:${extra>0?"var(--em)":"var(--t)"}">${fmt(newRate)}/Mo</p>
+        <p style="font-size:11px;color:${extra>0?"var(--em)":"var(--tm)"};margin:4px 0 0">~${monate_neu||"?"} Monate</p>
+      </div>
+      <div style="padding:14px;border-radius:12px;background:${diff&&diff>0?"rgba(110,226,58,0.1)":"var(--bgE)"};border:1px solid ${diff&&diff>0?"rgba(110,226,58,0.3)":"var(--b)"}">
+        <p style="font-size:11px;color:var(--tm);margin:0 0 4px">Ersparnis</p>
+        <p style="font-size:20px;font-weight:800;margin:0;color:${diff&&diff>0?"var(--em)":"var(--ts)"}">${diff&&diff>0?diff+" Mo früher":"–"}</p>
+        <p style="font-size:11px;color:var(--tm);margin:4px 0 0">${diff&&diff>0?"🎉 Ziel früher erreicht":extra>0?"Kein Unterschied":"Betrag eingeben"}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="padding:20px">
+    <h3 style="font-size:15px;font-weight:700;margin:0 0 16px">💥 Was wenn ich eine Schuld ablöse?</h3>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+      <label style="font-size:13px;color:var(--tm);flex-shrink:0">Schuld auswählen:</label>
+      <div class="input-wrap" style="flex:1;min-width:200px">
+        <select id="scenTarget" onchange="scenarioTarget=this.value?+this.value:null;renderPage()" style="appearance:none;border:none;background:transparent;color:var(--t);padding:13px 28px 13px 0;width:100%;outline:none;font-size:14px">
+          <option value="">– Schuld wählen –</option>
+          ${aktiv.map(d=>`<option value="${d.id}" ${scenarioTarget===d.id?"selected":""}>${d.emoji} ${d.name} (Offen: ${fmt(d.original-d.paid)})</option>`).join("")}
+        </select>
+        <span style="color:var(--tm);pointer-events:none">▾</span>
+      </div>
+    </div>
+    ${abloeseDebt?`
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+      <div style="padding:14px;border-radius:12px;background:var(--bgE);border:1px solid var(--b)">
+        <p style="font-size:11px;color:var(--tm);margin:0 0 4px">Ablösebetrag</p>
+        <p style="font-size:20px;font-weight:800;margin:0;color:var(--co)">${fmt(abloeseRest)}</p>
+      </div>
+      <div style="padding:14px;border-radius:12px;background:var(--emG);border:1px solid var(--ba)">
+        <p style="font-size:11px;color:var(--tm);margin:0 0 4px">Neue Monatsrate</p>
+        <p style="font-size:20px;font-weight:800;margin:0;color:var(--em)">${fmt(newRateAfterAbloesung)}/Mo</p>
+        <p style="font-size:11px;color:var(--em);margin:4px 0 0">−${fmt(abloeseDebt.rate||0)}/Mo gespart</p>
+      </div>
+      <div style="padding:14px;border-radius:12px;background:var(--emG);border:1px solid var(--ba)">
+        <p style="font-size:11px;color:var(--tm);margin:0 0 4px">Neue Laufzeit</p>
+        <p style="font-size:20px;font-weight:800;margin:0;color:var(--em)">~${monate_abloese||"?"} Mo</p>
+        <p style="font-size:11px;color:var(--em);margin:4px 0 0">${monate_basis&&monate_abloese&&monate_basis>monate_abloese?`${monate_basis-monate_abloese} Mo früher fertig`:""}</p>
+      </div>
+    </div>`:`<p style="font-size:13px;color:var(--tm)">Wähle eine Schuld um zu sehen wie sich deren Ablösung auf alle anderen auswirkt.</p>`}
+  </div>`;
+}
+
+// ── TAB 3: BRIEFE ───────────────────────────────────────────────────────────
+function rAssistantBriefe(){
+  const aktiv = debts.filter(d=>d.paid<d.original);
+  const templates=[
+    {id:"stundung",icon:"⏸",title:"Stundungsantrag",desc:"Rate kann diesen Monat nicht gezahlt werden"},
+    {id:"ratensenkung",icon:"📉",title:"Ratensenkungsantrag",desc:"Dauerhafte Senkung der monatlichen Rate"},
+    {id:"mahnstopp",icon:"🛑",title:"Mahnstopp-Anfrage",desc:"Mahnverfahren vorübergehend stoppen"},
+    {id:"kulanz",icon:"🤝",title:"Kulanzanfrage",desc:"Zinsen oder Gebühren erlassen lassen"},
+  ];
+
+  const [selDebt,selTemplate]=[window._briefDebt||null,window._briefTemplate||null];
+  const d=selDebt?debts.find(x=>x.id===selDebt):null;
+  const generateBrief=()=>{
+    if(!d||!selTemplate) return "";
+    const sender=`${user.firstName||""} ${user.lastName||""}`.trim()||"[Dein Name]";
+    const addr=[user.addressStreet,`${user.addressZip||""} ${user.addressCity||""}`.trim()].filter(Boolean).join(", ")||"[Deine Adresse]";
+    const creditor=d.creditorName||d.name;
+    const betrag=fmt(d.rate||d.original-d.paid);
+    const datum=new Date().toLocaleDateString("de-DE",{day:"2-digit",month:"long",year:"numeric"});
+    const texts={
+      stundung:`Sehr geehrte Damen und Herren,
+
+bezüglich meiner Verbindlichkeit "${d.name}" möchte ich Sie höflich um eine einmalige Stundung der fälligen Rate von ${betrag} bitten.
+
+Aufgrund einer vorübergehenden finanziellen Engpässe ist es mir leider nicht möglich, die Rate zum vereinbarten Termin zu begleichen. Ich versichere Ihnen, dass es sich um eine kurzfristige Situation handelt und ich die Rate im nächsten Monat vollständig nachholen werde.
+
+Ich bitte Sie daher, die Fälligkeit um einen Monat zu verschieben und auf die Erhebung von Verzugszinsen und Mahngebühren zu verzichten.
+
+Für Rückfragen stehe ich jederzeit zur Verfügung.
+
+Mit freundlichen Grüßen
+${sender}`,
+      ratensenkung:`Sehr geehrte Damen und Herren,
+
+bezüglich meiner Verbindlichkeit "${d.name}" möchte ich Sie um eine dauerhafte Reduzierung der monatlichen Rate bitten.
+
+Die derzeitige Rate von ${betrag} übersteigt meine aktuelle finanzielle Leistungsfähigkeit erheblich. Um eine geordnete Rückzahlung sicherzustellen und einen Zahlungsausfall zu vermeiden, bitte ich Sie um eine einvernehmliche Anpassung der Ratenvereinbarung.
+
+Ich bin bereit, alle notwendigen Nachweise meiner finanziellen Situation zur Verfügung zu stellen und stehe für ein klärendes Gespräch jederzeit bereit.
+
+Mit freundlichen Grüßen
+${sender}`,
+      mahnstopp:`Sehr geehrte Damen und Herren,
+
+bezüglich der Verbindlichkeit "${d.name}" bitte ich Sie hiermit, das laufende Mahnverfahren vorübergehend auszusetzen.
+
+Ich befinde mich derzeit in einer schwierigen finanziellen Situation und bemühe mich aktiv um eine Lösung. Ein fortgesetztes Mahnverfahren würde meine Situation verschlechtern und eine geregelte Rückzahlung erschweren.
+
+Ich bitte um einen Zahlungsaufschub von 30 Tagen sowie um schriftliche Bestätigung dieser Vereinbarung.
+
+Mit freundlichen Grüßen
+${sender}`,
+      kulanz:`Sehr geehrte Damen und Herren,
+
+bezüglich meiner Verbindlichkeit "${d.name}" richte ich eine Kulanzanfrage an Sie.
+
+Aufgrund meiner angespannten finanziellen Lage bitte ich Sie, aufgelaufene Mahngebühren und Verzugszinsen in Höhe der bisherigen Kosten zu erlassen. Ich möchte diese Schuld begleichen und benötige hierfür Ihre Unterstützung.
+
+Ich versichere Ihnen meinen guten Willen zur vollständigen Rückzahlung des Hauptbetrags und bitte Sie, mir durch diesen Schritt entgegenzukommen.
+
+Mit freundlichen Grüßen
+${sender}`,
+    };
+    const body=texts[selTemplate]||"";
+    return `${sender}
+${addr}
+
+${datum}
+
+An: ${creditor}${d.creditorAddress?"
+"+d.creditorAddress:""}
+
+Betreff: ${templates.find(t=>t.id===selTemplate)?.title||""} – ${d.name}
+
+${body}`;
+  };
+
+  const brief=generateBrief();
+
+  return `
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+    <div>
+      <p style="font-size:12px;font-weight:700;color:var(--ts);text-transform:uppercase;margin:0 0 10px">1. Verbindlichkeit wählen</p>
+      <div class="flex-col" style="gap:6px">
+        ${aktiv.map(d=>`<div onclick="window._briefDebt=${d.id};renderPage()" class="card" style="padding:12px;cursor:pointer;border:1px solid ${selDebt===d.id?"var(--em)":"var(--b)"};background:${selDebt===d.id?"var(--emG)":"var(--bgC)"}">
+          <p style="font-size:13px;font-weight:700;margin:0">${d.emoji} ${d.name}</p>
+          <p style="font-size:11px;color:var(--tm);margin:2px 0 0">${d.creditorName||"–"} · ${fmt(d.rate||d.original-d.paid)}</p>
+        </div>`).join("")}
+      </div>
+    </div>
+    <div>
+      <p style="font-size:12px;font-weight:700;color:var(--ts);text-transform:uppercase;margin:0 0 10px">2. Brief-Typ wählen</p>
+      <div class="flex-col" style="gap:6px">
+        ${templates.map(t=>`<div onclick="window._briefTemplate='${t.id}';renderPage()" class="card" style="padding:12px;cursor:pointer;border:1px solid ${selTemplate===t.id?"var(--em)":"var(--b)"};background:${selTemplate===t.id?"var(--emG)":"var(--bgC)"}">
+          <p style="font-size:13px;font-weight:700;margin:0">${t.icon} ${t.title}</p>
+          <p style="font-size:11px;color:var(--tm);margin:2px 0 0">${t.desc}</p>
+        </div>`).join("")}
+      </div>
+    </div>
+  </div>
+
+  ${brief?`
+  <div class="card" style="padding:20px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <h3 style="font-size:15px;font-weight:700;margin:0">📄 Generiertes Schreiben</h3>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-ghost btn-sm" onclick="navigator.clipboard.writeText(document.getElementById('briefText').value);flash('Kopiert ✓')">📋 Kopieren</button>
+        <button class="btn btn-primary btn-sm" onclick="printBrief()">🖨 Drucken</button>
+      </div>
+    </div>
+    <textarea id="briefText" style="width:100%;min-height:320px;background:var(--bgE);border:1px solid var(--b);border-radius:12px;padding:16px;font-family:'Courier New',monospace;font-size:12px;color:var(--t);resize:vertical;line-height:1.7">${brief.replace(/</g,'&lt;')}</textarea>
+  </div>`:`<div class="card" style="text-align:center;padding:40px;color:var(--tm)"><p style="font-size:32px;margin:0 0 12px">✉️</p><p style="font-size:14px">Wähle eine Verbindlichkeit und einen Brief-Typ um ein Schreiben zu generieren.</p></div>`}`;
+}
+
+function printBrief(){
+  const text=document.getElementById("briefText")?.value||"";
+  const w=window.open("","_blank");
+  w.document.write(`<!doctype html><html><head><meta charset="utf-8"><style>body{font-family:'Courier New',monospace;font-size:12pt;line-height:1.8;padding:40px;max-width:700px;margin:auto;color:#111}@media print{body{padding:20px}}</style></head><body><pre style="white-space:pre-wrap;font-family:inherit">${text.replace(/</g,'&lt;')}</pre></body></html>`);
+  w.document.close();
+  setTimeout(()=>w.print(),300);
+}
+
+// ── TAB 4: KI-CHAT ──────────────────────────────────────────────────────────
+function rAssistantChat(){
+  const msgs=assistantChat.map(m=>`
+    <div style="display:flex;gap:10px;${m.role==="user"?"flex-direction:row-reverse":""}">
+      <div style="width:32px;height:32px;border-radius:10px;background:${m.role==="user"?"linear-gradient(135deg,var(--emD),var(--em))":"var(--bgE)"};border:1px solid ${m.role==="user"?"var(--ba)":"var(--b)"};display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">${m.role==="user"?"👤":"🤖"}</div>
+      <div style="max-width:75%;padding:12px 16px;border-radius:${m.role==="user"?"16px 4px 16px 16px":"4px 16px 16px 16px"};background:${m.role==="user"?"linear-gradient(135deg,var(--emD),var(--em))":"var(--bgC)"};border:1px solid ${m.role==="user"?"transparent":"var(--b)"};color:${m.role==="user"?"#fff":"var(--t)"}">
+        <p style="font-size:13px;margin:0;line-height:1.6;white-space:pre-wrap">${m.content}</p>
+      </div>
+    </div>`).join("");
+
+  const suggestions=[
+    "Welche meiner Schulden ist am kritischsten?",
+    "Wie lange bis ich schuldenfrei bin?",
+    "Erstelle mir einen 6-Monats-Tilgungsplan",
+    "Welche Schuld soll ich zuerst abbezahlen?",
+  ];
+
+  return `
+  <div class="card" style="padding:0;overflow:hidden;display:flex;flex-direction:column;height:520px">
+    <div style="padding:14px 18px;border-bottom:1px solid var(--b);display:flex;align-items:center;gap:10px">
+      <span style="font-size:20px">🤖</span>
+      <div>
+        <p style="font-size:14px;font-weight:700;margin:0">Schulden-KI</p>
+        <p style="font-size:11px;color:var(--em);margin:0">● Kennt deine ${debts.length} Verbindlichkeiten</p>
+      </div>
+      <button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="assistantChat=[];renderPage()">🗑 Leeren</button>
+    </div>
+
+    <div id="chatMessages" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:14px">
+      ${assistantChat.length===0?`
+        <div style="text-align:center;padding:32px 20px;color:var(--tm)">
+          <p style="font-size:32px;margin:0 0 10px">💬</p>
+          <p style="font-size:14px;font-weight:600;margin:0 0 8px;color:var(--t)">Frag mich zu deinen Schulden</p>
+          <p style="font-size:12px;margin:0 0 20px">Ich kenne deine Daten und gebe konkrete Empfehlungen.</p>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center">
+            ${suggestions.map(s=>`<button class="chip" onclick="sendChatMsg('${s.replace(/'/g,"\'")}');">${s}</button>`).join("")}
+          </div>
+        </div>`
+      :msgs}
+      ${chatLoading?`<div style="display:flex;gap:10px"><div style="width:32px;height:32px;border-radius:10px;background:var(--bgE);border:1px solid var(--b);display:flex;align-items:center;justify-content:center">🤖</div><div style="padding:12px 16px;border-radius:4px 16px 16px 16px;background:var(--bgC);border:1px solid var(--b)"><p style="font-size:13px;color:var(--tm);margin:0">Analysiere deine Daten...</p></div></div>`:""}
+    </div>
+
+    <div style="padding:12px 16px;border-top:1px solid var(--b)">
+      <div style="display:flex;gap:8px">
+        <div class="input-wrap" style="flex:1"><input id="chatInput" placeholder="Frag mich etwas zu deinen Schulden..." onkeydown="if(event.key==='Enter')sendChatMsg()"></div>
+        <button class="btn btn-primary btn-sm" onclick="sendChatMsg()" ${chatLoading?"disabled":""}>Senden</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+async function sendChatMsg(preset){
+  const inputEl=document.getElementById("chatInput");
+  const msg=(preset||inputEl?.value||"").trim();
+  if(!msg||chatLoading)return;
+  if(inputEl)inputEl.value="";
+
+  // Build financial context from real data
+  const ctx=buildFinancialContext();
+  assistantChat.push({role:"user",content:msg});
+  chatLoading=true;
+  renderPage();
+  setTimeout(()=>{const el=document.getElementById("chatMessages");if(el)el.scrollTop=el.scrollHeight;},50);
+
+  try{
+    const resp=await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        model:"claude-sonnet-4-20250514",
+        max_tokens:1000,
+        system:`Du bist ein präziser, empathischer Schulden- und Finanzberater für deutschsprachige Nutzer. 
+Du hast Zugriff auf die echten Finanzdaten des Nutzers. Antworte immer auf Deutsch, konkret und umsetzbar. 
+Keine allgemeinen Floskeln – nutze die echten Zahlen.
+
+FINANZDATEN DES NUTZERS:
+${ctx}`,
+        messages:assistantChat.map(m=>({role:m.role,content:m.content}))
+      })
+    });
+    const data=await resp.json();
+    const reply=data.content?.[0]?.text||"Keine Antwort erhalten.";
+    assistantChat.push({role:"assistant",content:reply});
+  }catch(e){
+    assistantChat.push({role:"assistant",content:"Fehler beim Verbinden mit der KI. Bitte versuche es erneut."});
+  }
+  chatLoading=false;
+  renderPage();
+  setTimeout(()=>{const el=document.getElementById("chatMessages");if(el)el.scrollTop=el.scrollHeight;},50);
+}
+
+function buildFinancialContext(){
+  const aktiv=debts.filter(d=>d.paid<d.original);
+  const erledigt=debts.filter(d=>d.paid>=d.original);
+  const totalOffen=aktiv.reduce((s,d)=>s+d.original-d.paid,0);
+  const totalRate=aktiv.reduce((s,d)=>s+d.rate,0);
+  const monate=totalRate>0?Math.ceil(totalOffen/totalRate):null;
+
+  const debtList=aktiv.map(d=>{
+    const offen=d.original-d.paid;
+    const monate=d.rate>0?Math.ceil(offen/d.rate):null;
+    const st=gS(d);
+    return `- ${d.name}: Offen ${fmt(offen)}, Rate ${fmt(d.rate)}/Mo${monate?`, ~${monate} Monate`:""}, Status: ${st}${d.creditorName?`, Gläubiger: ${d.creditorName}`:""}`;
+  }).join("
+");
+
+  return `Nutzer: ${user.firstName||user.name||"Anonym"}
+Aktive Verbindlichkeiten (${aktiv.length}):
+${debtList||"Keine"}
+Erledigte Verbindlichkeiten: ${erledigt.length}
+Gesamt offen: ${fmt(totalOffen)}
+Monatliche Gesamtrate: ${fmt(totalRate)}
+Geschätzte Gesamtlaufzeit: ${monate?`~${monate} Monate`:"unbekannt"}
+${user.addressCity?`Wohnort: ${user.addressCity}`:""}`;
+}
+
+
 </body>
 </html>
+<script>
+// ── SCHULDEN-ASSISTENT ──────────────────────────────────────────────────────
+// (inserted at end – overrides placeholder)
+</script>
