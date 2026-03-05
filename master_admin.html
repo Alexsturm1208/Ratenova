@@ -4,1176 +4,529 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Planavo · Master Admin</title>
-<link rel="icon" type="image/png" href="https://kdbuduwztmxxykfvqbie.supabase.co/storage/v1/object/public/public-assets/Planavo%20Icon.png" sizes="32x32">
+<link rel="icon" type="image/png" href="https://kdbuduwztmxxykfvqbie.supabase.co/storage/v1/object/public/public-assets/Plamavo%20Icon.png" sizes="32x32">
 <style>
-:root{--bg:#0F1117;--bgS:#161820;--bgC:#1C1E27;--bgH:#22242E;--bgE:#252836;--em:#34D399;--emD:#059669;--emG:rgba(52,211,153,0.15);--emG2:rgba(52,211,153,0.08);--co:#F97066;--coG:rgba(249,112,102,0.12);--am:#FBBF24;--amG:rgba(251,191,36,0.12);--sk:#38BDF8;--t:#F1F2F6;--ts:#A0A3B1;--tm:#6B6F80;--tf:#454857;--b:rgba(255,255,255,0.06);--bl:rgba(255,255,255,0.1);--ba:rgba(52,211,153,0.3)}
+:root{
+  --bg:#0F1117;--bgS:#161820;--bgC:#1C1E27;--bgH:#22242E;--bgE:#252836;
+  --em:#34D399;--emD:#059669;--emG:rgba(52,211,153,0.08);--emG2:rgba(52,211,153,0.14);--ba:rgba(52,211,153,0.3);
+  --am:#FBBF24;--amG:rgba(251,191,36,0.12);
+  --co:#F97171;--coG:rgba(249,112,102,0.12);
+  --t:#F1F5F9;--ts:#94A3B8;--tm:#64748B;
+  --b:rgba(255,255,255,0.07);--bl:rgba(255,255,255,0.13);
+}
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh}
+body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;padding:20px 24px}
 ::selection{background:var(--emG);color:var(--em)}
-::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--b);border-radius:4px}
-button{font-family:inherit;cursor:pointer}input{font-family:inherit}input::placeholder{color:var(--tf)}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--bl);border-radius:3px}
+input,select,button{font-family:inherit}
+input::placeholder{color:var(--tm)}
 select option{background:var(--bgC);color:var(--t)}
-.btn{padding:11px 22px;font-size:14px;font-weight:600;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:all 0.2s ease;border:none}
-.btn:hover{filter:brightness(1.12);transform:translateY(-1px)}
-.btn-primary{background:linear-gradient(135deg,var(--emD),var(--em));color:#fff;box-shadow:0 4px 20px rgba(52,211,153,0.25)}
+
+.btn{padding:10px 20px;font-size:13px;font-weight:600;border-radius:10px;display:inline-flex;align-items:center;gap:6px;border:none;cursor:pointer;transition:all .18s;white-space:nowrap}
+.btn:hover:not(:disabled){filter:brightness(1.1);transform:translateY(-1px)}
+.btn-primary{background:linear-gradient(135deg,var(--emD),var(--em));color:#fff;box-shadow:0 4px 16px rgba(52,211,153,0.22)}
 .btn-ghost{background:var(--emG);color:var(--em);border:1px solid var(--ba)}
 .btn-outline{background:transparent;color:var(--ts);border:1px solid var(--bl)}
 .btn-danger{background:var(--coG);color:var(--co);border:1px solid rgba(249,112,102,0.2)}
-.btn-sm{padding:8px 16px;font-size:13px}.btn-full{width:100%}
-.badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px}
-.badge-dot{width:5px;height:5px;border-radius:50%}
-.field{margin-bottom:16px}
-.field label{display:block;font-size:12px;font-weight:600;color:var(--ts);margin-bottom:6px;letter-spacing:0.5px}
-.field .input-wrap{display:flex;align-items:center;background:var(--bgE);border:1px solid var(--b);border-radius:10px;padding:0 14px;transition:border-color 0.2s,box-shadow 0.2s;position:relative}
-.field .input-wrap:focus-within{border-color:var(--ba);box-shadow:0 0 0 3px var(--emG)}
-.field input{flex:1;border:none;outline:none;padding:13px 0;font-size:15px;color:var(--t);background:transparent}
-.chip{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid var(--b);background:var(--bgC);color:var(--tm);transition:all 0.2s;cursor:pointer}
-.chip.active{background:var(--emG);color:var(--em);border-color:var(--ba)}
-.master-root{min-height:100vh;background:radial-gradient(1200px 600px at 90% -20%,rgba(52,211,153,0.14),transparent 60%),radial-gradient(1000px 500px at -20% 120%,rgba(56,189,248,0.1),transparent 60%),var(--bg);padding:24px}
-.master-shell{max-width:1400px;margin:0 auto}
-.master-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}
-.master-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
-.master-grid{display:grid;grid-template-columns:1.15fr 1fr;gap:12px}
-.master-card{background:linear-gradient(155deg,var(--bgC),var(--bgS));border:1px solid var(--b);border-radius:16px;padding:16px}
-.master-list{display:flex;flex-direction:column;gap:10px;max-height:55vh;overflow:auto}
-.master-login{max-width:440px;margin:10vh auto 0}
-.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:3000;background:var(--bgE);color:var(--em);border:1px solid var(--ba);padding:12px 24px;border-radius:14px;font-size:14px;font-weight:600;box-shadow:0 24px 64px rgba(0,0,0,0.4);display:flex;align-items:center;gap:8px;animation:slideUp 0.3s ease}
-.toast-dot{width:8px;height:8px;border-radius:50%;background:var(--em);box-shadow:0 0 8px var(--em)}
-@keyframes slideUp{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
-.tab-nav{display:flex;gap:20px;border-bottom:1px solid var(--b);margin-bottom:16px}
-.tab-btn{background:none;border:none;padding:8px 0;font-size:13px;font-weight:600;color:var(--tm);cursor:pointer;position:relative}
-.tab-btn.active{color:var(--em);font-weight:700}
-.tab-btn.active::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:2px;background:var(--em)}
-.data-table{width:100%;border-collapse:collapse;font-size:13px}
-.data-table th{text-align:left;padding:8px 10px;border-bottom:1px solid var(--b);color:var(--ts);font-weight:600}
-.data-table td{padding:8px 10px;border-bottom:1px solid var(--b);color:var(--t)}
-.audit-entry{padding:10px;border-bottom:1px solid var(--b);font-size:12px}
-.audit-time{color:var(--tm);font-size:11px}
-@media(max-width:980px){.master-grid{grid-template-columns:1fr}}
+.btn-sm{padding:7px 14px;font-size:12px}
+.btn-full{width:100%;justify-content:center}
+
+.field{margin-bottom:14px}
+.field label{display:block;font-size:11px;font-weight:700;color:var(--ts);margin-bottom:5px;letter-spacing:.5px;text-transform:uppercase}
+.iw{display:flex;align-items:center;background:var(--bgE);border:1px solid var(--b);border-radius:11px;padding:0 13px;transition:border-color .18s}
+.iw:focus-within{border-color:var(--ba);box-shadow:0 0 0 3px var(--emG)}
+.iw input,.iw select{flex:1;border:none;outline:none;padding:11px 0;font-size:14px;color:var(--t);background:transparent}
+
+.chip{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid var(--b);background:var(--bgE);color:var(--ts);cursor:pointer;transition:all .18s}
+.chip.active,.chip:hover{background:var(--emG);color:var(--em);border-color:var(--ba)}
+
+.card{background:var(--bgC);border:1px solid var(--b);border-radius:16px;padding:18px}
+
+#flash{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--bgC);border:1px solid var(--ba);border-radius:14px;padding:11px 20px;font-size:13px;font-weight:600;color:var(--t);box-shadow:0 8px 32px rgba(0,0,0,.4);z-index:9999;transition:transform .3s cubic-bezier(.34,1.56,.64,1);pointer-events:none;white-space:nowrap}
+#flash.show{transform:translateX(-50%) translateY(0)}
+
+#loadingScreen{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:999}
+.spinner{width:34px;height:34px;border:3px solid var(--b);border-top-color:var(--em);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes slideUp{from{opacity:0;transform:translateX(-50%) translateY(20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+#topbar{display:flex;align-items:center;gap:12px;padding:12px 18px;background:var(--bgS);border:1px solid var(--b);border-radius:14px;margin-bottom:20px;display:none}
+.shell{display:flex;gap:16px;align-items:flex-start;max-width:1100px;margin:0 auto}
+.sidebar{width:190px;flex-shrink:0;background:var(--bgS);border:1px solid var(--b);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:3px;min-height:480px}
+.nav-btn{display:flex;align-items:center;gap:9px;width:100%;padding:9px 11px;border:none;border-radius:10px;font-size:13px;cursor:pointer;text-align:left;transition:all .15s;background:transparent;color:var(--tm);font-weight:400}
+.nav-btn.active{background:var(--emG2);color:var(--em);font-weight:700}
+.nav-btn:hover:not(.active){background:var(--bgH);color:var(--t)}
+
+.user-item{cursor:pointer;padding:10px 11px;border-radius:11px;border:1px solid transparent;transition:all .15s;display:flex;align-items:center;gap:10px}
+.user-item:hover{background:var(--bgH)}
+.user-item.sel{background:var(--emG2);border-color:var(--ba)}
+.avatar{border-radius:11px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;flex-shrink:0}
+
+.tog-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--b)}
+.tog-track{position:relative;width:44px;height:24px;border-radius:12px;cursor:pointer;transition:background .2s;flex-shrink:0}
+.tog-thumb{position:absolute;top:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left .2s;box-shadow:0 1px 4px rgba(0,0,0,.3)}
+
+#confirmOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);align-items:center;justify-content:center;z-index:9000}
+#confirmOverlay.show{display:flex}
 </style>
 </head>
 <body>
-<div class="master-root">
-  <div class="master-shell" id="root"></div>
+
+<div id="loadingScreen">
+  <div class="spinner"></div>
+  <p style="font-size:13px;color:var(--tm)">Verbinde…</p>
 </div>
-<div id="toastContainer"></div>
+
+<div id="flash"></div>
+
+<div id="confirmOverlay">
+  <div class="card" style="max-width:360px;width:90%">
+    <p id="cMsg" style="font-size:15px;font-weight:700;margin:0 0 6px"></p>
+    <p id="cSub" style="font-size:13px;color:var(--tm);margin:0 0 20px"></p>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-outline btn-full" onclick="cResolve(false)">Abbrechen</button>
+      <button id="cOkBtn" class="btn btn-danger btn-full" onclick="cResolve(true)">Bestätigen</button>
+    </div>
+  </div>
+</div>
+
+<div id="topbar">
+  <svg width="96" height="24" viewBox="0 0 120 32" xmlns="http://www.w3.org/2000/svg">
+    <rect x="0" y="4" width="24" height="24" rx="6" fill="#052e16"/>
+    <rect x="6" y="9" width="12" height="3" rx="1.5" fill="#6EE23A"/>
+    <rect x="11" y="6" width="2" height="20" rx="1" fill="#B8962E"/>
+    <rect x="6" y="15" width="12" height="3" rx="1.5" fill="#6EE23A"/>
+    <rect x="6" y="21" width="8" height="3" rx="1.5" fill="#4CAF50" opacity="0.6"/>
+    <text x="30" y="22" font-family="'Segoe UI',system-ui,sans-serif" font-size="17" font-weight="800" fill="#F1F5F9" letter-spacing="-0.5">Planavo</text>
+  </svg>
+  <span style="font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(134,232,192,0.12);color:#86E8C0;border:1px solid rgba(134,232,192,0.25);letter-spacing:1px">MASTER ADMIN</span>
+  <span style="flex:1"></span>
+  <span id="tbUser" style="font-size:12px;color:var(--tm)"></span>
+  <button class="btn btn-outline btn-sm" onclick="masterLogout()">Logout</button>
+</div>
+
+<div id="root"></div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const SUPABASE_URL="https://kdbuduwztmxxykfvqbie.supabase.co";
-const SUPABASE_ANON_KEY="sb_publishable_ZZpjQ4Lqcqd2uVpGrSthcQ_nnCYSGPv";
-const MASTER_SECRET="planavo-master-2026"; // Muss mit MASTER_SECRET Secret in Supabase übereinstimmen
-const MASTER_USERNAME="master";
-const MASTER_AUTH_EMAIL="master@ratenova.local";
+// ── Config ────────────────────────────────────────────────────────────────
+const SB_URL  = "https://kdbuduwztmxxykfvqbie.supabase.co";
+const SB_KEY  = "sb_publishable_ZZpjQ4Lqcqd2uVpGrSthcQ_nnCYSGPv";
+// Zugang wird über role="master" in user_profiles geprüft
 
-// ── Auto-Logout nach 5 Minuten Inaktivität ──
-const INACTIVITY_TIMEOUT_MS = 5 * 60 * 1000; // 5 Minuten
-const WARN_BEFORE_MS = 30 * 1000; // 30 Sekunden Vorwarnung
-let inactivityTimer = null;
-let warnTimer = null;
-let countdownInterval = null;
+// ── State ─────────────────────────────────────────────────────────────────
+let sb = null;
+let st = { loggedIn:false, tab:"users", users:[], selId:null, query:"", delConfirm:null, err:"" };
 
-function resetInactivityTimer(){
-  if(!masterState.loggedIn) return;
-  clearTimeout(inactivityTimer);
-  clearTimeout(warnTimer);
-  clearInterval(countdownInterval);
-  // Warnung entfernen falls sichtbar
-  const w = document.getElementById("inactivityWarning");
-  if(w) w.remove();
+// ── Utils ─────────────────────────────────────────────────────────────────
+const esc = v => String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 
-  // Vorwarnung nach 4:30 Min
-  warnTimer = setTimeout(()=>{
-    if(!masterState.loggedIn) return;
-    showInactivityWarning();
-  }, INACTIVITY_TIMEOUT_MS - WARN_BEFORE_MS);
-
-  // Logout nach 5 Min
-  inactivityTimer = setTimeout(async()=>{
-    if(!masterState.loggedIn) return;
-    clearInterval(countdownInterval);
-    flash("⏱ Automatisch ausgeloggt (Inaktivität)");
-    await masterLogout();
-  }, INACTIVITY_TIMEOUT_MS);
+function flash(msg, dur=3000){
+  const el=document.getElementById("flash");
+  el.textContent=msg; el.classList.add("show");
+  clearTimeout(flash._t);
+  flash._t=setTimeout(()=>el.classList.remove("show"),dur);
 }
 
-function showInactivityWarning(){
-  // Altes Warning entfernen
-  const old = document.getElementById("inactivityWarning");
-  if(old) old.remove();
-
-  const el = document.createElement("div");
-  el.id = "inactivityWarning";
-  el.style.cssText = "position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:9999;background:#1C1E27;border:1px solid rgba(251,191,36,0.4);border-radius:14px;padding:14px 20px;display:flex;align-items:center;gap:14px;box-shadow:0 16px 48px rgba(0,0,0,0.5);min-width:340px;animation:slideUp 0.3s ease";
-  el.innerHTML = `
-    <span style="font-size:22px">⏱</span>
-    <div style="flex:1">
-      <p style="font-size:13px;font-weight:700;color:#FBBF24;margin:0">Sitzung läuft ab</p>
-      <p style="font-size:12px;color:#6B6F80;margin:2px 0 0">Automatischer Logout in <span id="countdown" style="color:#FBBF24;font-weight:700">30</span> Sekunden</p>
-    </div>
-    <button onclick="resetInactivityTimer()" style="padding:8px 14px;border-radius:8px;border:1px solid rgba(251,191,36,0.4);background:rgba(251,191,36,0.12);color:#FBBF24;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">Aktiv bleiben</button>
-  `;
-  document.body.appendChild(el);
-
-  let secs = 30;
-  countdownInterval = setInterval(()=>{
-    secs--;
-    const cd = document.getElementById("countdown");
-    if(cd) cd.textContent = secs;
-    if(secs <= 0) clearInterval(countdownInterval);
-  }, 1000);
+// ── Confirm ───────────────────────────────────────────────────────────────
+let _cRes=null;
+function confirm2(msg,sub="",okTxt="Bestätigen"){
+  return new Promise(r=>{
+    _cRes=r;
+    document.getElementById("cMsg").textContent=msg;
+    document.getElementById("cSub").textContent=sub;
+    document.getElementById("cOkBtn").textContent=okTxt;
+    document.getElementById("confirmOverlay").classList.add("show");
+  });
 }
+function cResolve(v){ document.getElementById("confirmOverlay").classList.remove("show"); if(_cRes){_cRes(v);_cRes=null;} }
 
-// Aktivitäts-Events überwachen
+// ── Inactivity ────────────────────────────────────────────────────────────
+let _it=null,_wt=null,_ci=null;
+function resetInact(){
+  if(!st.loggedIn) return;
+  clearTimeout(_it);clearTimeout(_wt);clearInterval(_ci);
+  const w=document.getElementById("inactWarn");if(w)w.remove();
+  _wt=setTimeout(()=>{
+    if(!st.loggedIn)return;
+    const el=document.createElement("div");
+    el.id="inactWarn";
+    el.style.cssText="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:9998;background:var(--bgC);border:1px solid rgba(251,191,36,0.4);border-radius:14px;padding:14px 20px;display:flex;align-items:center;gap:14px;box-shadow:0 16px 48px rgba(0,0,0,.5);animation:slideUp .3s ease;white-space:nowrap";
+    el.innerHTML=`<span style="font-size:20px">⏱</span><div style="flex:1"><p style="font-size:13px;font-weight:700;color:var(--am);margin:0">Sitzung läuft ab</p><p style="font-size:11px;color:var(--tm);margin:2px 0 0">Automatischer Logout in <span id="cdS" style="color:var(--am);font-weight:700">30</span> Sek.</p></div><button onclick="resetInact()" style="padding:7px 13px;border-radius:8px;border:1px solid rgba(251,191,36,0.4);background:var(--amG);color:var(--am);font-size:12px;font-weight:700;cursor:pointer">Aktiv bleiben</button>`;
+    document.body.appendChild(el);
+    let s=30;_ci=setInterval(()=>{s--;const cd=document.getElementById("cdS");if(cd)cd.textContent=s;if(s<=0)clearInterval(_ci);},1000);
+  },4.5*60*1000);
+  _it=setTimeout(async()=>{if(!st.loggedIn)return;flash("⏱ Automatisch ausgeloggt");await masterLogout();},5*60*1000);
+}
 ["mousemove","mousedown","keydown","touchstart","scroll","click"].forEach(ev=>{
-  document.addEventListener(ev, ()=>{ if(masterState.loggedIn) resetInactivityTimer(); }, {passive:true});
+  document.addEventListener(ev,()=>{if(st.loggedIn)resetInact();},{passive:true});
 });
 
-let supabaseClient=null;
-let masterState={loggedIn:false,tab:"stats",users:[],states:[],selectedUserId:null,userTab:"profile",auditLogs:[],error:"",query:"",deleteConfirm:null,security:{blockAPI:false,forceMFA:false}};
-
-// ── Edge Function Helper ──────────────────────────────────────────────────
-// Alle kritischen Operationen laufen über die Edge Function mit Service Role Key
-// Das umgeht RLS und erlaubt echte Admin-Operationen auf auth.users
-async function callMasterAPI(action, params={}) {
-  if (!supabaseClient) throw new Error("Supabase nicht verbunden");
-  let res, data;
-  try {
-    res = await fetch(
-      "https://kdbuduwztmxxykfvqbie.supabase.co/functions/v1/hyper-api",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer " + SUPABASE_ANON_KEY,
-          "apikey": SUPABASE_ANON_KEY,
-          "x-master-secret": MASTER_SECRET
-        },
-        body: JSON.stringify({ action, ...params })
-      }
-    );
-  } catch(networkErr) {
-    throw new Error("Netzwerkfehler: " + networkErr.message);
-  }
-
-  // Raw text first for debugging
-  const rawText = await res.text();
-  console.log("[hyper-api] Status:", res.status, "Body:", rawText.substring(0, 300));
-  
-  try { data = JSON.parse(rawText); } 
-  catch(e) { throw new Error(`HTTP ${res.status} – Antwort kein JSON: ${rawText.substring(0,150)}`); }
-  
-  if (!res.ok || data.error) {
-    throw new Error(`HTTP ${res.status}: ${data.error || data.message || rawText.substring(0,150)}`);
-  }
-  return data;
-}
-
-const fmt=n=>new Intl.NumberFormat("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2}).format(n)+" €";
-const mNum=v=>{const n=Number(v);return Number.isFinite(n)?n:0};
-const mEsc=v=>String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-
-function logAudit(action, actor, target, details){
-  const entry = {ts:new Date().toISOString(), actor, action, target, details};
-  masterState.auditLogs.unshift(entry);
-  // Optional: Persist to localStorage for demo
-  try{localStorage.setItem("masterAudit", JSON.stringify(masterState.auditLogs.slice(0,100)))}catch(e){}
-}
-
-function downloadJSON(data, filename){
-  const blob = new Blob([JSON.stringify(data, null, 2)], {type: "application/json"});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-}
-
-async function exportUserData(uid){
-  const u = masterState.users.find(x=>x.id===uid);
-  if(!u) return;
-  const s = masterStateMap()[uid] || {};
-  const exportData = {
-    meta: { exportedAt: new Date().toISOString(), version: "1.0", compliant: "GDPR-Art-15" },
-    profile: u,
-    appData: s,
-    auditTrail: masterState.auditLogs.filter(l=>l.target===uid || l.target===u.email)
-  };
-  downloadJSON(exportData, `datenexport_${u.last_name||"user"}_${uid.slice(0,8)}.json`);
-  logAudit("DATA_EXPORT", "Master", u.email, "GDPR Export generated");
-  flash("Datenexport gestartet ⬇️");
-}
-
-async function triggerPassReset(email){
-  if(!confirm(`Passwort-Reset E-Mail an ${email} senden?`)) return;
-  const {error} = await supabaseClient.auth.resetPasswordForEmail(email);
-  if(error) flash("Fehler: "+error.message);
-  else {
-    flash("Reset-Link gesendet 📧");
-    logAudit("PASS_RESET", "Master", email, "Triggered password reset email");
-  }
-}
-
-async function terminateSessions(uid){
-  if(!confirm("Alle aktiven Sitzungen beenden? (Benötigt Backend-Funktion)")) return;
-  // Mock implementation as client-side revoke is limited without admin API
-  logAudit("KILL_SESSION", "Master", uid, "Terminated all sessions");
-  flash("Sitzungen beendet (Mock) 🔒");
-}
-
-function flash(m){
-  const c=document.getElementById("toastContainer");
-  c.innerHTML=`<div class="toast"><span class="toast-dot"></span>${m}</div>`;
-  setTimeout(()=>c.innerHTML="",2800);
-}
-
+// ── Init ──────────────────────────────────────────────────────────────────
 window.addEventListener("load",async()=>{
-  if(window.supabase?.createClient){
-    supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-    const {data}=await supabaseClient.auth.getSession();
+  if(!window.supabase){
+    document.getElementById("loadingScreen").innerHTML=`<p style="color:var(--co);font-size:14px">⚠ Supabase konnte nicht geladen werden.<br><small>Bitte Internetverbindung prüfen und Seite neu laden.</small></p>`;
+    return;
+  }
+  try{
+    sb=window.supabase.createClient(SB_URL,SB_KEY);
+    const {data}=await sb.auth.getSession();
     if(data?.session?.user){
-      const {data:profile}=await supabaseClient.from("user_profiles").select("role").eq("id",data.session.user.id).maybeSingle();
-      if((profile?.role||"")==="master"||data.session.user.email===MASTER_AUTH_EMAIL){
-        masterState.loggedIn=true;
-        await loadMasterData();
-        resetInactivityTimer();
+      const {data:profile}=await sb.from("user_profiles").select("role").eq("id",data.session.user.id).maybeSingle();
+      if((profile?.role||"")==="master"){
+        st.loggedIn=true;
+        document.getElementById("tbUser").textContent=data.session.user.email;
+        await loadData();
+        resetInact();
       }
     }
+  }catch(e){
+    console.error("Init error:",e);
+    st.err="Verbindungsfehler: "+e.message;
   }
+  document.getElementById("loadingScreen").style.display="none";
   render();
 });
 
 async function masterLogin(){
-  const u=(document.getElementById("mUser")?.value||"").trim().toLowerCase();
+  const em=(document.getElementById("mEmail")?.value||"").trim().toLowerCase();
   const p=(document.getElementById("mPass")?.value||"").trim();
-  if(!supabaseClient){masterState.error="Supabase nicht verbunden";render();return;}
-  if(u!==MASTER_USERNAME||!p){masterState.error="Login fehlgeschlagen";render();return;}
-  const {data,error}=await supabaseClient.auth.signInWithPassword({email:MASTER_AUTH_EMAIL,password:p});
-  if(error||!data?.user){masterState.error="Login fehlgeschlagen: "+(error?.message||"");render();return;}
-  const {data:profile}=await supabaseClient.from("user_profiles").select("role").eq("id",data.user.id).maybeSingle();
-  const roleOk=(profile?.role||"")==="master";
-  const emailOk=["master@planavo.de","master@ratenova.local"].includes((data.user.email||"").toLowerCase());
-  if(!roleOk&&!emailOk){
-    try{await supabaseClient.auth.signOut()}catch(e){}
-    masterState.error="Keine Berechtigung für Master-Panel";
-    render();return;
+  if(!sb){st.err="Supabase nicht verbunden";render();return;}
+  if(!em||!p){st.err="Bitte E-Mail und Passwort eingeben";render();return;}
+  try{
+    const {data,error}=await sb.auth.signInWithPassword({email:em,password:p});
+    if(error||!data?.user){st.err="Login fehlgeschlagen: "+(error?.message||"");render();return;}
+    // Berechtigung prüfen: role=master in user_profiles
+    const {data:profile}=await sb.from("user_profiles").select("role").eq("id",data.user.id).maybeSingle();
+    if((profile?.role||"")!=="master"){
+      try{await sb.auth.signOut();}catch(e){}
+      st.err="Keine Berechtigung für diesen Bereich";render();return;
+    }
+    st.loggedIn=true;st.err="";
+    document.getElementById("tbUser").textContent=data.user.email;
+    await loadData();resetInact();render();
+  }catch(e){
+    st.err="Verbindungsfehler: "+e.message;render();
   }
-  masterState.loggedIn=true;masterState.error="";masterState.tab="stats";
-  await loadMasterData();
-  render();
-  resetInactivityTimer();
 }
 
 async function masterLogout(){
-  clearTimeout(inactivityTimer);
-  clearTimeout(warnTimer);
-  clearInterval(countdownInterval);
-  const w = document.getElementById("inactivityWarning");
-  if(w) w.remove();
-  try{if(supabaseClient)await supabaseClient.auth.signOut()}catch(e){}
-  masterState={loggedIn:false,tab:"stats",users:[],states:[],selectedUserId:null,error:"",query:"",deleteConfirm:null};
+  clearTimeout(_it);clearTimeout(_wt);clearInterval(_ci);
+  const w=document.getElementById("inactWarn");if(w)w.remove();
+  try{if(sb)await sb.auth.signOut();}catch(e){}
+  st={loggedIn:false,tab:"users",users:[],selId:null,query:"",delConfirm:null,err:""};
+  document.getElementById("tbUser").textContent="";
   render();
 }
 
-async function loadMasterData(){
-  if(!supabaseClient){masterState.error="Supabase nicht verbunden";return;}
-  
-  try {
-    // Edge Function nutzen – umgeht RLS, liest direkt aus auth.users
-    // Zeigt ALLE User, auch solche ohne user_profiles-Eintrag
-    const result = await callMasterAPI("load_all_users");
-    masterState.users = result.users || [];
-    masterState.states = result.states || [];
-    
-    const authTotal = result.total_auth_users || 0;
-    const profileTotal = result.total_profiles || 0;
-    
-    if(masterState.users.length === 0){
-      masterState.error = "Keine Nutzer gefunden. Edge Function prüfen.";
-    } else {
-      // Info wenn Auth-User mehr als Profile (fehlende Profile)
-      const missing = authTotal - profileTotal;
-      masterState.error = "";
-      if(missing > 0){
-        console.log(`ℹ️ ${missing} Auth-User haben noch kein Profil (werden trotzdem angezeigt)`);
-      }
-    }
-  } catch(e) {
-    // Fallback: Direkt aus Supabase laden (mit RLS-Einschränkungen)
-    console.warn("Edge Function nicht erreichbar, nutze Fallback:", e.message);
-    masterState.error = "⚠️ hyper-api Fehler: " + e.message + " | Öffne Browser-Konsole (F12 → Console) für Details.";
-    
-    const [{data:users,error:uErr},{data:states,error:sErr}]=await Promise.all([
-      supabaseClient.from("user_profiles").select("id,email,first_name,last_name,plan,role,trial_end,address_street,address_zip,address_city,phone,updated_at,is_blocked,admin_note").range(0,9999),
-      supabaseClient.from("app_state").select("user_id,debts,budget_items,contracts,updated_at").range(0,9999)
-    ]);
-    masterState.users = users || [];
-    masterState.states = states || [];
+async function loadData(){
+  if(!sb){st.err="Supabase nicht verbunden";return;}
+  try{
+    const {data:users,error}=await sb.from("user_profiles")
+      .select("id,email,first_name,last_name,plan,is_beta,is_blocked,trial_end,address_street,address_zip,address_city,phone,admin_note,updated_at")
+      .range(0,4999).order("updated_at",{ascending:false});
+    if(error){st.err="Ladefehler: "+error.message;return;}
+    st.users=users||[];
+    st.err=st.users.length===0?"Keine Nutzer (RLS prüfen)":"";
+    if(!st.selId&&st.users.length)st.selId=st.users[0].id;
+    if(st.selId&&!st.users.some(u=>u.id===st.selId))st.selId=st.users[0]?.id||null;
+  }catch(e){
+    st.err="Netzwerkfehler: "+e.message;
   }
-  
-  if(!masterState.selectedUserId&&masterState.users.length)masterState.selectedUserId=masterState.users[0].id;
 }
 
-function masterStateMap(){const m={};masterState.states.forEach(s=>{if(s?.user_id)m[s.user_id]=s});return m}
-
-function contractAnnualCost(c){
-  const m=mNum(c?.monthlyCost),y=mNum(c?.yearlyCost);
-  if(y>0)return y;
-  if(m>0)return m*12;
-  return 0;
+// ── Render ────────────────────────────────────────────────────────────────
+function render(){
+  const topbar=document.getElementById("topbar");
+  topbar.style.display=st.loggedIn?"flex":"none";
+  document.getElementById("root").innerHTML=st.loggedIn?rMain():rLogin();
 }
 
-function masterUserMetrics(u,stateMap){
-  const s=stateMap[u.id]||{};
-  const debtList=Array.isArray(s.debts)?s.debts:[];
-  const budgetList=Array.isArray(s.budget_items)?s.budget_items:[];
-  const contractList=Array.isArray(s.contracts)?s.contracts:[];
-  let income=0,expense=0,sales=0,debtOpen=0,debtMonthly=0,contractMonthly=0,contractYearly=0,entries=0;
-  budgetList.forEach(b=>{
-    const amount=mNum(b?.amount);if(!amount)return;entries++;
-    if(b.type==="income"){income+=amount;const sig=`${b.category||""} ${b.note||""}`.toLowerCase();if(/verkauf|umsatz|rechnung|auftrag|shop|sale/.test(sig))sales+=amount;}
-    else if(b.type==="expense")expense+=amount;
-  });
-  debtList.forEach(d=>{const open=Math.max(0,mNum(d?.original)-mNum(d?.paid));debtOpen+=open;if(open>0)debtMonthly+=Math.max(0,mNum(d?.rate));});
-  contractList.forEach(c=>{contractMonthly+=Math.max(0,mNum(c?.monthlyCost));contractYearly+=Math.max(0,contractAnnualCost(c||{}));});
-  return{user:u,state:s,income,expense,sales,balance:income-expense,debtOpen,debtMonthly,contractMonthly,contractYearly,entries,debtCount:debtList.length,contractCount:contractList.length};
-}
-
-function masterMetricsList(){const map=masterStateMap();return masterState.users.map(u=>masterUserMetrics(u,map));}
-
-function masterStats(){
-  const metrics=masterMetricsList();
-  return{
-    total:masterState.users.length,
-    withState:metrics.filter(m=>m.entries+m.debtCount+m.contractCount>0).length,
-    totalDebts:metrics.reduce((a,m)=>a+m.debtCount,0),
-    totalContracts:metrics.reduce((a,m)=>a+m.contractCount,0),
-    totalIncome:metrics.reduce((a,m)=>a+m.income,0),
-    totalExpense:metrics.reduce((a,m)=>a+m.expense,0),
-    totalSales:metrics.reduce((a,m)=>a+m.sales,0),
-    debtExposure:metrics.reduce((a,m)=>a+m.debtOpen,0),
-    monthlyObligation:metrics.reduce((a,m)=>a+m.debtMonthly+m.contractMonthly,0),
-    metrics
-  };
-}
-
-async function masterSaveUser(id){
-  const get=k=>document.getElementById(`${k}-${id}`)?.value?.trim()||"";
-  const trialRaw=document.getElementById(`muTrial-${id}`)?.value||"";
-  const newPlan = get("muPlan")||"Basic";
-  
-  try {
-    await callMasterAPI("update_user", {
-      user_id: id,
-      updates: {
-        first_name: get("muFirst"),
-        last_name: get("muLast"),
-        plan: newPlan,
-        trial_end: trialRaw ? new Date(trialRaw).toISOString() : null,
-        address_street: get("muStreet"),
-        address_zip: get("muZip"),
-        address_city: get("muCity"),
-        phone: get("muPhone"),
-        admin_note: get("muNote") || null,
-      }
-    });
-    flash(`✓ Plan auf '${newPlan}' aktualisiert`);
-  } catch(e) {
-    // Fallback direkt
-    const {error}=await supabaseClient.from("user_profiles").upsert({
-      id, first_name:get("muFirst"), last_name:get("muLast"), plan:newPlan,
-      trial_end:trialRaw?new Date(trialRaw).toISOString():null,
-      address_street:get("muStreet"), address_zip:get("muZip"), address_city:get("muCity"),
-      phone:get("muPhone"), admin_note:get("muNote")||null, updated_at:new Date().toISOString()
-    });
-    if(error){flash("Speichern fehlgeschlagen: "+error.message);return;}
-    flash(`Plan auf '${newPlan}' gespeichert (Fallback, RLS mögl. eingeschränkt)`);
-  }
-  
-  await loadMasterData();render();
-}
-
-async function masterBlockUser(id){
-  const u=masterState.users.find(x=>x.id===id);
-  const isBlocked=!!(u?.is_blocked);
-  if(!confirm(`Nutzer wirklich ${isBlocked?"entsperren":"sperren"}?`))return;
-  
-  try {
-    await callMasterAPI("update_user", { user_id: id, updates: { is_blocked: !isBlocked } });
-  } catch(e) {
-    // Fallback
-    const {error}=await supabaseClient.from("user_profiles").update({is_blocked:!isBlocked,updated_at:new Date().toISOString()}).eq("id",id);
-    if(error){flash("Aktion fehlgeschlagen: "+error.message);return;}
-  }
-  
-  flash(isBlocked?"Nutzer entsperrt ✓":"Nutzer gesperrt 🔒");
-  await loadMasterData();render();
-}
-
-async function masterDeleteUser(id){
-  if(masterState.deleteConfirm!==id){masterState.deleteConfirm=id;render();flash("⚠️ Nochmals klicken zum endgültigen Löschen");return;}
-  masterState.deleteConfirm=null;
-  
-  if(masterState.selectedUserId===id)masterState.selectedUserId=null;
-  
-  try {
-    // Edge Function löscht: auth.users + user_profiles + app_state in einem Schritt
-    await callMasterAPI("delete_user", { user_id: id });
-    flash("✓ Nutzer vollständig gelöscht (Auth + Profil + Daten)");
-    logAudit("USER_DELETE", "Master", id, "Vollständig gelöscht via Edge Function");
-  } catch(e) {
-    // Fallback: nur Profildaten
-    const [{error: e1}, {error: e2}] = await Promise.all([
-      supabaseClient.from("app_state").delete().eq("user_id",id),
-      supabaseClient.from("user_profiles").delete().eq("id",id)
-    ]);
-    if(e1||e2){
-      flash("Fehler: " + (e1?.message || e2?.message || "Unbekannt"));
-    } else {
-      flash("⚠️ Nur Profildaten gelöscht – Auth-User noch vorhanden. Edge Function deployen!");
-    }
-  }
-  
-  await loadMasterData();render();
-}
-
-async function masterResetUserState(id){
-  if(!confirm("Alle App-Daten für diesen Nutzer zurücksetzen?"))return;
-  const {error}=await supabaseClient.from("app_state").upsert({user_id:id,debts:[],budget_items:[],contracts:[],updated_at:new Date().toISOString()});
-  if(error){flash("Reset fehlgeschlagen");return;}
-  flash("Nutzerdaten zurückgesetzt ✓");
-  await loadMasterData();render();
-}
-
-async function masterCreateCustomer(){
-  const firstName=(document.getElementById("mcFirst")?.value||"").trim();
-  const lastName=(document.getElementById("mcLast")?.value||"").trim();
-  const email=(document.getElementById("mcEmail")?.value||"").trim().toLowerCase();
-  const password=(document.getElementById("mcPass")?.value||"").trim();
-  const plan=(document.getElementById("mcPlan")?.value||"Basic").trim();
-  if(!email||!password){flash("E-Mail und Passwort sind Pflicht");return;}
-  if(password.length<6){flash("Passwort muss mindestens 6 Zeichen haben");return;}
-  const {data:sessionData}=await supabaseClient.auth.getSession();
-  const masterSession=sessionData?.session||null;
-  const {data,error}=await supabaseClient.auth.signUp({email,password,options:{data:{first_name:firstName,last_name:lastName,full_name:[firstName,lastName].join(" ").trim(),plan}}});
-  if(error){flash(`Anlage fehlgeschlagen: ${error.message||"Fehler"}`);if(masterSession?.access_token&&masterSession?.refresh_token)try{await supabaseClient.auth.setSession({access_token:masterSession.access_token,refresh_token:masterSession.refresh_token})}catch(e){}return;}
-  const newUserId=data?.user?.id;
-  if(!newUserId){flash("Angelegt, aber ohne User-ID (E-Mail-Bestätigung prüfen)");if(masterSession?.access_token&&masterSession?.refresh_token)try{await supabaseClient.auth.setSession({access_token:masterSession.access_token,refresh_token:masterSession.refresh_token})}catch(e){}return;}
-  const trialEnd=new Date();trialEnd.setDate(trialEnd.getDate()+30);
-  const [{error:pErr},{error:sErr}]=await Promise.all([
-    supabaseClient.from("user_profiles").upsert({id:newUserId,email,first_name:firstName||null,last_name:lastName||null,plan,trial_end:trialEnd.toISOString(),updated_at:new Date().toISOString()}),
-    supabaseClient.from("app_state").upsert({user_id:newUserId,debts:[],budget_items:[],contracts:[],budget_month:new Date().toISOString().slice(0,7),updated_at:new Date().toISOString()})
-  ]);
-  if(masterSession?.access_token&&masterSession?.refresh_token)try{await supabaseClient.auth.setSession({access_token:masterSession.access_token,refresh_token:masterSession.refresh_token})}catch(e){}
-  if(pErr||sErr){flash(`Sync fehlgeschlagen: ${pErr?.message||sErr?.message||"Fehler"}`);return;}
-  ["mcFirst","mcLast","mcEmail","mcPass"].forEach(id=>{const el=document.getElementById(id);if(el)el.value="";});
-  await loadMasterData();render();
-  flash("Kunde angelegt und synchronisiert ✓");
-}
-
-// ══════════════════ RENDER ══════════════════
-function render(){document.getElementById("root").innerHTML=rMasterPanel();}
-
-function rMasterPanel(){
-  if(!masterState.loggedIn) return rLoginView();
-  const st=masterStats();
-  const tab=masterState.tab;
-  const navItems=[
-    {id:"stats",icon:"◉",label:"Übersicht"},
-    {id:"users",icon:"👥",label:"Kunden & Daten"},
-    {id:"create",icon:"＋",label:"Neu anlegen"},
-    {id:"finance",icon:"€",label:"Finanzen"},
-    {id:"plans",icon:"⭐",label:"Abo-Pläne"},
-    {id:"roles",icon:"🔑",label:"Rollen & Rechte"},
-    {id:"features",icon:"✨",label:"Features"},
-    {id:"security",icon:"🛡️",label:"Sicherheit"},
-    {id:"audit",icon:"📜",label:"Audit Log"},
-    {id:"system",icon:"⚙",label:"System"},
-    {id:"debug",icon:"🔧",label:"Debug"},
-  ];
-  const sidebar=`
-    <div style="width:200px;flex-shrink:0;background:var(--bgS);border-radius:16px;border:1px solid var(--b);padding:16px 0;display:flex;flex-direction:column;min-height:70vh">
-      <div style="padding:0 16px 16px;border-bottom:1px solid var(--b);margin-bottom:8px;display:flex;align-items:center;gap:10px">
-        <img src="https://kdbuduwztmxxykfvqbie.supabase.co/storage/v1/object/public/public-assets/Planavo_Logo_nur_Text.png" style="height:32px;width:auto" alt="Ratenova">
-        <div>
-          <p style="font-size:10px;font-weight:700;letter-spacing:.8px;color:#86E8C0;margin:0 0 1px">ADMIN PANEL</p>
-          <p style="font-size:13px;font-weight:800;margin:0;color:var(--t)">Master</p>
-        </div>
-      </div>
-      ${navItems.map(n=>`<button onclick="masterState.tab='${n.id}';render()" style="display:flex;align-items:center;gap:9px;width:100%;padding:10px 16px;border:none;border-right:2px solid ${tab===n.id?'var(--em)':'transparent'};background:${tab===n.id?'var(--emG2)':'transparent'};color:${tab===n.id?'var(--em)':'var(--tm)'};font-size:13px;font-weight:${tab===n.id?'700':'400'};cursor:pointer;text-align:left;transition:all 0.15s">
-        <span style="font-size:15px;width:20px;text-align:center">${n.icon}</span>${n.label}
-      </button>`).join("")}
-      <div style="flex:1"></div>
-      <div style="padding:12px 16px;border-top:1px solid var(--b);margin-top:8px;display:flex;flex-direction:column;gap:6px">
-        <button class="btn btn-outline btn-sm btn-full" onclick="loadMasterData().then(()=>render())">🔄 Aktualisieren</button>
-        <button class="btn btn-danger btn-sm btn-full" onclick="masterLogout()">Logout</button>
-      </div>
-    </div>`;
-
-  const contentMap={
-    stats:rStatsView(st),
-    users:rUsersView(st),
-    create:rCreateView(),
-    finance:rFinanceView(st),
-    plans:rPlansView(st),
-    roles:rRolesView(),
-    features:rFeaturesView(),
-    security:rSecurityView(),
-    audit:rAuditView(),
-    system:rSystemView(),
-    debug:rDebugView()
-  };
-
-  return `
-    <div style="display:flex;gap:16px;align-items:flex-start">
-      ${sidebar}
-      <div style="flex:1;min-width:0">
-        ${masterState.error?`<div class="master-card" style="border-color:rgba(249,112,102,0.35);margin-bottom:12px;padding:12px 16px"><p style="font-size:13px;color:var(--co);margin:0">⚠️ ${masterState.error}</p></div>`:""}
-        ${contentMap[tab]||contentMap.stats}
-      </div>
-    </div>`;
-}
-
-function rLoginView(){
-  return `<div class="master-login">
-    <div class="master-card" style="background:linear-gradient(160deg,var(--bgS),var(--bgC))">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
-        <img src="https://kdbuduwztmxxykfvqbie.supabase.co/storage/v1/object/public/public-assets/Planavo_Logo_nur_Text.png" style="height:40px;width:auto" alt="">
-        <div>
-          <p style="font-size:11px;font-weight:700;letter-spacing:.8px;color:#86E8C0;margin:0 0 2px">PLANAVO ADMIN</p>
-          <h1 style="font-size:22px;font-weight:800;margin:0">Master Login</h1>
-        </div>
-      </div>
-      <p style="font-size:13px;color:var(--tm);margin:0 0 20px">Separater Zugang für interne Verwaltung.</p>
-      <div class="field"><label>Benutzername</label><div class="input-wrap"><input id="mUser" placeholder="master" onkeydown="if(event.key==='Enter')masterLogin()"></div></div>
-      <div class="field"><label>Passwort</label><div class="input-wrap"><input id="mPass" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')masterLogin()"></div></div>
-      ${masterState.error?`<p style="font-size:12px;color:var(--co);margin:0 0 12px;padding:10px;background:var(--coG);border-radius:8px;border:1px solid rgba(249,112,102,0.3)">${masterState.error}</p>`:""}
-      <button class="btn btn-primary btn-full" onclick="masterLogin()">Einloggen</button>
+function rLogin(){
+  return `<div style="max-width:380px;margin:10vh auto 0">
+    <div class="card" style="padding:28px">
+      <p style="font-size:10px;font-weight:700;letter-spacing:1px;color:#86E8C0;margin:0 0 6px">PLANAVO</p>
+      <h1 style="font-size:22px;font-weight:800;margin:0 0 4px">Master Admin</h1>
+      <p style="font-size:13px;color:var(--tm);margin:0 0 22px">Interner Verwaltungszugang</p>
+      ${st.err?`<p style="font-size:12px;color:var(--co);background:var(--coG);border-radius:10px;padding:10px 13px;margin:0 0 14px">${esc(st.err)}</p>`:""}
+      <div class="field"><label>E-Mail</label><div class="iw"><input id="mEmail" type="email" placeholder="E-Mail Adresse" autocomplete="email"></div></div>
+      <div class="field"><label>Passwort</label><div class="iw"><input id="mPass" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')masterLogin()"></div></div>
+      <button class="btn btn-primary btn-full" onclick="masterLogin()">Anmelden</button>
     </div>
   </div>`;
 }
 
-function rStatsView(st){
-  return `<div>
-    <h2 style="font-size:20px;font-weight:800;margin:0 0 16px">Systemübersicht</h2>
-    <div class="master-kpis" style="margin-bottom:12px">
-      <div class="master-card"><p style="font-size:11px;color:var(--tm);margin:0">Kunden gesamt</p><p style="font-size:30px;font-weight:800;margin:6px 0 0">${st.total}</p></div>
-      <div class="master-card"><p style="font-size:11px;color:var(--tm);margin:0">Aktive Datensätze</p><p style="font-size:30px;font-weight:800;margin:6px 0 0">${st.withState}</p></div>
-      <div class="master-card"><p style="font-size:11px;color:var(--tm);margin:0">Einnahmen gesamt</p><p style="font-size:30px;font-weight:800;margin:6px 0 0;color:var(--em)">${fmt(st.totalIncome)}</p></div>
-      <div class="master-card"><p style="font-size:11px;color:var(--tm);margin:0">Ausgaben gesamt</p><p style="font-size:30px;font-weight:800;margin:6px 0 0;color:var(--co)">${fmt(st.totalExpense)}</p></div>
+function rMain(){
+  const tabs=[{id:"users",icon:"👥",label:"Kunden"},{id:"create",icon:"＋",label:"Neu anlegen"},{id:"system",icon:"⚙",label:"System"}];
+  const sidebar=`<div class="sidebar">
+    <div style="padding-bottom:12px;border-bottom:1px solid var(--b);margin-bottom:6px">
+      <p style="font-size:9px;font-weight:700;letter-spacing:1px;color:#86E8C0;margin:0 0 2px">ADMIN</p>
+      <p style="font-size:14px;font-weight:800;margin:0">${st.users.length} Kunden</p>
     </div>
-    <div class="master-kpis">
-      <div class="master-card"><p style="font-size:11px;color:var(--tm);margin:0">Verkaufs-Einnahmen</p><p style="font-size:30px;font-weight:800;margin:6px 0 0;color:#7DE6BE">${fmt(st.totalSales)}</p></div>
-      <div class="master-card"><p style="font-size:11px;color:var(--tm);margin:0">Offene Verbindlichkeiten</p><p style="font-size:30px;font-weight:800;margin:6px 0 0;color:var(--am)">${fmt(st.debtExposure)}</p></div>
-      <div class="master-card"><p style="font-size:11px;color:var(--tm);margin:0">Monatl. Verpflichtung</p><p style="font-size:30px;font-weight:800;margin:6px 0 0">${fmt(st.monthlyObligation)}</p></div>
-      <div class="master-card"><p style="font-size:11px;color:var(--tm);margin:0">Verträge / Schulden</p><p style="font-size:30px;font-weight:800;margin:6px 0 0">${st.totalContracts} / ${st.totalDebts}</p></div>
-    </div>
-    <div class="master-card" style="margin-top:12px">
-      <h3 style="font-size:15px;font-weight:700;margin:0 0 12px">Alle Kunden auf einen Blick</h3>
-      <div style="overflow:auto"><table style="width:100%;border-collapse:collapse;min-width:700px">
-        <thead><tr>
-          ${["Name / E-Mail","Plan","Einnahmen","Ausgaben","Offen","Status"].map(h=>`<th style="text-align:${["Einnahmen","Ausgaben","Offen"].includes(h)?'right':'left'};padding:8px 10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">${h}</th>`).join("")}
-        </tr></thead>
-        <tbody>${st.metrics.map(m=>{const bl=!!(m.user.is_blocked);return`<tr style="opacity:${bl?'0.6':'1'}">
-          <td style="padding:8px 10px;border-bottom:1px solid var(--b)">
-            <p style="font-size:13px;font-weight:700;margin:0">${mEsc(([m.user.first_name||"",m.user.last_name||""].join(" ").trim()||m.user.email||"Nutzer"))}${m.user.has_profile===false?'<span style="font-size:9px;background:var(--amG);color:var(--am);padding:1px 5px;border-radius:4px;margin-left:5px;vertical-align:middle">kein Profil</span>':""}</p>
-            <p style="font-size:11px;color:var(--tm);margin:0">${mEsc(m.user.email||"-")}</p>
-          </td>
-          <td style="padding:8px 10px;border-bottom:1px solid var(--b)"><span style="font-size:12px;font-weight:700;color:var(--sk)">${mEsc(m.user.plan||"Basic")}${m.user.trial_end&&new Date(m.user.trial_end)>new Date()?'<span style="color:var(--am);font-size:9px;margin-left:4px">TRIAL</span>':''}</span></td>
-          <td style="padding:8px 10px;border-bottom:1px solid var(--b);text-align:right;color:var(--em);font-weight:700">${fmt(m.income)}</td>
-          <td style="padding:8px 10px;border-bottom:1px solid var(--b);text-align:right;color:var(--co);font-weight:700">${fmt(m.expense)}</td>
-          <td style="padding:8px 10px;border-bottom:1px solid var(--b);text-align:right;color:var(--am);font-weight:700">${fmt(m.debtOpen)}</td>
-          <td style="padding:8px 10px;border-bottom:1px solid var(--b);text-align:center">${bl?'<span style="font-size:11px;font-weight:700;color:var(--co);background:var(--coG);padding:3px 8px;border-radius:20px">🔒 Gesperrt</span>':'<span style="font-size:11px;font-weight:700;color:var(--em);background:var(--emG);padding:3px 8px;border-radius:20px">● Aktiv</span>'}</td>
-        </tr>`}).join("")||`<tr><td colspan="6" style="padding:20px;text-align:center;color:var(--tm)">Keine Kunden.</td></tr>`}</tbody>
-      </table></div>
+    ${tabs.map(t=>`<button class="nav-btn ${st.tab===t.id?"active":""}" onclick="st.tab='${t.id}';render()"><span style="font-size:15px;width:20px;text-align:center">${t.icon}</span>${t.label}</button>`).join("")}
+    <div style="flex:1"></div>
+    <div style="padding-top:12px;border-top:1px solid var(--b);margin-top:8px;display:flex;flex-direction:column;gap:6px">
+      <button class="btn btn-outline btn-sm btn-full" onclick="loadData().then(render)">↻ Aktualisieren</button>
+      <button class="btn btn-danger btn-sm btn-full" onclick="masterLogout()">Logout</button>
     </div>
   </div>`;
+  const views={users:rUsers(),create:rCreate(),system:rSystem()};
+  return `<div class="shell">${sidebar}<div style="flex:1;min-width:0">
+    ${st.err?`<div class="card" style="border-color:rgba(249,112,102,0.3);background:var(--coG);margin-bottom:12px;padding:12px 16px"><p style="font-size:13px;color:var(--co);margin:0">⚠ ${esc(st.err)}</p></div>`:""}
+    ${views[st.tab]||views.users}
+  </div></div>`;
 }
 
-function rUsersView(st){
-  const q=(masterState.query||"").trim().toLowerCase();
-  const filtered=masterState.users.filter(u=>!q||`${u.first_name||""} ${u.last_name||""} ${u.email||""} ${u.plan||""}`.toLowerCase().includes(q));
-  const selected=masterState.users.find(x=>x.id===masterState.selectedUserId)||null;
-  const selectedMetric=selected?(st.metrics.find(x=>x.user.id===selected.id)||masterUserMetrics(selected,masterStateMap())):null;
+// ── Users View ────────────────────────────────────────────────────────────
+function rUsers(){
+  const q=(st.query||"").trim().toLowerCase();
+  const list=st.users.filter(u=>!q||`${u.first_name||""} ${u.last_name||""} ${u.email||""} ${u.plan||""}`.toLowerCase().includes(q));
+  const sel=st.users.find(x=>x.id===st.selId)||null;
 
-  const usersList=filtered.map(u=>{
-    const isSel=masterState.selectedUserId===u.id;
-    const isBlocked=!!(u.is_blocked);
+  const badge=(plan,beta)=>`<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;background:${plan==="Pro"?"var(--emG)":"var(--bgE)"};color:${plan==="Pro"?"var(--em)":"var(--ts)"};border:1px solid ${plan==="Pro"?"var(--ba)":"var(--b)"}">${plan||"Basic"}</span>${beta?`<span style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:20px;background:rgba(134,232,192,0.12);color:#86E8C0;border:1px solid rgba(134,232,192,0.25);margin-left:4px">BETA</span>`:""}`;
+
+  const userList=list.map(u=>{
+    const isSel=st.selId===u.id;
     const name=([u.first_name||"",u.last_name||""].join(" ").trim()||u.email||"Nutzer");
-    return`<div onclick="masterState.selectedUserId='${u.id}';render()" style="cursor:pointer;padding:10px 12px;border-radius:10px;border:1px solid ${isSel?'var(--ba)':'var(--b)'};background:${isSel?'var(--emG2)':'transparent'};margin-bottom:6px;display:flex;align-items:center;gap:10px;transition:all 0.15s">
-      <div style="width:34px;height:34px;border-radius:10px;background:${isBlocked?'var(--coG)':'linear-gradient(135deg,var(--emD),var(--em))'};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:${isBlocked?'var(--co)':'#fff'};flex-shrink:0">${isBlocked?'🔒':name.slice(0,1).toUpperCase()}</div>
+    const blocked=!!(u.is_blocked);
+    return `<div class="user-item ${isSel?"sel":""}" onclick="st.selId='${u.id}';render()">
+      <div class="avatar" style="width:36px;height:36px;font-size:14px;background:${blocked?"var(--coG)":"linear-gradient(135deg,#059669,#34D399)"}">${blocked?"🚫":(name[0]||"?").toUpperCase()}</div>
       <div style="flex:1;min-width:0">
-        <p style="font-size:13px;font-weight:700;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${mEsc(name)}${isBlocked?' <span style="font-size:10px;color:var(--co)">[GESPERRT]</span>':''}</p>
-        <p style="font-size:11px;color:var(--tm);margin:2px 0 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${mEsc(u.email||"-")} · <span style="color:var(--sk)">${mEsc(u.plan||"Basic")}</span></p>
+        <p style="font-size:13px;font-weight:700;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:${isSel?"var(--em)":"var(--t)"}">${esc(name)}</p>
+        <p style="font-size:11px;color:var(--tm);margin:2px 0 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(u.email||"–")}</p>
       </div>
-      ${isSel?'<span style="color:var(--em);font-size:16px">›</span>':''}
+      ${badge(u.plan,u.is_beta)}
     </div>`;
-  }).join("")||`<p style="font-size:13px;color:var(--tm);padding:16px 0">Keine Nutzer gefunden.</p>`;
+  }).join("")||`<p style="font-size:13px;color:var(--tm);padding:16px 0">Keine Nutzer.</p>`;
 
-  let detail=`<div class="master-card" style="text-align:center;padding:32px"><p style="font-size:24px;margin:0 0 8px">👈</p><p style="font-size:13px;color:var(--tm)">Kunden links auswählen</p></div>`;
-  if(selected){
-    const isBlocked=!!(selected.is_blocked);
-    const isDelConfirm=masterState.deleteConfirm===selected.id;
-    const ut=masterState.userTab||"profile";
-    
-    // Tab Content Logic
-    let tabContent = "";
-    if(ut==="profile"){
-      tabContent=`
-      <p style="font-size:11px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:0.6px;margin:0 0 10px">Persönliche Daten</p>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
-        <div class="field" style="margin-bottom:0"><label>Vorname</label><div class="input-wrap"><input id="muFirst-${selected.id}" value="${mEsc(selected.first_name||"")}"></div></div>
-        <div class="field" style="margin-bottom:0"><label>Nachname</label><div class="input-wrap"><input id="muLast-${selected.id}" value="${mEsc(selected.last_name||"")}"></div></div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 100px 1fr;gap:10px;margin-bottom:12px">
-        <div class="field" style="margin-bottom:0"><label>Straße</label><div class="input-wrap"><input id="muStreet-${selected.id}" value="${mEsc(selected.address_street||"")}"></div></div>
-        <div class="field" style="margin-bottom:0"><label>PLZ</label><div class="input-wrap"><input id="muZip-${selected.id}" value="${mEsc(selected.address_zip||"")}"></div></div>
-        <div class="field" style="margin-bottom:0"><label>Ort</label><div class="input-wrap"><input id="muCity-${selected.id}" value="${mEsc(selected.address_city||"")}"></div></div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
-        <div class="field" style="margin-bottom:0"><label>Telefon</label><div class="input-wrap"><input id="muPhone-${selected.id}" value="${mEsc(selected.phone||"")}"></div></div>
-        <div class="field" style="margin-bottom:0"><label>Trial bis</label><div class="input-wrap"><input id="muTrial-${selected.id}" type="date" value="${selected.trial_end?new Date(selected.trial_end).toISOString().split('T')[0]:''}"></div></div>
-      </div>
-      <p style="font-size:11px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:0.6px;margin:12px 0 10px;padding-top:12px;border-top:1px solid var(--b)">Abo-Plan</p>
-      <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">
-        ${["Basic","Pro"].map(p=>`<button class="chip ${(selected.plan||"Basic")===p?"active":""}" onclick="document.getElementById('muPlan-${selected.id}').value='${p}';masterSaveUser('${selected.id}')">${p}</button>`).join("")}
-        <input type="hidden" id="muPlan-${selected.id}" value="${mEsc(selected.plan||"Basic")}">
-      </div>
-      <p style="font-size:11px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:0.6px;margin:0 0 10px;padding-top:12px;border-top:1px solid var(--b)">Admin-Notiz</p>
-      <div class="field" style="margin-bottom:14px"><div class="input-wrap"><input id="muNote-${selected.id}" value="${mEsc(selected.admin_note||"")}" placeholder="Interne Notizen..."></div></div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
-        <button class="btn btn-primary btn-sm" onclick="masterSaveUser('${selected.id}')">💾 Speichern</button>
-        <button class="btn btn-outline btn-sm" onclick="triggerPassReset('${selected.email}')">📧 Pw-Reset</button>
-        <button class="btn btn-outline btn-sm" onclick="if(confirm('2FA für Nutzer zurücksetzen?')){logAudit('2FA_RESET','Master','${selected.id}','Reset 2FA factors');flash('2FA zurückgesetzt (Mock)')}">🔐 2FA Reset</button>
-        <button class="btn btn-outline btn-sm" onclick="exportUserData('${selected.id}')">📦 DSGVO-Export</button>
-      </div>
-      <div style="border-top:1px solid var(--b);padding-top:14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-        <button class="btn btn-sm" style="${isBlocked?'background:var(--emG);color:var(--em);border:1px solid var(--ba)':'background:var(--amG);color:var(--am);border:1px solid rgba(251,191,36,0.3)'}" onclick="masterBlockUser('${selected.id}')">${isBlocked?'🔓 Entsperren':'🔒 Sperren'}</button>
-        <button class="btn btn-danger btn-sm" onclick="masterDeleteUser('${selected.id}')" style="${isDelConfirm?'background:var(--co);color:#fff':''}">⚠️ ${isDelConfirm?'BESTÄTIGEN – Endgültig löschen':'Nutzer löschen'}</button>
-        ${isDelConfirm?`<button class="btn btn-outline btn-sm" onclick="masterState.deleteConfirm=null;render()">Abbrechen</button>`:''}
-        <button class="btn btn-outline btn-sm" onclick="masterResetUserState('${selected.id}')">🗑 App-Daten Reset</button>
-      </div>`;
-    } else if(ut==="data"){
-      const s=selectedMetric?.state||{};
-      const d=s.debts||[];
-      const c=s.contracts||[];
-      tabContent=`
-      <p style="font-size:11px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:0.6px;margin:0 0 10px">Daten-Kontrolle (Read-Only)</p>
-      <div style="margin-bottom:16px">
-        <h4 style="font-size:13px;font-weight:700;margin-bottom:6px">Verträge (${c.length})</h4>
-        <div style="max-height:200px;overflow:auto;background:var(--bgE);border-radius:8px;border:1px solid var(--b)">
-          ${c.length?c.map(i=>`<div style="padding:8px 10px;border-bottom:1px solid var(--b);font-size:12px;display:flex;justify-content:space-between"><span>${mEsc(i.name)}</span><span>${fmt(i.monthlyCost)}</span></div>`).join(""):'<p style="padding:10px;font-size:12px;color:var(--tm);margin:0">Leer</p>'}
-        </div>
-      </div>
+  // ── Detail card ──────────────────────────────────────────────────────
+  let detail=`<div class="card" style="text-align:center;padding:48px 20px">
+    <p style="font-size:36px;margin:0 0 12px">👈</p>
+    <p style="font-size:15px;font-weight:700;margin:0 0 6px">Kunden auswählen</p>
+    <p style="font-size:13px;color:var(--tm)">Klicke einen Kunden in der Liste</p>
+  </div>`;
+
+  if(sel){
+    const blocked=!!(sel.is_blocked);
+    const isDel=st.delConfirm===sel.id;
+    const name=([sel.first_name||"",sel.last_name||""].join(" ").trim()||sel.email||"Nutzer");
+
+    const tog=(label,sub,on,fn,onCol="#86E8C0")=>`<div class="tog-row">
       <div>
-        <h4 style="font-size:13px;font-weight:700;margin-bottom:6px">Schulden (${d.length})</h4>
-        <div style="max-height:200px;overflow:auto;background:var(--bgE);border-radius:8px;border:1px solid var(--b)">
-          ${d.length?d.map(i=>`<div style="padding:8px 10px;border-bottom:1px solid var(--b);font-size:12px;display:flex;justify-content:space-between"><span>${mEsc(i.name)}</span><span>${fmt(i.current)} / ${fmt(i.original)}</span></div>`).join(""):'<p style="padding:10px;font-size:12px;color:var(--tm);margin:0">Leer</p>'}
-        </div>
-      </div>`;
-    }
+        <p style="font-size:13px;font-weight:700;margin:0">${label}</p>
+        ${sub?`<p style="font-size:11px;color:var(--tm);margin:2px 0 0">${sub}</p>`:""}
+      </div>
+      <div class="tog-track" style="background:${on?onCol:"var(--b)"}" onclick="${fn}">
+        <div class="tog-thumb" style="left:${on?"23px":"3px"}"></div>
+      </div>
+    </div>`;
 
-    detail=`<div class="master-card">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;padding-bottom:16px;border-bottom:1px solid var(--b)">
-        <div style="width:46px;height:46px;border-radius:14px;background:${isBlocked?'var(--coG)':'linear-gradient(135deg,var(--emD),var(--em))'};display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:${isBlocked?'var(--co)':'#fff'};flex-shrink:0">${isBlocked?'🔒':mEsc(([selected.first_name||"",selected.last_name||""].join(" ").trim()||selected.email||"?").slice(0,1).toUpperCase())}</div>
+    detail=`<div class="card" style="padding:20px">
+      <div style="display:flex;align-items:center;gap:12px;padding-bottom:16px;margin-bottom:18px;border-bottom:1px solid var(--b)">
+        <div class="avatar" style="width:50px;height:50px;border-radius:14px;font-size:18px;background:${blocked?"var(--coG)":"linear-gradient(135deg,#059669,#34D399)"}">${blocked?"🚫":(name[0]||"?").toUpperCase()}</div>
         <div style="flex:1">
-          <h3 style="font-size:16px;font-weight:800;margin:0">${mEsc(([selected.first_name||"",selected.last_name||""].join(" ").trim()||selected.email||"Nutzer"))}</h3>
-          <p style="font-size:12px;color:var(--tm);margin:2px 0 0">${mEsc(selected.email||"-")}</p>
+          <p style="font-size:17px;font-weight:800;margin:0">${esc(name)}</p>
+          <p style="font-size:12px;color:var(--tm);margin:3px 0 0">${esc(sel.email||"–")}</p>
+          <div style="margin-top:6px">${badge(sel.plan,sel.is_beta)}</div>
         </div>
-        ${isBlocked?'<span class="badge" style="color:var(--co);background:var(--coG)">🔒 GESPERRT</span>':'<span class="badge" style="color:var(--em);background:var(--emG)">● Aktiv</span>'}
-      </div>
-      
-      <div style="display:flex;gap:4px;background:var(--bgE);padding:4px;border-radius:8px;margin-bottom:16px">
-        <button onclick="masterState.userTab='profile';render()" style="flex:1;padding:6px;border-radius:6px;border:none;background:${ut==='profile'?'var(--bgC)':'transparent'};color:${ut==='profile'?'var(--t)':'var(--tm)'};font-size:12px;font-weight:600;cursor:pointer">Profil</button>
-        <button onclick="masterState.userTab='data';render()" style="flex:1;padding:6px;border-radius:6px;border:none;background:${ut==='data'?'var(--bgC)':'transparent'};color:${ut==='data'?'var(--t)':'var(--tm)'};font-size:12px;font-weight:600;cursor:pointer">Daten</button>
+        <button class="btn btn-ghost btn-sm" onclick="openApp('${sel.id}')">👁 App öffnen</button>
       </div>
 
-      ${ut==='profile' ? `
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:18px">
-        <div style="background:var(--bgE);border-radius:10px;padding:10px;border:1px solid var(--b)"><p style="font-size:11px;color:var(--tm);margin:0">Einnahmen</p><p style="font-size:18px;font-weight:800;margin:4px 0 0;color:var(--em)">${fmt(selectedMetric?.income||0)}</p></div>
-        <div style="background:var(--bgE);border-radius:10px;padding:10px;border:1px solid var(--b)"><p style="font-size:11px;color:var(--tm);margin:0">Ausgaben</p><p style="font-size:18px;font-weight:800;margin:4px 0 0;color:var(--co)">${fmt(selectedMetric?.expense||0)}</p></div>
-        <div style="background:var(--bgE);border-radius:10px;padding:10px;border:1px solid var(--b)"><p style="font-size:11px;color:var(--tm);margin:0">Offen</p><p style="font-size:18px;font-weight:800;margin:4px 0 0;color:var(--am)">${fmt(selectedMetric?.debtOpen||0)}</p></div>
-      </div>` : ''}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+        <div class="field" style="margin:0"><label>Vorname</label><div class="iw"><input id="muFirst-${sel.id}" value="${esc(sel.first_name||"")}"></div></div>
+        <div class="field" style="margin:0"><label>Nachname</label><div class="iw"><input id="muLast-${sel.id}" value="${esc(sel.last_name||"")}"></div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 80px 1fr;gap:10px;margin-bottom:16px">
+        <div class="field" style="margin:0"><label>Straße</label><div class="iw"><input id="muStreet-${sel.id}" value="${esc(sel.address_street||"")}"></div></div>
+        <div class="field" style="margin:0"><label>PLZ</label><div class="iw"><input id="muZip-${sel.id}" value="${esc(sel.address_zip||"")}"></div></div>
+        <div class="field" style="margin:0"><label>Ort</label><div class="iw"><input id="muCity-${sel.id}" value="${esc(sel.address_city||"")}"></div></div>
+      </div>
 
-      ${tabContent}
+      <p style="font-size:11px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:.5px;margin:0 0 8px">Plan</p>
+      <div style="display:flex;gap:6px;margin-bottom:16px">
+        ${["Basic","Pro"].map(p=>`<button class="chip ${(sel.plan||"Basic")===p?"active":""}" style="flex:1;justify-content:center" onclick="setUserPlan('${sel.id}','${p}')">${p}</button>`).join("")}
+      </div>
+
+      ${tog("🧪 Beta-Nutzer","Alle Features inkl. Schulden-Assistent",!!(sel.is_beta),`toggleBeta('${sel.id}')`)}
+      ${tog("🚫 Gesperrt","Kein Login möglich",blocked,`toggleBlock('${sel.id}')`,blocked?"#f87171":"#86E8C0")}
+
+      <div class="field" style="margin:16px 0 0">
+        <label>Admin-Notiz</label>
+        <div class="iw"><input id="muNote-${sel.id}" value="${esc(sel.admin_note||"")}" placeholder="Interne Notiz…"></div>
+      </div>
+
+      <div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap">
+        <button class="btn btn-primary btn-sm" style="flex:1" onclick="saveUser('${sel.id}')">💾 Speichern</button>
+        <button class="btn btn-outline btn-sm" onclick="passReset('${esc(sel.email||"")}')">📧 Passwort-Reset</button>
+      </div>
+
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;padding-top:12px;border-top:1px solid var(--b)">
+        <button class="btn btn-outline btn-sm" onclick="resetState('${sel.id}')">🗑 Daten zurücksetzen</button>
+        <button class="btn btn-danger btn-sm" style="${isDel?"background:var(--co);color:#fff;border-color:var(--co)":""}" onclick="delUser('${sel.id}')">${isDel?"⚠ Wirklich löschen?":"Account löschen"}</button>
+        ${isDel?`<button class="btn btn-outline btn-sm" onclick="st.delConfirm=null;render()">Abbrechen</button>`:""}
+      </div>
     </div>`;
   }
 
-  return `<div style="display:grid;grid-template-columns:300px 1fr;gap:14px;align-items:start">
-    <div>
-      <div class="master-card" style="margin-bottom:12px">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-          <h3 style="font-size:15px;font-weight:700;margin:0">Kunden (${masterState.users.length})</h3>
-          <button class="btn btn-ghost btn-sm" onclick="masterState.tab='create';render()">＋ Neu</button>
-        </div>
-        <div style="background:var(--bgE);border:1px solid var(--b);border-radius:10px;padding:0 14px;margin-bottom:12px;display:flex;align-items:center">
-          <input placeholder="Suchen..." value="${mEsc(masterState.query)}" oninput="masterState.query=this.value;render()" style="flex:1;border:none;outline:none;padding:10px 0;font-size:14px;color:var(--t);background:transparent">
-        </div>
-        <div style="max-height:60vh;overflow-y:auto;padding-right:2px">${usersList}</div>
-      </div>
-    </div>
-    <div>${detail}</div>
-  </div>`;
-}
-
-function rCreateView(){
-  return `<div class="master-card" style="max-width:560px">
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px">
-      <button onclick="masterState.tab='users';render()" style="background:none;border:none;color:var(--tm);cursor:pointer;font-size:22px;line-height:1">←</button>
-      <h3 style="font-size:18px;font-weight:800;margin:0">Neuen Kunden anlegen</h3>
-    </div>
-    <p style="font-size:12px;color:var(--tm);margin:0 0 16px;line-height:1.6">Legt einen Auth-Nutzer an und synchronisiert Profil + App-State direkt in Supabase.</p>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      <div class="field"><label>Vorname</label><div class="input-wrap"><input id="mcFirst" placeholder="Max"></div></div>
-      <div class="field"><label>Nachname</label><div class="input-wrap"><input id="mcLast" placeholder="Mustermann"></div></div>
-    </div>
-    <div class="field"><label>E-Mail *</label><div class="input-wrap"><input id="mcEmail" type="email" placeholder="kunde@domain.de"></div></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      <div class="field"><label>Passwort * (min. 6 Zeichen)</label><div class="input-wrap"><input id="mcPass" type="password" placeholder="••••••••"></div></div>
-      <div class="field"><label>Startplan</label>
-        <div class="input-wrap" style="padding:0 14px">
-          <select id="mcPlan" style="appearance:none;-webkit-appearance:none;border:none;background:transparent;color:var(--t);padding:13px 28px 13px 0;font-size:15px;width:100%;outline:none;cursor:pointer">
-            <option value="Basic">Basic (kostenlos)</option>
-            <option value="Pro">Pro (4,99 €/Monat)</option>
-          </select>
-          <span style="color:var(--tm);pointer-events:none;font-size:12px">▾</span>
-        </div>
-      </div>
-    </div>
-    <div style="display:flex;gap:10px;margin-top:6px">
-      <button class="btn btn-outline" style="flex:1" onclick="masterState.tab='users';render()">Abbrechen</button>
-      <button class="btn btn-primary" style="flex:1" onclick="masterCreateCustomer()">✓ Kundenkonto anlegen</button>
-    </div>
-  </div>`;
-}
-
-function rFinanceView(st){
-  const q=(masterState.query||"").trim().toLowerCase();
-  const filtered=st.metrics.filter(m=>!q||`${m.user.first_name||""} ${m.user.last_name||""} ${m.user.email||""} ${m.user.plan||""}`.toLowerCase().includes(q));
-  return`<div>
-    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px">
-      <h2 style="font-size:20px;font-weight:800;margin:0">Finanzübersicht</h2>
-      <div style="background:var(--bgE);border:1px solid var(--b);border-radius:10px;padding:0 14px;display:flex;align-items:center;max-width:280px">
-        <input placeholder="Suche..." value="${mEsc(masterState.query)}" oninput="masterState.query=this.value;render()" style="flex:1;border:none;outline:none;padding:10px 0;font-size:14px;color:var(--t);background:transparent">
-      </div>
-    </div>
-    <div class="master-card"><div style="overflow:auto"><table style="width:100%;border-collapse:collapse;min-width:900px">
-      <thead><tr>${["Kunde","Einnahmen","Verkäufe","Ausgaben","Saldo","Offen","Monatl. Last","Verträge/Jahr"].map((h,i)=>`<th style="text-align:${i>0?'right':'left'};padding:10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">${h}</th>`).join("")}</tr></thead>
-      <tbody>${filtered.map(m=>`<tr>
-        <td style="padding:10px;border-bottom:1px solid var(--b)">
-          <div style="font-size:13px;font-weight:700">${mEsc(([m.user.first_name||"",m.user.last_name||""].join(" ").trim()||m.user.email||"Nutzer"))}</div>
-          <div style="font-size:11px;color:var(--tm)">${mEsc(m.user.email||"-")} · <span style="color:var(--sk)">${mEsc(m.user.plan||"Basic")}</span></div>
-        </td>
-        <td style="padding:10px;border-bottom:1px solid var(--b);text-align:right;color:var(--em);font-weight:700">${fmt(m.income)}</td>
-        <td style="padding:10px;border-bottom:1px solid var(--b);text-align:right;color:#7DE6BE;font-weight:700">${fmt(m.sales)}</td>
-        <td style="padding:10px;border-bottom:1px solid var(--b);text-align:right;color:var(--co);font-weight:700">${fmt(m.expense)}</td>
-        <td style="padding:10px;border-bottom:1px solid var(--b);text-align:right;font-weight:700;color:${m.balance>=0?'var(--em)':'var(--co)'}">${fmt(m.balance)}</td>
-        <td style="padding:10px;border-bottom:1px solid var(--b);text-align:right">${fmt(m.debtOpen)}</td>
-        <td style="padding:10px;border-bottom:1px solid var(--b);text-align:right">${fmt(m.debtMonthly+m.contractMonthly)}</td>
-        <td style="padding:10px;border-bottom:1px solid var(--b);text-align:right">${fmt(m.contractYearly)}</td>
-      </tr>`).join("")||`<tr><td colspan="8" style="padding:18px;text-align:center;color:var(--tm)">Keine Kunden.</td></tr>`}</tbody>
-    </table></div></div>
-  </div>`;
-}
-
-function rPlansView(st){
-  const plansMap={};masterState.users.forEach(u=>{const p=u.plan||"Basic";plansMap[p]=(plansMap[p]||0)+1;});
-  return`<div>
-    <h2 style="font-size:20px;font-weight:800;margin:0 0 16px">Abo-Plan Verwaltung</h2>
-    <div style="display:grid;grid-template-columns:200px 1fr;gap:14px;align-items:start">
-      <div class="master-card">
-        <h3 style="font-size:14px;font-weight:700;margin:0 0 12px">Verteilung</h3>
-        ${Object.entries(plansMap).map(([k,v])=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--b)"><span style="font-size:13px;color:var(--sk);font-weight:600">${mEsc(k)}</span><strong>${v}</strong></div>`).join("")||`<p style="font-size:13px;color:var(--tm)">Keine Daten.</p>`}
-      </div>
-      <div class="master-card">
-        <h3 style="font-size:14px;font-weight:700;margin:0 0 12px">Plan pro Nutzer ändern</h3>
-        <div style="overflow:auto"><table style="width:100%;border-collapse:collapse;min-width:500px">
-          <thead><tr>${["Name","E-Mail","Plan","Aktion"].map(h=>`<th style="text-align:left;padding:8px 10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">${h}</th>`).join("")}</tr></thead>
-          <tbody>${masterState.users.map(u=>`<tr>
-            <td style="padding:8px 10px;border-bottom:1px solid var(--b);font-size:13px;font-weight:600">${mEsc(([u.first_name||"",u.last_name||""].join(" ").trim()||"Nutzer"))}</td>
-            <td style="padding:8px 10px;border-bottom:1px solid var(--b);font-size:12px;color:var(--tm)">${mEsc(u.email||"-")}</td>
-            <td style="padding:8px 10px;border-bottom:1px solid var(--b)">
-              <div style="display:flex;gap:6px">${["Basic","Pro"].map(p=>`<button class="chip ${(u.plan||"Basic")===p?"active":""}" style="font-size:11px;padding:4px 10px" onclick="document.getElementById('uPlan-${u.id}').value='${p}'">${p}</button>`).join("")}</div>
-              <input type="hidden" id="uPlan-${u.id}" value="${mEsc(u.plan||"Basic")}">
-            </td>
-            <td style="padding:8px 10px;border-bottom:1px solid var(--b);text-align:right"><button class="btn btn-primary btn-sm" onclick="masterState.users.find(x=>x.id==='${u.id}').plan=document.getElementById('uPlan-${u.id}').value;masterSaveUser('${u.id}')">Speichern</button></td>
-          </tr>`).join("")}</tbody>
-        </table></div>
-      </div>
-    </div>
-  </div>`;
-}
-
-function rRolesView(){
   return `<div>
-    <h2 style="font-size:20px;font-weight:800;margin:0 0 16px">Rollen- & Rechteverwaltung</h2>
-    <div class="master-card">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-        <p style="font-size:12px;color:var(--tm)">Zuweisung von administrativen Berechtigungen.</p>
+    <h2 style="font-size:20px;font-weight:800;margin:0 0 16px">Kunden <span style="font-size:14px;font-weight:400;color:var(--tm)">${st.users.length} gesamt</span></h2>
+    <div style="display:grid;grid-template-columns:290px 1fr;gap:14px;align-items:start">
+      <div class="card" style="padding:10px">
+        <div class="iw" style="margin-bottom:10px"><input placeholder="Suchen…" value="${esc(st.query||"")}" oninput="st.query=this.value;render()"></div>
+        <div style="max-height:66vh;overflow-y:auto">${userList}</div>
       </div>
-      <div style="overflow:auto"><table style="width:100%;border-collapse:collapse;min-width:600px">
-        <thead><tr>
-          <th style="text-align:left;padding:8px 10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">Nutzer</th>
-          <th style="text-align:left;padding:8px 10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">Aktuelle Rolle</th>
-          <th style="text-align:left;padding:8px 10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">Neue Rolle zuweisen</th>
-          <th style="text-align:right;padding:8px 10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">Aktion</th>
-        </tr></thead>
-        <tbody>${masterState.users.map(u=>{
-          const r=u.role||"user";
-          return `<tr>
-            <td style="padding:10px;border-bottom:1px solid var(--b)">
-              <div style="font-size:13px;font-weight:700">${mEsc(u.email)}</div>
-              <div style="font-size:11px;color:var(--tm)">${mEsc([u.first_name,u.last_name].join(" "))}</div>
-            </td>
-            <td style="padding:10px;border-bottom:1px solid var(--b)">
-              <span class="chip" style="${r==='master'?'background:var(--emG);color:var(--em)':r==='support'?'background:var(--amG);color:var(--am)':'background:var(--bgC)'}">${r.toUpperCase()}</span>
-            </td>
-            <td style="padding:10px;border-bottom:1px solid var(--b)">
-              <div class="input-wrap" style="padding:0 10px;max-width:200px">
-                <select id="role-${u.id}" style="border:none;background:transparent;color:var(--t);width:100%;padding:8px 0;outline:none">
-                  <option value="user" ${r==='user'?'selected':''}>User (Standard)</option>
-                  <option value="readonly" ${r==='readonly'?'selected':''}>Read-Only Viewer</option>
-                  <option value="support" ${r==='support'?'selected':''}>Support Agent</option>
-                  <option value="master" ${r==='master'?'selected':''}>Master Admin</option>
-                </select>
-              </div>
-            </td>
-            <td style="padding:10px;border-bottom:1px solid var(--b);text-align:right">
-              <button class="btn btn-primary btn-sm" onclick="saveRole('${u.id}')">Speichern</button>
-            </td>
-          </tr>`;
-        }).join("")}</tbody>
-      </table></div>
+      ${detail}
     </div>
   </div>`;
 }
 
-async function saveRole(uid){
-  const newRole = document.getElementById(`role-${uid}`).value;
-  const {error} = await supabaseClient.from("user_profiles").update({role:newRole, updated_at:new Date().toISOString()}).eq("id",uid);
-  if(error) flash("Fehler: "+error.message);
-  else {
-    flash("Rolle aktualisiert ✓");
-    logAudit("ROLE_CHANGE", "Master", uid, `Role changed to ${newRole}`);
-    await loadMasterData();
-    render();
-  }
-}
-
-function rFeaturesView(){
-  // Mock features storage
-  const feats = JSON.parse(localStorage.getItem("masterFeatures") || "{}");
+// ── Create View ───────────────────────────────────────────────────────────
+function rCreate(){
   return `<div>
-    <h2 style="font-size:20px;font-weight:800;margin:0 0 16px">Feature Management</h2>
-    <div class="master-card">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-        <p style="font-size:12px;color:var(--tm)">Aktivierung von Funktionen pro Kunde (Feature Flags).</p>
+    <h2 style="font-size:20px;font-weight:800;margin:0 0 16px">Neuen Kunden anlegen</h2>
+    <div class="card" style="max-width:500px;padding:24px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="field"><label>Vorname</label><div class="iw"><input id="mcFirst" placeholder="Max"></div></div>
+        <div class="field"><label>Nachname</label><div class="iw"><input id="mcLast" placeholder="Mustermann"></div></div>
       </div>
-      <div style="overflow:auto"><table style="width:100%;border-collapse:collapse;min-width:800px">
-        <thead><tr>
-          <th style="text-align:left;padding:8px 10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">Kunde</th>
-          <th style="text-align:center;padding:8px 10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">API Zugriff</th>
-          <th style="text-align:center;padding:8px 10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">Full Export</th>
-          <th style="text-align:center;padding:8px 10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">Beta Features</th>
-          <th style="text-align:center;padding:8px 10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">Prio Support</th>
-          <th style="text-align:right;padding:8px 10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">Aktion</th>
-        </tr></thead>
-        <tbody>${masterState.users.map(u=>{
-          const f = feats[u.id] || {};
-          const chk = (k) => f[k] ? 'checked' : '';
-          return `<tr>
-            <td style="padding:10px;border-bottom:1px solid var(--b)">
-              <div style="font-size:13px;font-weight:700">${mEsc(u.email)}</div>
-              <div style="font-size:11px;color:var(--tm)">${mEsc(u.plan||"Basic")}</div>
-            </td>
-            <td style="padding:10px;border-bottom:1px solid var(--b);text-align:center"><input type="checkbox" id="f-api-${u.id}" ${chk('api')}></td>
-            <td style="padding:10px;border-bottom:1px solid var(--b);text-align:center"><input type="checkbox" id="f-exp-${u.id}" ${chk('exp')}></td>
-            <td style="padding:10px;border-bottom:1px solid var(--b);text-align:center"><input type="checkbox" id="f-beta-${u.id}" ${chk('beta')}></td>
-            <td style="padding:10px;border-bottom:1px solid var(--b);text-align:center"><input type="checkbox" id="f-sup-${u.id}" ${chk('sup')}></td>
-            <td style="padding:10px;border-bottom:1px solid var(--b);text-align:right">
-              <button class="btn btn-primary btn-sm" onclick="saveFeatures('${u.id}')">Speichern</button>
-            </td>
-          </tr>`;
-        }).join("")}</tbody>
-      </table></div>
+      <div class="field"><label>E-Mail *</label><div class="iw"><input id="mcEmail" type="email" placeholder="max@example.com"></div></div>
+      <div class="field"><label>Passwort * (min. 6 Zeichen)</label><div class="iw"><input id="mcPass" type="password" placeholder="••••••••"></div></div>
+      <div class="field"><label>Plan</label><div class="iw">
+        <select id="mcPlan"><option value="Basic">Basic</option><option value="Pro">Pro</option></select>
+        <span style="color:var(--tm);pointer-events:none;padding-right:4px">▾</span>
+      </div></div>
+      <button class="btn btn-primary btn-full" onclick="createCustomer()">✓ Kunde anlegen</button>
     </div>
   </div>`;
 }
 
-function saveFeatures(uid){
-  const f = {
-    api: document.getElementById(`f-api-${uid}`).checked,
-    exp: document.getElementById(`f-exp-${uid}`).checked,
-    beta: document.getElementById(`f-beta-${uid}`).checked,
-    sup: document.getElementById(`f-sup-${uid}`).checked
-  };
-  const store = JSON.parse(localStorage.getItem("masterFeatures") || "{}");
-  store[uid] = f;
-  localStorage.setItem("masterFeatures", JSON.stringify(store));
-  flash("Features gespeichert ✓");
-  logAudit("FEATURE_UPDATE", "Master", uid, "Updated feature flags: "+JSON.stringify(f));
-}
-
-function rSecurityView(){
+// ── System View ───────────────────────────────────────────────────────────
+function rSystem(){
+  const rows=[
+    ["Supabase",sb?"✓ Verbunden":"✗ Fehler",sb?"var(--em)":"var(--co)"],
+    ["Session",st.loggedIn?"✓ Aktiv":"–",st.loggedIn?"var(--em)":"var(--tm)"],
+    ["Kunden",st.users.length+" geladen","var(--em)"],
+  ];
   return `<div>
-    <h2 style="font-size:20px;font-weight:800;margin:0 0 16px">Sicherheitscenter</h2>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px">
-      <div class="master-card" style="border-left:4px solid var(--co)">
-        <h3 style="font-size:15px;font-weight:700;margin:0 0 8px">Notfall-Steuerung</h3>
-        <p style="font-size:12px;color:var(--tm);margin:0 0 16px">Globale Sicherheitsmaßnahmen für die gesamte Plattform.</p>
-        <div style="display:flex;gap:10px;flex-wrap:wrap">
-          <button class="btn btn-danger btn-sm" onclick="if(confirm('WARNUNG: API für ALLE Nutzer sperren?')){masterState.security.blockAPI=true;logAudit('SEC_LOCKDOWN','Master','Global','API Access Blocked');render();flash('API Zugriff gesperrt 🔒')}">⚠️ API-Lockdown</button>
-          <button class="btn btn-outline btn-sm" onclick="masterState.security.blockAPI=false;logAudit('SEC_UNLOCK','Master','Global','API Access Restored');render();flash('API Zugriff wiederhergestellt')">🔓 Lockdown aufheben</button>
-        </div>
-        ${masterState.security.blockAPI ? '<div style="margin-top:12px;padding:8px;background:var(--coG);color:var(--co);font-size:12px;font-weight:700;border-radius:6px;text-align:center">⛔ API-ZUGRIFF GLOBAL GESPERRT</div>' : ''}
-      </div>
-      <div class="master-card" style="border-left:4px solid var(--am)">
-        <h3 style="font-size:15px;font-weight:700;margin:0 0 8px">Session Management</h3>
-        <p style="font-size:12px;color:var(--tm);margin:0 0 16px">Aktive Sitzungen verwalten und beenden.</p>
-        <button class="btn btn-outline btn-sm" onclick="if(confirm('Alle Nutzer-Sessions beenden?')){logAudit('SEC_KILL_ALL','Master','Global','Terminated all user sessions');flash('Alle Sessions beendet (Mock)')}">🛑 Alle Sessions beenden</button>
-      </div>
-    </div>
-
-    <div class="master-card">
-      <h3 style="font-size:15px;font-weight:700;margin:0 0 16px">Benutzer-Sicherheitsstatus</h3>
-      <div style="overflow:auto"><table style="width:100%;border-collapse:collapse;min-width:600px">
-        <thead><tr>
-          <th style="text-align:left;padding:8px 10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">Nutzer</th>
-          <th style="text-align:left;padding:8px 10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">Status</th>
-          <th style="text-align:left;padding:8px 10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">Letzter Login</th>
-          <th style="text-align:left;padding:8px 10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">2FA</th>
-          <th style="text-align:right;padding:8px 10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">Aktionen</th>
-        </tr></thead>
-        <tbody>${masterState.users.map(u=>{
-          const isBlocked=!!u.is_blocked;
-          return `<tr>
-            <td style="padding:10px;border-bottom:1px solid var(--b)">
-              <div style="font-size:13px;font-weight:700">${mEsc(u.email)}</div>
-            </td>
-            <td style="padding:10px;border-bottom:1px solid var(--b)">
-              ${isBlocked ? '<span class="badge" style="color:var(--co);background:var(--coG)">GESPERRT</span>' : '<span class="badge" style="color:var(--em);background:var(--emG)">AKTIV</span>'}
-            </td>
-            <td style="padding:10px;border-bottom:1px solid var(--b);font-size:12px;color:var(--tm)">${new Date(u.updated_at).toLocaleDateString()}</td>
-            <td style="padding:10px;border-bottom:1px solid var(--b);font-size:12px;color:var(--tm)">Inaktiv</td>
-            <td style="padding:10px;border-bottom:1px solid var(--b);text-align:right">
-              <button class="btn btn-outline btn-sm" onclick="triggerPassReset('${u.email}')">🔑 Reset</button>
-              <button class="btn btn-outline btn-sm" onclick="if(confirm('2FA Reset?')){logAudit('2FA_RESET','Master','${u.id}','Reset 2FA');flash('2FA Reset (Mock)')}">🔐 2FA</button>
-              <button class="btn btn-outline btn-sm" onclick="terminateSessions('${u.id}')">⚡ Kill</button>
-            </td>
-          </tr>`
-        }).join("")}</tbody>
-      </table></div>
-    </div>
-  </div>`;
-}
-
-function rAuditView(){
-  const logs = masterState.auditLogs || [];
-  return `<div>
-    <h2 style="font-size:20px;font-weight:800;margin:0 0 16px">Audit Log</h2>
-    <div class="master-card">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-        <p style="font-size:12px;color:var(--tm)">Protokollierung aller administrativen Eingriffe.</p>
-        <button class="btn btn-ghost btn-sm" onclick="downloadJSON(masterState.auditLogs, 'audit_log.json')">⬇️ Export Log</button>
-      </div>
-      <div style="overflow:auto;max-height:70vh">
-        <table style="width:100%;border-collapse:collapse;min-width:700px">
-          <thead><tr>
-            <th style="text-align:left;padding:8px 10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">Zeitstempel</th>
-            <th style="text-align:left;padding:8px 10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">Akteur</th>
-            <th style="text-align:left;padding:8px 10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">Aktion</th>
-            <th style="text-align:left;padding:8px 10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">Ziel</th>
-            <th style="text-align:left;padding:8px 10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--ts)">Details</th>
-          </tr></thead>
-          <tbody>${logs.length ? logs.map(l => `
-            <tr>
-              <td style="padding:8px 10px;border-bottom:1px solid var(--b);font-size:11px;color:var(--tm);white-space:nowrap">${new Date(l.ts).toLocaleString()}</td>
-              <td style="padding:8px 10px;border-bottom:1px solid var(--b);font-size:12px;font-weight:600">${mEsc(l.actor)}</td>
-              <td style="padding:8px 10px;border-bottom:1px solid var(--b);font-size:11px"><span class="chip" style="padding:2px 8px">${mEsc(l.action)}</span></td>
-              <td style="padding:8px 10px;border-bottom:1px solid var(--b);font-size:12px">${mEsc(l.target)}</td>
-              <td style="padding:8px 10px;border-bottom:1px solid var(--b);font-size:12px;color:var(--tm)">${mEsc(l.details)}</td>
-            </tr>
-          `).join("") : '<tr><td colspan="5" style="padding:20px;text-align:center;color:var(--tm)">Keine Einträge.</td></tr>'}</tbody>
-        </table>
-      </div>
-    </div>
-  </div>`;
-}
-
-function rSystemView(){
-  return`<div>
     <h2 style="font-size:20px;font-weight:800;margin:0 0 16px">System</h2>
-    <div class="master-card" style="border-left:4px solid var(--em);margin-bottom:16px;background:var(--emG2)">
-      <h3 style="font-size:14px;font-weight:700;margin:0 0 6px;color:var(--em)">✓ Edge Function aktiv</h3>
-      <p style="font-size:12px;color:var(--ts);margin:0">Die <code style="background:var(--bgE);padding:2px 6px;border-radius:4px;color:var(--em)">hyper-api</code> Edge Function ist deployed und aktiv. Alle User werden vollständig angezeigt und können komplett gelöscht werden.</p>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-      <div class="master-card">
-        <h3 style="font-size:14px;font-weight:700;margin:0 0 12px">Systemstatus</h3>
-        ${[
-          ["Supabase Client",supabaseClient?'✓ Verbunden':'✕ Fehler',supabaseClient],
-          ["Master Session",masterState.loggedIn?'✓ Aktiv':'✕ Inaktiv',masterState.loggedIn],
-          ["Datensätze geladen",masterState.states.length,true],
-          ["Nutzer gesamt",masterState.users.length,true],
-          ["Letztes Update",new Date().toLocaleString("de-DE"),true]
-        ].map(([l,v,ok])=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:10px;background:var(--bgE);border:1px solid var(--b);margin-bottom:8px">
-          <span style="font-size:13px;color:var(--tm)">${l}</span>
-          <span style="font-size:13px;font-weight:700;color:${typeof ok==='boolean'?ok?'var(--em)':'var(--co)':'var(--t)'}">${v}</span>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+      <div class="card">
+        <p style="font-size:13px;font-weight:700;margin:0 0 12px">Status</p>
+        ${rows.map(([k,v,c])=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 13px;border-radius:10px;background:var(--bgE);border:1px solid var(--b);margin-bottom:8px">
+          <span style="font-size:13px;color:var(--tm)">${k}</span>
+          <span style="font-size:13px;font-weight:700;color:${c}">${v}</span>
         </div>`).join("")}
       </div>
-      <div class="master-card">
-        <h3 style="font-size:14px;font-weight:700;margin:0 0 12px">Admin Aktionen</h3>
+      <div class="card">
+        <p style="font-size:13px;font-weight:700;margin:0 0 12px">Aktionen</p>
         <div style="display:flex;flex-direction:column;gap:8px">
-          <button class="btn btn-outline btn-sm btn-full" onclick="loadMasterData().then(()=>render())">🔄 Daten neu laden</button>
-          <button class="btn btn-outline btn-sm btn-full" onclick="masterState.tab='finance';render()">💰 Zu Finanzen</button>
-          <button class="btn btn-outline btn-sm btn-full" onclick="masterState.tab='users';render()">👥 Zu Kunden</button>
-          <button class="btn btn-outline btn-sm btn-full" onclick="masterState.tab='create';render()">＋ Neuen Kunden anlegen</button>
-          <button class="btn btn-danger btn-sm btn-full" style="margin-top:8px" onclick="masterLogout()">Logout</button>
+          <button class="btn btn-outline btn-sm btn-full" onclick="loadData().then(render);flash('Aktualisiert ✓')">↻ Daten neu laden</button>
+          <button class="btn btn-ghost btn-sm btn-full" onclick="masterLogout()">Ausloggen</button>
         </div>
       </div>
     </div>
-    </div>
   </div>`;
 }
 
-function rDebugView(){
-  return `<div>
-    <h2 style="font-size:20px;font-weight:800;margin:0 0 6px">🔧 Edge Function Debug</h2>
-    <p style="font-size:13px;color:var(--ts);margin:0 0 16px">Teste ob die Edge Function korrekt deployed und erreichbar ist.</p>
-
-    <div class="master-card" style="margin-bottom:12px">
-      <h3 style="font-size:14px;font-weight:700;margin:0 0 12px">Schritt 1 – Verbindungstest</h3>
-      <p style="font-size:12px;color:var(--tm);margin:0 0 10px">Testet ob die Edge Function <code style="background:var(--bgE);padding:2px 6px;border-radius:4px;color:var(--em)">hyper-api</code> überhaupt antwortet.</p>
-      <button class="btn btn-primary btn-sm" onclick="debugTestConnection()">▶ Verbindung testen</button>
-      <div id="debugConn" style="margin-top:10px;font-size:12px;font-family:monospace;background:var(--bgE);border-radius:8px;padding:10px;min-height:40px;white-space:pre-wrap;display:none"></div>
-    </div>
-
-    <div class="master-card" style="margin-bottom:12px">
-      <h3 style="font-size:14px;font-weight:700;margin:0 0 12px">Schritt 2 – Auth User Liste</h3>
-      <p style="font-size:12px;color:var(--tm);margin:0 0 10px">Ruft alle User direkt aus <code style="background:var(--bgE);padding:2px 6px;border-radius:4px;color:var(--sk)">auth.users</code> ab (umgeht RLS).</p>
-      <button class="btn btn-primary btn-sm" onclick="debugLoadUsers()">▶ User laden</button>
-      <div id="debugUsers" style="margin-top:10px;font-size:12px;font-family:monospace;background:var(--bgE);border-radius:8px;padding:10px;min-height:40px;white-space:pre-wrap;display:none"></div>
-    </div>
-
-    <div class="master-card" style="margin-bottom:12px">
-      <h3 style="font-size:14px;font-weight:700;margin:0 0 12px">Schritt 3 – Direkte Supabase Abfrage (Fallback)</h3>
-      <p style="font-size:12px;color:var(--tm);margin:0 0 10px">Liest user_profiles direkt ohne Edge Function. Zeigt wie viele Profile RLS erlaubt zu sehen.</p>
-      <button class="btn btn-outline btn-sm" onclick="debugDirectQuery()">▶ Direkt abfragen</button>
-      <div id="debugDirect" style="margin-top:10px;font-size:12px;font-family:monospace;background:var(--bgE);border-radius:8px;padding:10px;min-height:40px;white-space:pre-wrap;display:none"></div>
-    </div>
-
-    <div class="master-card">
-      <h3 style="font-size:14px;font-weight:700;margin:0 0 12px">Status & Anleitung</h3>
-      <div id="debugStatus" style="font-size:12px;line-height:1.8">
-        <p>Klicke die Buttons oben der Reihe nach. Das Ergebnis zeigt dir genau wo das Problem liegt:</p>
-        <ul style="margin:8px 0 0 16px;color:var(--ts)">
-          <li><strong style="color:var(--em)">Schritt 1 schlägt fehl</strong> → Edge Function nicht deployed. Gehe zu Supabase → Edge Functions → Deploy a new function → Via Editor → Name: <code style="color:var(--em)">hyper-api</code> → Code einfügen → Deploy</li>
-          <li><strong style="color:var(--em)">Schritt 1 OK, Schritt 2 schlägt fehl</strong> → Edge Function deployed aber Fehler im Code. Sieh dir die Fehlermeldung an.</li>
-          <li><strong style="color:var(--em)">Schritt 3 zeigt weniger User als erwartet</strong> → RLS-Problem. Edge Function (Schritt 2) löst das.</li>
-          <li><strong style="color:var(--em)">Alles OK</strong> → Klicke "Daten neu laden" im System-Tab.</li>
-        </ul>
-      </div>
-    </div>
-  </div>`;
+// ── Actions ───────────────────────────────────────────────────────────────
+async function saveUser(id){
+  const g=k=>document.getElementById(`${k}-${id}`)?.value?.trim()||"";
+  const u=st.users.find(x=>x.id===id);
+  const {error}=await sb.from("user_profiles").upsert({
+    id, first_name:g("muFirst")||null, last_name:g("muLast")||null,
+    plan:u?.plan||"Basic", is_beta:!!(u?.is_beta), is_blocked:!!(u?.is_blocked),
+    address_street:g("muStreet")||null, address_zip:g("muZip")||null, address_city:g("muCity")||null,
+    admin_note:g("muNote")||null, updated_at:new Date().toISOString()
+  });
+  if(error){flash("Fehler: "+error.message);return;}
+  // Update local state
+  if(u){Object.assign(u,{first_name:g("muFirst"),last_name:g("muLast"),address_street:g("muStreet"),address_zip:g("muZip"),address_city:g("muCity"),admin_note:g("muNote")});}
+  flash("Gespeichert ✓");
+  await loadData();render();
 }
 
-async function debugTestConnection(){
-  const el = document.getElementById("debugConn");
-  el.style.display = "block";
-  el.style.color = "var(--ts)";
-  el.textContent = "⏳ Teste Verbindung...";
-  
-  try {
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    if(!session){ el.style.color="var(--co)"; el.textContent="✗ Keine aktive Session – bitte einloggen"; return; }
-    
-    const res = await fetch(
-      "https://kdbuduwztmxxykfvqbie.supabase.co/functions/v1/hyper-api",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer " + session.access_token,
-          "apikey": "sb_publishable_ZZpjQ4Lqcqd2uVpGrSthcQ_nnCYSGPv"
-        },
-        body: JSON.stringify({ action: "ping" })
-      }
-    );
-    
-    const text = await res.text();
-    if(res.status === 404){
-      el.style.color = "var(--co)";
-      el.textContent = "✗ HTTP 404 – Edge Function 'hyper-api' nicht gefunden\n\nLösung: Supabase Dashboard → Edge Functions → Deploy a new function → Via Editor\nName exakt: master-admin\nDann den Code aus master-admin.ts einfügen und deployen.";
-    } else if(res.status === 401){
-      el.style.color = "var(--co)";
-      el.textContent = "✗ HTTP 401 – Nicht authentifiziert\n\nDie Session ist abgelaufen. Bitte neu einloggen.";
-    } else {
-      el.style.color = "var(--em)";
-      el.textContent = "✓ Edge Function antwortet! HTTP " + res.status + "\n\nAntwort: " + text.substring(0,200);
-    }
-  } catch(e) {
-    el.style.color = "var(--co)";
-    el.textContent = "✗ Netzwerkfehler: " + e.message + "\n\nMöglicherweise CORS-Problem oder Edge Function nicht deployed.";
-  }
+async function setUserPlan(id,plan){
+  const {error}=await sb.from("user_profiles").update({plan,updated_at:new Date().toISOString()}).eq("id",id);
+  if(error){flash("Fehler: "+error.message);return;}
+  const u=st.users.find(x=>x.id===id);if(u)u.plan=plan;
+  flash(`Plan → ${plan} ✓`);render();
 }
 
-async function debugLoadUsers(){
-  const el = document.getElementById("debugUsers");
-  el.style.display = "block";
-  el.style.color = "var(--ts)";
-  el.textContent = "⏳ Lade User via Edge Function...";
-  
-  try {
-    const result = await callMasterAPI("load_all_users");
-    el.style.color = "var(--em)";
-    el.textContent = "✓ Erfolg!\n\n" +
-      "Auth Users gefunden: " + result.total_auth_users + "\n" +
-      "Profile gefunden: " + result.total_profiles + "\n" +
-      "Merged (angezeigt): " + result.users.length + "\n\n" +
-      "User-Liste:\n" + result.users.map((u,i) => 
-        (i+1) + ". " + (u.first_name||"") + " " + (u.last_name||"") + " <" + u.email + "> – " + u.plan + (u.has_profile ? "" : " ⚠️ kein Profil")
-      ).join("\n");
-    
-    // Auto-reload main data
-    await loadMasterData();
-    render();
-    flash("✓ " + result.total_auth_users + " User geladen – Dashboard aktualisiert!");
-  } catch(e) {
-    el.style.color = "var(--co)";
-    el.textContent = "✗ Fehler: " + e.message + "\n\nEdge Function nicht erreichbar oder fehlerhaft.\nZuerst Schritt 1 ausführen.";
-  }
+async function toggleBeta(id){
+  const u=st.users.find(x=>x.id===id);if(!u)return;
+  const v=!u.is_beta;
+  const {error}=await sb.from("user_profiles").update({is_beta:v}).eq("id",id);
+  if(error){flash("Fehler: "+error.message);return;}
+  u.is_beta=v;flash(v?"🧪 Beta aktiviert ✓":"Beta deaktiviert");render();
 }
 
-async function debugDirectQuery(){
-  const el = document.getElementById("debugDirect");
-  el.style.display = "block";
-  el.style.color = "var(--ts)";
-  el.textContent = "⏳ Direkte Supabase-Abfrage...";
-  
-  try {
-    const [{data:profiles}, {data:states}] = await Promise.all([
-      supabaseClient.from("user_profiles").select("id,email,first_name,last_name,plan").range(0,9999),
-      supabaseClient.from("app_state").select("user_id").range(0,9999)
-    ]);
-    
-    el.style.color = profiles?.length > 0 ? "var(--am)" : "var(--co)";
-    el.textContent = "Direkte Abfrage (mit RLS):\n\n" +
-      "user_profiles sichtbar: " + (profiles?.length ?? 0) + "\n" +
-      "app_state Einträge: " + (states?.length ?? 0) + "\n\n" +
-      "Sichtbare Profile:\n" + (profiles||[]).map((p,i) =>
-        (i+1) + ". " + (p.first_name||"") + " " + (p.last_name||"") + " <" + p.email + ">"
-      ).join("\n") + 
-      "\n\n" + (profiles?.length < 6 ? 
-        "⚠️ Weniger als 6 User sichtbar – RLS schränkt die Anzeige ein.\nDie Edge Function (Schritt 2) umgeht das." : 
-        "✓ Alle User sichtbar via direkter Abfrage.");
-  } catch(e) {
-    el.style.color = "var(--co)";
-    el.textContent = "✗ Fehler: " + e.message;
-  }
+async function toggleBlock(id){
+  const u=st.users.find(x=>x.id===id);if(!u)return;
+  const v=!u.is_blocked;
+  const ok=await confirm2(v?"Nutzer sperren?":"Nutzer entsperren?",v?"Der Nutzer kann sich nicht mehr einloggen.":"Der Nutzer kann sich wieder einloggen.",v?"Sperren":"Entsperren");
+  if(!ok)return;
+  const {error}=await sb.from("user_profiles").update({is_blocked:v,updated_at:new Date().toISOString()}).eq("id",id);
+  if(error){flash("Fehler: "+error.message);return;}
+  u.is_blocked=v;flash(v?"Gesperrt 🔒":"Entsperrt ✓");render();
 }
 
+async function resetState(id){
+  const ok=await confirm2("App-Daten zurücksetzen?","Schulden, Budget und Verträge werden gelöscht.","Zurücksetzen");
+  if(!ok)return;
+  const {error}=await sb.from("app_state").upsert({user_id:id,debts:[],budget_items:[],contracts:[],updated_at:new Date().toISOString()});
+  if(error){flash("Fehler: "+error.message);return;}
+  flash("Daten zurückgesetzt ✓");
+}
+
+async function delUser(id){
+  if(st.delConfirm!==id){st.delConfirm=id;render();flash("⚠ Nochmals klicken zum Löschen");return;}
+  st.delConfirm=null;
+  try{
+    const {error}=await sb.functions.invoke("hyper-api",{body:{action:"delete_user",user_id:id}});
+    if(!error){flash("Komplett gelöscht ✓");await loadData();render();return;}
+  }catch(e){}
+  await Promise.all([sb.from("app_state").delete().eq("user_id",id),sb.from("user_profiles").delete().eq("id",id)]);
+  if(st.selId===id)st.selId=null;
+  flash("⚠ Profildaten gelöscht (Auth-User ggf. noch aktiv)");
+  await loadData();render();
+}
+
+async function createCustomer(){
+  const fn=(document.getElementById("mcFirst")?.value||"").trim();
+  const ln=(document.getElementById("mcLast")?.value||"").trim();
+  const em=(document.getElementById("mcEmail")?.value||"").trim().toLowerCase();
+  const pw=(document.getElementById("mcPass")?.value||"").trim();
+  const pl=(document.getElementById("mcPlan")?.value||"Basic");
+  if(!em||!pw){flash("E-Mail und Passwort sind Pflicht");return;}
+  if(pw.length<6){flash("Passwort min. 6 Zeichen");return;}
+  const {data:sess}=await sb.auth.getSession();
+  const mSess=sess?.session||null;
+  const {data,error}=await sb.auth.signUp({email:em,password:pw,options:{data:{first_name:fn,last_name:ln,plan:pl}}});
+  if(error){flash("Fehler: "+error.message);return;}
+  const uid=data?.user?.id;
+  if(!uid){flash("Angelegt, aber keine User-ID");return;}
+  const trial=new Date();trial.setDate(trial.getDate()+30);
+  await Promise.all([
+    sb.from("user_profiles").upsert({id:uid,email:em,first_name:fn||null,last_name:ln||null,plan:pl,trial_end:trial.toISOString(),updated_at:new Date().toISOString()}),
+    sb.from("app_state").upsert({user_id:uid,debts:[],budget_items:[],contracts:[],updated_at:new Date().toISOString()})
+  ]);
+  if(mSess?.access_token&&mSess?.refresh_token)try{await sb.auth.setSession({access_token:mSess.access_token,refresh_token:mSess.refresh_token});}catch(e){}
+  ["mcFirst","mcLast","mcEmail","mcPass"].forEach(k=>{const el=document.getElementById(k);if(el)el.value="";});
+  flash("Kunde angelegt ✓");await loadData();render();
+}
+
+async function passReset(email){
+  if(!email){flash("Keine E-Mail");return;}
+  const ok=await confirm2("Passwort-Reset senden?",`Reset-Link → ${email}`,"Senden");
+  if(!ok)return;
+  const {error}=await sb.auth.resetPasswordForEmail(email);
+  if(error){flash("Fehler: "+error.message);return;}
+  flash("Reset-Link gesendet 📧");
+}
+
+function openApp(uid){
+  window.open(`app.html?impersonate=${uid}`,"_blank");
+}
 </script>
 </body>
 </html>
