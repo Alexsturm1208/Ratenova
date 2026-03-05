@@ -255,6 +255,8 @@ select option{background:var(--bgC);color:var(--t)}
 <script>
 let debts=[];
 let currentPage="dashboard",selectedDebtId=null,currentFilter="all",selectedEmoji="📄";window._contractDetail=null;window._contractFilter="all";
+let selectedDebts=new Set();
+let selectionMode=false;
 const isMasterMode=new URLSearchParams(window.location.search).get("master")==="1";
 const fmt=n=>new Intl.NumberFormat("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2}).format(n)+" €";
 const fmt2=n=>new Intl.NumberFormat("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2}).format(n)+" €";
@@ -338,15 +340,20 @@ function effDue(d){
 function rng(pct,sz=140,sw=8){const r=(sz-sw*2)/2,ci=2*Math.PI*r;return`<svg width="${sz}" height="${sz}"><defs><linearGradient id="rg${sz}" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="var(--em)"/><stop offset="100%" stop-color="var(--sk)"/></linearGradient><filter id="gl${sz}"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><circle cx="${sz/2}" cy="${sz/2}" r="${r}" fill="none" stroke="var(--b)" stroke-width="${sw}"/><circle cx="${sz/2}" cy="${sz/2}" r="${r}" fill="none" stroke="url(#rg${sz})" stroke-width="${sw}" stroke-linecap="round" stroke-dasharray="${ci}" stroke-dashoffset="${ci-(pct/100)*ci}" transform="rotate(-90 ${sz/2} ${sz/2})" filter="url(#gl${sz})" style="transition:stroke-dashoffset 1.2s cubic-bezier(0.16,1,0.3,1)"/></svg>`}
 function flash(m){const c=document.getElementById("toastContainer");c.innerHTML=`<div class="toast"><span class="toast-dot"></span>${m}</div>`;setTimeout(()=>c.innerHTML="",2800)}
 function showConfetti(){const c=document.getElementById("confettiContainer");c.style.display="block";const cols=["var(--em)","#38BDF8","#FBBF24","var(--co)","#A78BFA","#FB7185"];let h="";for(let i=0;i<40;i++)h+=`<div class="confetti-piece" style="left:${Math.random()*100}%;width:${5+Math.random()*7}px;height:${5+Math.random()*4}px;background:${cols[i%6]};animation:confettiFall ${1.5+Math.random()*1.5}s ease-in ${Math.random()*0.5}s forwards"></div>`;c.innerHTML=h;setTimeout(()=>{c.style.display="none";c.innerHTML=""},3500)}
-const navI=[{id:"dashboard",l:"Überblick",i:"◉"},{id:"budget",l:"Ein & Ausgaben",i:"💶"},{id:"contracts",l:"Verträge",i:"📄"},{id:"debts",l:"Verpflichtungen",i:"☰"},{id:"timeline",l:"Verlauf",i:"◔"}];
+function getNavI(){const base=[{id:"dashboard",l:"Überblick",i:"◉"},{id:"budget",l:"Ein & Ausgaben",i:"💶"},{id:"contracts",l:"Verträge",i:"📄"},{id:"debts",l:"Verpflichtungen",i:"☰"},{id:"timeline",l:"Verlauf",i:"◔"}];if(typeof isBetaUser==="function"&&isBetaUser())base.push({id:"assistant",l:"Assistent",i:"🤖",beta:true});return base;}
+const navI=[];
 // ═══ PLAN-SYSTEM ═══
 const PRO_PRICE="4,99 €";
 const BASIC_DEBT_LIMIT=3;
+const BASIC_BUDGET_LIMIT=10;
+const BASIC_CONTRACT_LIMIT=2;
 const proPages=new Set(["agree","contracts","cancelAssist"]);
 function isTrialActive(){const t=user.trialEnd||null;return!!(t&&new Date()<new Date(t));}
 function trialDaysLeft(){const t=user.trialEnd||null;if(!t)return 0;return Math.max(0,Math.ceil((new Date(t)-new Date())/864e5));}
 function isProPlan(){const p=(user.plan||"").trim().toLowerCase();if(p==="pro"||p==="business"||p==="enterprise")return true;if(isTrialActive())return true;return false;}
 function isBasicPlan(){return!isProPlan();}
+function isBetaUser(){return !!(user.isBeta);}
+function isBetaOrPro(){return isBetaUser()||isProPlan();}
 function isProFeaturePage(p){return proPages.has(p);}
 function canAddDebt(){return isProPlan()||debts.length<BASIC_DEBT_LIMIT;}
 function openUpgradeModal(featureName){
@@ -372,7 +379,7 @@ function renderNav(){
   const trial=isTrialActive();
   const daysLeft=trialDaysLeft();
   const sidebarNav=document.getElementById("sidebarNav");
-  if(sidebarNav)sidebarNav.innerHTML=navI.map(n=>{
+  if(sidebarNav)sidebarNav.innerHTML=getNavI().map(n=>{
     const locked=isProFeaturePage(n.id)&&!pro;
     return `<button class="nav-btn ${currentPage===n.id||(currentPage==="detail"&&n.id==="debts")?"active":""}" onclick="goTo('${n.id}')"><span class="icon">${n.i}</span>${n.l}${locked?'<span style="margin-left:auto;font-size:10px;opacity:0.5">🔒</span>':''}</button>`;
   }).join("");
@@ -380,7 +387,7 @@ function renderNav(){
   if(t)t.innerHTML=`<p style="font-size:10px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:1px;margin:0 0 6px;padding:0 10px">Tools</p><button class="nav-btn ${currentPage==="agree"?"active":""}" onclick="goTo('agree')" style="width:100%"><span class="icon">✎</span>Vereinbarungen${!pro?'<span style="margin-left:auto;font-size:10px;opacity:0.5">🔒</span>':''}</button><button class="nav-btn ${currentPage==="cancelAssist"?"active":""}" onclick="goTo('cancelAssist')" style="width:100%"><span class="icon">✉</span>Kündigung${!pro?'<span style="margin-left:auto;font-size:10px;opacity:0.5">🔒</span>':''}</button>`;
   const s=document.getElementById("sidebarSettings");
   if(s)s.innerHTML=`<button class="nav-btn ${currentPage==="settings"?"active":""}" onclick="goTo('settings')" style="width:100%;border-radius:10px"><span class="icon">⚙</span>Einstellungen</button><button class="nav-btn ${currentPage==="pricing"?"active":""}" onclick="goTo('pricing')" style="width:100%;border-radius:10px"><span class="icon">⭐</span>Pläne & Preise</button><button class="nav-btn ${currentPage==="agb"?"active":""}" onclick="goTo('agb')" style="width:100%;border-radius:10px"><span class="icon">📋</span>AGB</button>${trial&&daysLeft<=7?`<div style="margin:6px 0 0;padding:8px 10px;border-radius:10px;background:var(--amG);border:1px solid rgba(251,191,36,0.3);font-size:11px;color:var(--am);font-weight:600">⏰ Noch ${daysLeft} Tage Testphase</div>`:""}`;
-  document.getElementById("mobileNav").innerHTML=navI.map(n=>`<button class="mobile-nav-btn ${currentPage===n.id||(currentPage==="detail"&&n.id==="debts")?"active":""}" onclick="goTo('${n.id}')"><span style="font-size:20px">${n.i}</span>${n.l}</button>`).join("")+`<button class="mobile-nav-btn ${currentPage==="settings"?"active":""}" onclick="goTo('settings')"><span style="font-size:20px">⚙</span>Einst.</button><button class="mobile-fab" onclick="openAdd()">＋</button>`;
+  document.getElementById("mobileNav").innerHTML=getNavI().map(n=>`<button class="mobile-nav-btn ${currentPage===n.id||(currentPage==="detail"&&n.id==="debts")?"active":""}" onclick="goTo('${n.id}')"><span style="font-size:20px">${n.i}</span>${n.l}</button>`).join("")+`<button class="mobile-nav-btn ${currentPage==="settings"?"active":""}" onclick="goTo('settings')"><span style="font-size:20px">⚙</span>Einst.</button><button class="mobile-fab" onclick="openAdd()">＋</button>`;
   renderUser();
 }
 function goTo(p){if(isProFeaturePage(p)&&!isProPlan()){openUpgradeModal(p==="agree"?"Vereinbarungen":p==="contracts"?"Vertragsverwaltung":"Kündigungsassistent");return;}currentPage=p;if(p!=="detail")selectedDebtId=null;renderNav();renderPage();}
@@ -400,7 +407,8 @@ function renderPage(){
   } else if(existingBanner){
     existingBanner.remove();
   }
-if(isProFeaturePage(currentPage)&&!isProPlan()){openUpgradeModal();currentPage="dashboard";}const m=document.getElementById("mainContent");if(currentPage==="dashboard")m.innerHTML=rDash();else if(currentPage==="debts")m.innerHTML=rDebts();else if(currentPage==="detail")m.innerHTML=rDet();else if(currentPage==="budget")m.innerHTML=rBudget();else if(currentPage==="contracts")m.innerHTML=rContracts();else if(currentPage==="cancelAssist")m.innerHTML=rCancelAssistant();else if(currentPage==="agree")m.innerHTML=rAgree();else if(currentPage==="timeline")m.innerHTML=rTime();else if(currentPage==="settings"){m.innerHTML=rSettings();setTimeout(()=>{try{renderSnapshotList()}catch(e){}},0)}else if(currentPage==="pricing")m.innerHTML=rPricing();else if(currentPage==="agb")m.innerHTML=rAgbPage();else if(currentPage==="master")m.innerHTML=rMasterPanel();setTimeout(()=>{document.querySelectorAll("[data-ring]").forEach(el=>{const p=el.dataset.ring,s=el.dataset.size||140,w=el.dataset.sw||8;el.innerHTML=rng(0,+s,+w);setTimeout(()=>el.innerHTML=rng(+p,+s,+w),50)})},10)}
+if(isProFeaturePage(currentPage)&&!isProPlan()){openUpgradeModal();currentPage="dashboard";}const m=document.getElementById("mainContent");if(currentPage==="dashboard")m.innerHTML=rDash();else if(currentPage==="debts")m.innerHTML=rDebts();else if(currentPage==="detail")m.innerHTML=rDet();else if(currentPage==="budget")m.innerHTML=rBudget();else if(currentPage==="contracts")m.innerHTML=rContracts();else if(currentPage==="cancelAssist")m.innerHTML=rCancelAssistant();else if(currentPage==="agree")m.innerHTML=rAgree();else if(currentPage==="timeline")m.innerHTML=rTime();else if(currentPage==="assistant")m.innerHTML=rAssistant();
+  else if(currentPage==="settings"){m.innerHTML=rSettings();setTimeout(()=>{try{renderSnapshotList()}catch(e){}},0)}else if(currentPage==="pricing")m.innerHTML=rPricing();else if(currentPage==="agb")m.innerHTML=rAgbPage();else if(currentPage==="master")m.innerHTML=rMasterPanel();setTimeout(()=>{document.querySelectorAll("[data-ring]").forEach(el=>{const p=el.dataset.ring,s=el.dataset.size||140,w=el.dataset.sw||8;el.innerHTML=rng(0,+s,+w);setTimeout(()=>el.innerHTML=rng(+p,+s,+w),50)})},10)}
 
 let user={loggedIn:false,name:"",firstName:"",lastName:"",plan:"Basis",trialEnd:null,email:"",addressStreet:"",addressZip:"",addressCity:"",phone:""};
 const STORAGE_USER="sfUser";
@@ -685,6 +693,279 @@ function buildVerificationEmailHTML(confirmationURL){
 </div></div>
 
 </div>
+
+// ── Auto-Logout (Inaktivität) ──────────────────────────────────────
+const INACTIVITY_MS = 15 * 60 * 1000; // 15 Minuten
+const COUNTDOWN_MS  = 60 * 1000;       // 1 Minute Warnung
+let _inactivityTimer = null;
+let _countdownTimer  = null;
+let _countdownSecs   = 60;
+
+function resetInactivity(){
+  clearTimeout(_inactivityTimer);
+  clearTimeout(_countdownTimer);
+  _hideLogoutWarning();
+  _inactivityTimer = setTimeout(_startLogoutCountdown, INACTIVITY_MS - COUNTDOWN_MS);
+}
+
+function _startLogoutCountdown(){
+  _countdownSecs = 60;
+  _showLogoutWarning();
+  _countdownTimer = setInterval(()=>{
+    _countdownSecs--;
+    const el = document.getElementById("logoutCountdown");
+    if(el) el.textContent = _countdownSecs;
+    if(_countdownSecs <= 0){
+      clearInterval(_countdownTimer);
+      _hideLogoutWarning();
+      logoutUser();
+    }
+  }, 1000);
+}
+
+function _showLogoutWarning(){
+  let el = document.getElementById("autoLogoutBanner");
+  if(!el){
+    el = document.createElement("div");
+    el.id = "autoLogoutBanner";
+    el.style.cssText = "position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:9999;background:var(--bgC);border:1px solid var(--ba);border-radius:16px;padding:14px 20px;display:flex;align-items:center;gap:14px;box-shadow:0 8px 32px rgba(0,0,0,0.5);min-width:320px";
+    el.innerHTML = `<span style="font-size:22px">⏱</span><div style="flex:1"><p style="font-size:13px;font-weight:700;margin:0;color:var(--t)">Automatischer Logout in <span id="logoutCountdown">60</span>s</p><p style="font-size:11px;color:var(--tm);margin:2px 0 0">Bewege die Maus um angemeldet zu bleiben</p></div><button class="btn btn-primary btn-sm" onclick="resetInactivity()">Aktiv bleiben</button>`;
+    document.body.appendChild(el);
+  }
+  el.style.display = "flex";
+}
+
+function _hideLogoutWarning(){
+  const el = document.getElementById("autoLogoutBanner");
+  if(el) el.style.display = "none";
+}
+
+function initInactivityTimer(){
+  ["mousemove","keydown","click","touchstart","scroll"].forEach(e=>{
+    document.addEventListener(e, resetInactivity, {passive:true});
+  });
+  resetInactivity();
+}
+
+
+// ── Auswahl-Modus ─────────────────────────────────────────────────
+function toggleSelectionMode(){
+  selectionMode=!selectionMode;
+  if(!selectionMode) selectedDebts.clear();
+  renderPage();
+}
+function toggleDebtSelect(id){
+  if(selectedDebts.has(id)) selectedDebts.delete(id);
+  else selectedDebts.add(id);
+  renderPage();
+}
+
+async function exportSelectionPDF(){
+  if(!selectedDebts.size){flash("Keine Einträge ausgewählt");return;}
+  const selected=debts.filter(d=>selectedDebts.has(d.id));
+  const today=new Date().toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit",year:"numeric"});
+  const totalRate=selected.reduce((s,d)=>s+(d.rate||0),0);
+  const totalOffen=selected.reduce((s,d)=>s+(d.original-d.paid),0);
+  const resolveIban=async(d)=>{
+    if(d.bankIban) return formatIbanSpaced(d.bankIban);
+    if(d.iban_enc){try{return formatIbanSpaced(await decryptText(d.iban_enc))}catch(e){}}
+    if(d.iban_hint) return maskFromHint(d.iban_hint)+" (verschlüsselt)";
+    return "–";
+  };
+  const ibanList=await Promise.all(selected.map(d=>resolveIban(d)));
+  const rows=selected.map((d,i)=>{
+    const nd=effDue(d)||d.due;
+    const betrag=d.rate>0?d.rate:(d.original-d.paid);
+    const isOverdue=dU(nd)<0;
+    return `<tr style="border-bottom:1px solid #e5e7eb${isOverdue?" background:#fef2f2":""}">
+      <td style="padding:12px;vertical-align:top"><strong>${d.emoji} ${d.name}</strong>${d.creditorName&&d.creditorName!==d.name?`<br><small style="color:#6b7280">${d.creditorName}</small>`:""}</td>
+      <td style="padding:12px;vertical-align:top">${nd?new Date(nd).toLocaleDateString("de-DE"):"–"}${isOverdue?'<br><small style="color:#dc2626;font-weight:700">⚠ ÜBERFÄLLIG</small>':""}</td>
+      <td style="padding:12px;vertical-align:top;text-align:right"><strong style="color:#dc2626">${fmt(betrag)}</strong></td>
+      <td style="padding:12px;vertical-align:top;font-family:monospace;font-size:11px">${ibanList[i]}${d.bankBic?`<br>BIC: ${d.bankBic}`:""}</td>
+      <td style="padding:12px;vertical-align:top;font-size:11px">${d.bankRef||"–"}</td>
+    </tr>`;
+  }).join("");
+  const senderBlock=user.addressStreet?`<div style="font-size:10pt;line-height:1.6"><strong>${user.firstName||""} ${user.lastName||""}</strong><br>${user.addressStreet}<br>${user.addressZip} ${user.addressCity}${user.email?`<br>${user.email}`:""}</div>`:"";
+  const html=`<!DOCTYPE html><html lang="de"><head><meta charset="UTF-8"><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,sans-serif;padding:32px;max-width:900px;margin:auto}table{width:100%;border-collapse:collapse;margin-top:20px}thead tr{background:#f9fafb;border-bottom:2px solid #e5e7eb}th{padding:10px 12px;text-align:left;font-size:10pt;font-weight:700;color:#374151;text-transform:uppercase}th:nth-child(3){text-align:right}tfoot td{padding:12px;font-weight:700}@media print{body{padding:16px}}</style></head><body>
+<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;padding-bottom:16px;border-bottom:2px solid #e5e7eb">
+  <div><h1 style="font-size:20pt;font-weight:800">💳 Zahlungsliste</h1><p style="color:#6b7280;margin-top:4px">Erstellt am ${today} · ${selected.length} Positionen</p></div>
+  ${senderBlock}
+</div>
+<table><thead><tr><th style="width:28%">Gläubiger</th><th style="width:14%">Fälligkeit</th><th style="width:13%;text-align:right">Betrag</th><th style="width:26%">IBAN</th><th>Verwendungszweck</th></tr></thead>
+<tbody>${rows}</tbody>
+<tfoot><tr style="border-top:2px solid #111;background:#f9fafb"><td colspan="2">Gesamt ${selected.length} Positionen</td><td style="text-align:right;color:#dc2626">${fmt(totalRate||totalOffen)}</td><td colspan="2"></td></tr></tfoot></table>
+<p style="margin-top:28px;font-size:9pt;color:#9ca3af;text-align:center">Erstellt mit Planavo · planavo.de</p>
+// ── SCHULDEN-ASSISTENT ────────────────────────────────────────────
+let assistantTab="strategie";
+let assistantChat=[];
+let scenarioExtra=0;
+let scenarioTarget=null;
+let chatLoading=false;
+
+function rAssistant(){
+  if(!isBetaUser()){
+    return `<div style="text-align:center;padding:80px 20px">
+      <div style="font-size:56px;margin-bottom:16px">🔒</div>
+      <h2 style="font-size:22px;font-weight:800;margin:0 0 8px">Beta-Feature</h2>
+      <p style="font-size:14px;color:var(--tm);margin:0">Der Schulden-Assistent ist aktuell nur für Beta-Nutzer verfügbar.</p>
+    </div>`;
+  }
+  const tabs=[{id:"strategie",icon:"🎯",label:"Strategie"},{id:"szenarien",icon:"📊",label:"Szenarien"},{id:"briefe",icon:"✉️",label:"Briefe"},{id:"chat",icon:"🤖",label:"KI-Chat"}];
+  const tabBar=`<div style="display:flex;gap:6px;margin-bottom:24px;flex-wrap:wrap">
+    ${tabs.map(t=>`<button class="chip ${assistantTab===t.id?"active":""}" onclick="assistantTab='${t.id}';renderPage()">${t.icon} ${t.label}</button>`).join("")}
+    <span style="margin-left:auto;font-size:10px;background:rgba(134,232,192,0.15);color:#86E8C0;padding:4px 10px;border-radius:20px;border:1px solid rgba(134,232,192,0.3);font-weight:700;display:flex;align-items:center">🧪 BETA</span>
+  </div>`;
+  let content="";
+  if(assistantTab==="strategie") content=rAssistantStrategie();
+  else if(assistantTab==="szenarien") content=rAssistantSzenarien();
+  else if(assistantTab==="briefe") content=rAssistantBriefe();
+  else if(assistantTab==="chat") content=rAssistantChat();
+  return `<div style="max-width:900px">
+    <div style="margin-bottom:20px">
+      <h1 style="font-size:26px;font-weight:800;margin:0 0 4px">🤖 Schulden-Assistent</h1>
+      <p style="font-size:13px;color:var(--tm);margin:0">Dein intelligenter Finanzberater – analysiert deine echten Daten.</p>
+    </div>
+    ${tabBar}${content}
+  </div>`;
+}
+
+function rAssistantStrategie(){
+  const aktiv=debts.filter(d=>d.paid<d.original&&d.original>0);
+  if(!aktiv.length) return `<div class="card" style="text-align:center;padding:48px"><p style="font-size:32px">🎉</p><p style="font-weight:700;margin:8px 0">Keine aktiven Verbindlichkeiten!</p></div>`;
+  const totalOffen=aktiv.reduce((s,d)=>s+d.original-d.paid,0);
+  const totalRate=aktiv.reduce((s,d)=>s+d.rate,0);
+  const avalanche=[...aktiv].sort((a,b)=>{const ra=(a.rate||0)/Math.max(a.original-a.paid,1);const rb=(b.rate||0)/Math.max(b.original-b.paid,1);return rb-ra;});
+  const snowball=[...aktiv].sort((a,b)=>(a.original-a.paid)-(b.original-b.paid));
+  const debtCard=(d,rank)=>{
+    const offen=d.original-d.paid;const monate=d.rate>0?Math.ceil(offen/d.rate):null;const pct=pc(d.paid,d.original);const isFirst=rank===0;
+    return `<div class="card" style="padding:16px;border-left:3px solid ${isFirst?"var(--em)":"var(--b)"}">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="width:32px;height:32px;border-radius:10px;background:${isFirst?"var(--emG)":"var(--bgE)"};border:1px solid ${isFirst?"var(--ba)":"var(--b)"};display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:${isFirst?"var(--em)":"var(--ts)"};flex-shrink:0">${rank+1}</div>
+        <div style="flex:1"><p style="font-size:14px;font-weight:700;margin:0">${d.emoji} ${d.name}</p><p style="font-size:12px;color:var(--tm);margin:2px 0 0">Offen: <strong style="color:var(--co)">${fmt(offen)}</strong> · Rate: ${fmt(d.rate)}/Mo${monate?` · ~${monate} Monate`:""}</p></div>
+        ${isFirst?`<span style="font-size:10px;background:var(--emG);color:var(--em);padding:3px 10px;border-radius:20px;font-weight:700;border:1px solid var(--ba)">JETZT FOKUS</span>`:""}
+      </div>
+      <div style="margin-top:8px">${pb(pct,4)}</div>
+    </div>`;
+  };
+  return `<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+    <div class="card" style="padding:16px"><p style="font-size:11px;color:var(--ts);text-transform:uppercase;letter-spacing:1px;margin:0 0 4px">Gesamt offen</p><p style="font-size:24px;font-weight:800;margin:0;color:var(--co)">${fmt(totalOffen)}</p></div>
+    <div class="card" style="padding:16px"><p style="font-size:11px;color:var(--ts);text-transform:uppercase;letter-spacing:1px;margin:0 0 4px">Monatliche Gesamtrate</p><p style="font-size:24px;font-weight:800;margin:0;color:var(--am)">${fmt(totalRate)}</p></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+    <div><div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span style="font-size:18px">⚡</span><div><p style="font-size:14px;font-weight:700;margin:0">Avalanche-Methode</p><p style="font-size:11px;color:var(--tm);margin:0">Teuerste Schuld zuerst – spart am meisten Zinsen</p></div></div><div class="flex-col">${avalanche.map((d,i)=>debtCard(d,i)).join("")}</div></div>
+    <div><div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span style="font-size:18px">❄️</span><div><p style="font-size:14px;font-weight:700;margin:0">Snowball-Methode</p><p style="font-size:11px;color:var(--tm);margin:0">Kleinste Schuld zuerst – schnelle Erfolgserlebnisse</p></div></div><div class="flex-col">${snowball.map((d,i)=>debtCard(d,i)).join("")}</div></div>
+  </div>`;
+}
+
+function rAssistantSzenarien(){
+  const aktiv=debts.filter(d=>d.paid<d.original&&d.original>0&&d.rate>0);
+  const totalOffen=aktiv.reduce((s,d)=>s+d.original-d.paid,0);
+  const totalRate=aktiv.reduce((s,d)=>s+d.rate,0);
+  const extra=scenarioExtra||0;const newRate=totalRate+extra;
+  const monate_basis=totalRate>0?Math.ceil(totalOffen/totalRate):null;
+  const monate_neu=newRate>0?Math.ceil(totalOffen/newRate):null;
+  const diff=monate_basis&&monate_neu?monate_basis-monate_neu:null;
+  const abloeseDebt=scenarioTarget?debts.find(d=>d.id===scenarioTarget):null;
+  const abloeseRest=abloeseDebt?Math.max(abloeseDebt.original-abloeseDebt.paid,0):0;
+  const newRateAfter=abloeseDebt?totalRate-(abloeseDebt.rate||0):null;
+  const monate_ab=newRateAfter&&newRateAfter>0?Math.ceil((totalOffen-abloeseRest)/newRateAfter):null;
+  return `<div class="card" style="padding:20px;margin-bottom:16px">
+    <h3 style="font-size:15px;font-weight:700;margin:0 0 16px">📈 Was wenn ich mehr zahle?</h3>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+      <label style="font-size:13px;color:var(--tm);flex-shrink:0">Zusatzbetrag pro Monat:</label>
+      <div class="input-wrap" style="width:160px"><input type="number" id="scenExtra" value="${extra}" min="0" step="50" placeholder="z.B. 200" oninput="scenarioExtra=+this.value||0;renderPage()"><span class="suffix">€</span></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+      <div style="padding:14px;border-radius:12px;background:var(--bgE);border:1px solid var(--b)"><p style="font-size:11px;color:var(--tm);margin:0 0 4px">Aktuelle Rate</p><p style="font-size:20px;font-weight:800;margin:0">${fmt(totalRate)}/Mo</p><p style="font-size:11px;color:var(--tm);margin:4px 0 0">~${monate_basis||"?"} Monate</p></div>
+      <div style="padding:14px;border-radius:12px;background:${extra>0?"var(--emG)":"var(--bgE)"};border:1px solid ${extra>0?"var(--ba)":"var(--b)"}"><p style="font-size:11px;color:var(--tm);margin:0 0 4px">Mit Zusatzbetrag</p><p style="font-size:20px;font-weight:800;margin:0;color:${extra>0?"var(--em)":"var(--t)"}">${fmt(newRate)}/Mo</p><p style="font-size:11px;color:${extra>0?"var(--em)":"var(--tm)"};margin:4px 0 0">~${monate_neu||"?"} Monate</p></div>
+      <div style="padding:14px;border-radius:12px;background:${diff&&diff>0?"rgba(110,226,58,0.1)":"var(--bgE)"};border:1px solid ${diff&&diff>0?"rgba(110,226,58,0.3)":"var(--b)"}"><p style="font-size:11px;color:var(--tm);margin:0 0 4px">Ersparnis</p><p style="font-size:20px;font-weight:800;margin:0;color:${diff&&diff>0?"var(--em)":"var(--ts)"}">${diff&&diff>0?diff+" Mo früher":"–"}</p><p style="font-size:11px;color:var(--tm);margin:4px 0 0">${diff&&diff>0?"🎉 Ziel früher erreicht":extra>0?"Kein Unterschied":"Betrag eingeben"}</p></div>
+    </div>
+  </div>
+  <div class="card" style="padding:20px">
+    <h3 style="font-size:15px;font-weight:700;margin:0 0 16px">💥 Was wenn ich eine Schuld ablöse?</h3>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+      <label style="font-size:13px;color:var(--tm);flex-shrink:0">Schuld auswählen:</label>
+      <div class="input-wrap" style="flex:1;min-width:200px"><select id="scenTarget" onchange="scenarioTarget=this.value?+this.value:null;renderPage()" style="appearance:none;border:none;background:transparent;color:var(--t);padding:13px 28px 13px 0;width:100%;outline:none;font-size:14px"><option value="">– Schuld wählen –</option>${aktiv.map(d=>`<option value="${d.id}" ${scenarioTarget===d.id?"selected":""}>${d.emoji} ${d.name} (Offen: ${fmt(d.original-d.paid)})</option>`).join("")}</select><span style="color:var(--tm);pointer-events:none">▾</span></div>
+    </div>
+    ${abloeseDebt?`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+      <div style="padding:14px;border-radius:12px;background:var(--bgE);border:1px solid var(--b)"><p style="font-size:11px;color:var(--tm);margin:0 0 4px">Ablösebetrag</p><p style="font-size:20px;font-weight:800;margin:0;color:var(--co)">${fmt(abloeseRest)}</p></div>
+      <div style="padding:14px;border-radius:12px;background:var(--emG);border:1px solid var(--ba)"><p style="font-size:11px;color:var(--tm);margin:0 0 4px">Neue Monatsrate</p><p style="font-size:20px;font-weight:800;margin:0;color:var(--em)">${fmt(newRateAfter)}/Mo</p><p style="font-size:11px;color:var(--em);margin:4px 0 0">−${fmt(abloeseDebt.rate||0)}/Mo gespart</p></div>
+      <div style="padding:14px;border-radius:12px;background:var(--emG);border:1px solid var(--ba)"><p style="font-size:11px;color:var(--tm);margin:0 0 4px">Neue Laufzeit</p><p style="font-size:20px;font-weight:800;margin:0;color:var(--em)">~${monate_ab||"?"} Mo</p><p style="font-size:11px;color:var(--em);margin:4px 0 0">${monate_basis&&monate_ab&&monate_basis>monate_ab?`${monate_basis-monate_ab} Mo früher fertig`:""}</p></div>
+    </div>`:`<p style="font-size:13px;color:var(--tm)">Wähle eine Schuld um zu sehen wie sich deren Ablösung auswirkt.</p>`}
+  </div>`;
+}
+
+function rAssistantBriefe(){
+  const aktiv=debts.filter(d=>d.paid<d.original);
+  const templates=[{id:"stundung",icon:"⏸",title:"Stundungsantrag",desc:"Rate kann diesen Monat nicht gezahlt werden"},{id:"ratensenkung",icon:"📉",title:"Ratensenkungsantrag",desc:"Dauerhafte Senkung der monatlichen Rate"},{id:"mahnstopp",icon:"🛑",title:"Mahnstopp-Anfrage",desc:"Mahnverfahren vorübergehend stoppen"},{id:"kulanz",icon:"🤝",title:"Kulanzanfrage",desc:"Zinsen oder Gebühren erlassen lassen"}];
+  const [selDebt,selTemplate]=[window._briefDebt||null,window._briefTemplate||null];
+  const d=selDebt?debts.find(x=>x.id===selDebt):null;
+  const generateBrief=()=>{
+    if(!d||!selTemplate) return "";
+    const sender=`${user.firstName||""} ${user.lastName||}`.trim()||"[Dein Name]";
+    const addr=[user.addressStreet,`${user.addressZip||""} ${user.addressCity||}`.trim()].filter(Boolean).join(", ")||"[Deine Adresse]";
+    const creditor=d.creditorName||d.name;
+    const betrag=fmt(d.rate||d.original-d.paid);
+    const datum=new Date().toLocaleDateString("de-DE",{day:"2-digit",month:"long",year:"numeric"});
+    const texts={stundung:`Sehr geehrte Damen und Herren,\n\nbezüglich meiner Verbindlichkeit "${d.name}" möchte ich Sie höflich um eine einmalige Stundung der fälligen Rate von ${betrag} bitten.\n\nAufgrund einer vorübergehenden finanziellen Engpässe ist es mir leider nicht möglich, die Rate zum vereinbarten Termin zu begleichen. Ich versichere Ihnen, dass es sich um eine kurzfristige Situation handelt und ich die Rate im nächsten Monat vollständig nachholen werde.\n\nIch bitte Sie daher, die Fälligkeit um einen Monat zu verschieben und auf die Erhebung von Verzugszinsen und Mahngebühren zu verzichten.\n\nMit freundlichen Grüßen\n${sender}`,ratensenkung:`Sehr geehrte Damen und Herren,\n\nbezüglich meiner Verbindlichkeit "${d.name}" möchte ich Sie um eine dauerhafte Reduzierung der monatlichen Rate bitten.\n\nDie derzeitige Rate von ${betrag} übersteigt meine aktuelle finanzielle Leistungsfähigkeit erheblich. Um eine geordnete Rückzahlung sicherzustellen, bitte ich Sie um eine einvernehmliche Anpassung der Ratenvereinbarung.\n\nMit freundlichen Grüßen\n${sender}`,mahnstopp:`Sehr geehrte Damen und Herren,\n\nbezüglich der Verbindlichkeit "${d.name}" bitte ich Sie hiermit, das laufende Mahnverfahren vorübergehend auszusetzen.\n\nIch befinde mich derzeit in einer schwierigen finanziellen Situation und bemühe mich aktiv um eine Lösung. Ich bitte um einen Zahlungsaufschub von 30 Tagen.\n\nMit freundlichen Grüßen\n${sender}`,kulanz:`Sehr geehrte Damen und Herren,\n\nbezüglich meiner Verbindlichkeit "${d.name}" richte ich eine Kulanzanfrage an Sie.\n\nAufgrund meiner angespannten finanziellen Lage bitte ich Sie, aufgelaufene Mahngebühren und Verzugszinsen zu erlassen. Ich versichere meinen guten Willen zur vollständigen Rückzahlung des Hauptbetrags.\n\nMit freundlichen Grüßen\n${sender}`};
+    return `${sender}\n${addr}\n\n${datum}\n\nAn: ${creditor}${d.creditorAddress?"\n"+d.creditorAddress:""}\n\nBetreff: ${templates.find(t=>t.id===selTemplate)?.title||""} – ${d.name}\n\n${texts[selTemplate]||""}`;
+  };
+  const brief=generateBrief();
+  return `<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+    <div><p style="font-size:12px;font-weight:700;color:var(--ts);text-transform:uppercase;margin:0 0 10px">1. Verbindlichkeit wählen</p><div class="flex-col" style="gap:6px">${aktiv.map(d=>`<div onclick="window._briefDebt=${d.id};renderPage()" class="card" style="padding:12px;cursor:pointer;border:1px solid ${selDebt===d.id?"var(--em)":"var(--b)"};background:${selDebt===d.id?"var(--emG)":"var(--bgC)"}"><p style="font-size:13px;font-weight:700;margin:0">${d.emoji} ${d.name}</p><p style="font-size:11px;color:var(--tm);margin:2px 0 0">${d.creditorName||"–"} · ${fmt(d.rate||d.original-d.paid)}</p></div>`).join("")}</div></div>
+    <div><p style="font-size:12px;font-weight:700;color:var(--ts);text-transform:uppercase;margin:0 0 10px">2. Brief-Typ wählen</p><div class="flex-col" style="gap:6px">${templates.map(t=>`<div onclick="window._briefTemplate='${t.id}';renderPage()" class="card" style="padding:12px;cursor:pointer;border:1px solid ${selTemplate===t.id?"var(--em)":"var(--b)"};background:${selTemplate===t.id?"var(--emG)":"var(--bgC)"}"><p style="font-size:13px;font-weight:700;margin:0">${t.icon} ${t.title}</p><p style="font-size:11px;color:var(--tm);margin:2px 0 0">${t.desc}</p></div>`).join("")}</div></div>
+  </div>
+  ${brief?`<div class="card" style="padding:20px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><h3 style="font-size:15px;font-weight:700;margin:0">📄 Generiertes Schreiben</h3><div style="display:flex;gap:8px"><button class="btn btn-ghost btn-sm" onclick="navigator.clipboard.writeText(document.getElementById('briefText').value);flash('Kopiert ✓')">📋 Kopieren</button><button class="btn btn-primary btn-sm" onclick="printBrief()">🖨 Drucken</button></div></div><textarea id="briefText" style="width:100%;min-height:320px;background:var(--bgE);border:1px solid var(--b);border-radius:12px;padding:16px;font-family:'Courier New',monospace;font-size:12px;color:var(--t);resize:vertical;line-height:1.7">${brief.replace(/</g,"&lt;")}</textarea></div>`:`<div class="card" style="text-align:center;padding:40px;color:var(--tm)"><p style="font-size:32px;margin:0 0 12px">✉️</p><p style="font-size:14px">Wähle eine Verbindlichkeit und einen Brief-Typ.</p></div>`}`;
+}
+function printBrief(){const text=document.getElementById("briefText")?.value||"";const w=window.open("","_blank");w.document.write(`<!doctype html><html><head><meta charset="utf-8"><style>body{font-family:'Courier New',monospace;font-size:12pt;line-height:1.8;padding:40px;max-width:700px;margin:auto;color:#111}@media print{body{padding:20px}}</style></head><body><pre style="white-space:pre-wrap;font-family:inherit">${text.replace(/</g,"&lt;")}</pre></body></html>`);w.document.close();setTimeout(()=>w.print(),300);}
+
+function rAssistantChat(){
+  const msgs=assistantChat.map(m=>`<div style="display:flex;gap:10px;${m.role==="user"?"flex-direction:row-reverse":""}"><div style="width:32px;height:32px;border-radius:10px;background:${m.role==="user"?"linear-gradient(135deg,var(--emD),var(--em))":"var(--bgE)"};border:1px solid ${m.role==="user"?"var(--ba)":"var(--b)"};display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">${m.role==="user"?"👤":"🤖"}</div><div style="max-width:75%;padding:12px 16px;border-radius:${m.role==="user"?"16px 4px 16px 16px":"4px 16px 16px 16px"};background:${m.role==="user"?"linear-gradient(135deg,var(--emD),var(--em))":"var(--bgC)"};border:1px solid ${m.role==="user"?"transparent":"var(--b)"};color:${m.role==="user"?"#fff":"var(--t)"}"><p style="font-size:13px;margin:0;line-height:1.6;white-space:pre-wrap">${m.content}</p></div></div>`).join("");
+  const suggestions=["Welche meiner Schulden ist am kritischsten?","Wie lange bis ich schuldenfrei bin?","Erstelle mir einen 6-Monats-Tilgungsplan","Welche Schuld soll ich zuerst abbezahlen?"];
+  return `<div class="card" style="padding:0;overflow:hidden;display:flex;flex-direction:column;height:520px">
+    <div style="padding:14px 18px;border-bottom:1px solid var(--b);display:flex;align-items:center;gap:10px"><span style="font-size:20px">🤖</span><div><p style="font-size:14px;font-weight:700;margin:0">Schulden-KI</p><p style="font-size:11px;color:var(--em);margin:0">● Kennt deine ${debts.length} Verbindlichkeiten</p></div><button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="assistantChat=[];renderPage()">🗑 Leeren</button></div>
+    <div id="chatMessages" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:14px">
+      ${assistantChat.length===0?`<div style="text-align:center;padding:32px 20px;color:var(--tm)"><p style="font-size:32px;margin:0 0 10px">💬</p><p style="font-size:14px;font-weight:600;margin:0 0 8px;color:var(--t)">Frag mich zu deinen Schulden</p><p style="font-size:12px;margin:0 0 20px">Ich kenne deine Daten und gebe konkrete Empfehlungen.</p><div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center">${suggestions.map(s=>`<button class="chip" onclick="sendChatMsg('${s.replace(/'/g,"\\'")}">${s}</button>`).join("")}</div></div>`:msgs}
+      ${chatLoading?`<div style="display:flex;gap:10px"><div style="width:32px;height:32px;border-radius:10px;background:var(--bgE);border:1px solid var(--b);display:flex;align-items:center;justify-content:center">🤖</div><div style="padding:12px 16px;border-radius:4px 16px 16px 16px;background:var(--bgC);border:1px solid var(--b)"><p style="font-size:13px;color:var(--tm);margin:0">Analysiere deine Daten...</p></div></div>`:""}
+    </div>
+    <div style="padding:12px 16px;border-top:1px solid var(--b)"><div style="display:flex;gap:8px"><div class="input-wrap" style="flex:1"><input id="chatInput" placeholder="Frag mich etwas zu deinen Schulden..." onkeydown="if(event.key==='Enter')sendChatMsg()"></div><button class="btn btn-primary btn-sm" onclick="sendChatMsg()" ${chatLoading?"disabled":""}>Senden</button></div></div>
+  </div>`;
+}
+
+async function sendChatMsg(preset){
+  const inputEl=document.getElementById("chatInput");
+  const msg=(preset||inputEl?.value||"").trim();
+  if(!msg||chatLoading)return;
+  if(inputEl)inputEl.value="";
+  const ctx=buildFinancialContext();
+  assistantChat.push({role:"user",content:msg});
+  chatLoading=true;renderPage();
+  setTimeout(()=>{const el=document.getElementById("chatMessages");if(el)el.scrollTop=el.scrollHeight;},50);
+  try{
+    const resp=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,system:`Du bist ein präziser, empathischer Schulden- und Finanzberater für deutschsprachige Nutzer. Du hast Zugriff auf die echten Finanzdaten des Nutzers. Antworte immer auf Deutsch, konkret und umsetzbar. Keine allgemeinen Floskeln – nutze die echten Zahlen.\n\nFINANZDATEN DES NUTZERS:\n${ctx}`,messages:assistantChat.map(m=>({role:m.role,content:m.content}))})});
+    const data=await resp.json();
+    assistantChat.push({role:"assistant",content:data.content?.[0]?.text||"Keine Antwort erhalten."});
+  }catch(e){assistantChat.push({role:"assistant",content:"Fehler beim Verbinden mit der KI."});}
+  chatLoading=false;renderPage();
+  setTimeout(()=>{const el=document.getElementById("chatMessages");if(el)el.scrollTop=el.scrollHeight;},50);
+}
+
+function buildFinancialContext(){
+  const aktiv=debts.filter(d=>d.paid<d.original);
+  const erledigt=debts.filter(d=>d.paid>=d.original);
+  const totalOffen=aktiv.reduce((s,d)=>s+d.original-d.paid,0);
+  const totalRate=aktiv.reduce((s,d)=>s+d.rate,0);
+  const monate=totalRate>0?Math.ceil(totalOffen/totalRate):null;
+  const debtList=aktiv.map(d=>{const offen=d.original-d.paid;const mo=d.rate>0?Math.ceil(offen/d.rate):null;return `- ${d.name}: Offen ${fmt(offen)}, Rate ${fmt(d.rate)}/Mo${mo?`, ~${mo} Monate`:""}, Status: ${gS(d)}${d.creditorName?`, Gläubiger: ${d.creditorName}`:""}`;}).join("\n");
+  return `Nutzer: ${user.firstName||user.name||"Anonym"}\nAktive Verbindlichkeiten (${aktiv.length}):\n${debtList||"Keine"}\nErledigte: ${erledigt.length}\nGesamt offen: ${fmt(totalOffen)}\nMonatliche Rate: ${fmt(totalRate)}\nLaufzeit: ${monate?`~${monate} Monate`:"unbekannt"}${user.addressCity?`\nWohnort: ${user.addressCity}`:""}`;
+}
+
+</body></html>`;
+  const w=window.open("","_blank","width=900,height=700");
+  w.document.write(html);w.document.close();
+  setTimeout(()=>w.print(),600);
+}
+
 </body></html>`;
 }
 function openVerificationEmailPreview(){
@@ -899,6 +1180,16 @@ async function masterCreateCustomer(){
   await loadMasterData();
   renderMasterView();
   flash("Kunde in Supabase angelegt und synchronisiert ✓");
+}
+async function masterToggleBeta(id){
+  const u=masterState.users.find(x=>x.id===id);
+  if(!u){flash("Nutzer nicht gefunden");return;}
+  const newVal=!u.is_beta;
+  const {error}=await supabaseClient.from("user_profiles").update({is_beta:newVal}).eq("id",id);
+  if(error){flash("Fehler beim Speichern");return;}
+  u.is_beta=newVal;
+  flash(newVal?"🧪 Beta aktiviert ✓":"Beta deaktiviert ✓");
+  renderMasterView();
 }
 async function masterApplyPlanPreset(id,plan){
   const input=document.getElementById(`muPlan-${id}`);
@@ -1962,6 +2253,19 @@ ${dashPeriodTasksWidget()}
 ${dashVerpflichtungenWidget()}
 `}
 
+
+// ── Debt Type Helpers ──────────────────────────────────────────────
+function debtTypeMeta(d){
+  if(d.debtType==="immo")   return {bg:"rgba(167,139,250,0.15)",border:"rgba(167,139,250,0.4)",color:"#A78BFA",label:"Immobilie",icon:"🏠"};
+  if(d.debtType==="sofort") return {bg:"rgba(249,115,115,0.15)",border:"rgba(249,115,115,0.4)",color:"#F97373",label:"Sofortschuld",icon:"⚡"};
+  if(d.debtType==="laufend")return {bg:"rgba(34,197,94,0.15)", border:"rgba(34,197,94,0.4)", color:"var(--em)",label:"Laufend",icon:"🔄"};
+  return {bg:"rgba(59,130,246,0.15)",border:"rgba(59,130,246,0.4)",color:"#60A5FA",label:"Ratenkredit",icon:"📋"};
+}
+function debtTypeBadge(d){
+  if(!d.debtType||d.debtType==="raten") return "";
+  const m=debtTypeMeta(d);
+  return `<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:${m.bg};color:${m.color};border:1px solid ${m.border}">${m.icon} ${m.label}</span>`;
+}
 function rDebts(){
   const basicLimit=!isProPlan()&&debts.length>=BASIC_DEBT_LIMIT;
   const limitBanner=basicLimit?`<div style="background:linear-gradient(135deg,var(--amG),rgba(56,189,248,0.06));border:1px solid rgba(251,191,36,0.35);border-radius:14px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:12px"><div style="display:flex;align-items:center;gap:10px"><span style="font-size:20px">🔒</span><div><p style="font-size:13px;font-weight:700;color:var(--am);margin:0">Limit von ${BASIC_DEBT_LIMIT} Einträgen erreicht</p><p style="font-size:12px;color:var(--tm);margin:0">Upgrade auf Pro für unbegrenzte Verpflichtungen.</p></div></div><button class="btn btn-sm" style="background:linear-gradient(135deg,var(--emD),var(--em));color:#fff;white-space:nowrap" onclick="openPaddleCheckout()">⭐ Upgrade</button></div>`:"";
@@ -1971,6 +2275,11 @@ function rDebts(){
     {id:"active",l:"Aktiv",c:debts.filter(d=>d.paid<d.original).length},
     {id:"clarify",l:"Klärung",c:debts.filter(d=>["neu","in_pruefung","rueckfrage_offen","vereinbarung_in_verhandlung"].includes(getClarificationStatus(d))).length},
     {id:"done",l:"Erledigt",c:debts.filter(d=>d.paid>=d.original).length}
+  ,
+    {id:"raten",  l:"Ratenkredit", c:debts.filter(d=>!d.debtType||d.debtType==="raten").length},
+    {id:"immo",   l:"Immobilie",   c:debts.filter(d=>d.debtType==="immo").length},
+    {id:"sofort", l:"Sofortschuld",c:debts.filter(d=>d.debtType==="sofort").length},
+    {id:"laufend",l:"Laufend",     c:debts.filter(d=>d.debtType==="laufend").length},
   ];
   const list=debts.filter(d=>{
     if(currentFilter==="active")return d.paid<d.original;
